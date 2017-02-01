@@ -462,7 +462,6 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     
     /**剔除在visit中完成 draw绘制即可 */
     public void draw(Renderer renderer, final Matrix4 transform, int flags) {
-//    	System.out.println("canmondfajhfkjlasdhfjkasdhflkajs");
     	if(isDirty() || ((flags & FLAGS_TRANSFORM_DIRTY) != 0)) {
     		setDirty(false);
     		
@@ -493,19 +492,20 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	}
     	
     	if(_useCulling) {
-			Camera visitingCamera = Camera.getVisitingCamera();
-			Camera defaultCamera = Camera.getDefaultCamera();
-			if(visitingCamera == defaultCamera) {
-				_insideBounds = (((flags & FLAGS_TRANSFORM_DIRTY) != 0) || visitingCamera.isViewProjectionUpdated()) 
-						? renderer.checkVisibility(transform, _contentSize) : _insideBounds;
-			} else {
-				_insideBounds = renderer.checkVisibility(transform, _contentSize);
-			}
+//			Camera visitingCamera = Camera.getVisitingCamera();
+//			Camera defaultCamera = Camera.getDefaultCamera();
+//			if(visitingCamera == defaultCamera) {
+//				_insideBounds = (((flags & FLAGS_TRANSFORM_DIRTY) != 0) || visitingCamera.isViewProjectionUpdated()) 
+//						? renderer.checkVisibility(transform, _contentSize) : _insideBounds;
+//			} else {
+				_insideBounds = renderer.checkVisibility(transform, _contentSize, _anchorPointInPoints);
+//			}
     	} else {
     		_insideBounds = true;
     	}
     	
     	if(_insideBounds) {
+//    		System.out.println("camera " + _name);
     		renderer.addBatchCommand(_renderCommand);
     	} 
 //    	else {
@@ -583,6 +583,7 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	
     	super.setAnchorPoint(0.5f, 0.5f);
     	super.setContentSize(rect.width, rect.height);
+    	setPosition(rect.x + rect.width / 2f, rect.y + rect.height / 2f);
     	_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(texture);
     	return true;
     }

@@ -1,5 +1,7 @@
 package com.cocos2dj.s2d;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import com.cocos2dj.base.CameraManager;
@@ -19,9 +21,7 @@ public class Scene extends Node implements IScene {
 	
 	//ctor>>
 	public Scene() {
-		
-		System.out.println("Director = " + _director);
-		
+//		System.out.println("Director = " + _director);
 		_ignoreAnchorPointForPosition = true;
 	    setAnchorPoint(0.5f, 0.5f);
 	    
@@ -49,15 +49,21 @@ public class Scene extends Node implements IScene {
 	 
 	
 	public void setCameraOrderDirty() {
-		
+		_cameraOrderDirty = true;
 	}
 	
+	static final Comparator<Camera> camera_cmp = new Comparator<Camera>() {
+		@Override
+		public int compare(Camera o1, Camera o2) {
+			return o1.getRenderOrder() - o2.getRenderOrder();
+		}
+	};
+	
 	public Array<Camera> getCameras() {
-//		if (_cameraOrderDirty)
-//	    {
-//	        stable_sort(_cameras.begin(), _cameras.end(), camera_cmp);
-//	        _cameraOrderDirty = false;
-//	    }
+		if (_cameraOrderDirty) {
+			_cameras.sort(camera_cmp);
+	        _cameraOrderDirty = false;
+	    }
 	    return _cameras;
 	}
 	
@@ -69,12 +75,10 @@ public class Scene extends Node implements IScene {
 	        if (!camera.isVisible()) {
 	        	continue;
 	        }
-
 	        CameraManager._visitingCamera = camera;
-//	        if (Camera._visitingCamera.getCameraFlag() == Camera.DEFAULT) {
+//	        if (Camera.getDefaultCamera().getCameraFlag() == Camera.DEFAULT) {
 //	            defaultCamera = Camera._visitingCamera;
 //	        }
-
 	        // There are two ways to modify the "default camera" with the eye Transform:
 	        // a) modify the "nodeToParentTransform" matrix
 	        // b) modify the "additional transform" matrix

@@ -5,6 +5,7 @@ import com.cocos2dj.base.Event;
 import com.cocos2dj.base.EventListenerTouchOneByOne;
 import com.cocos2dj.base.Touch;
 
+import tests.testcase.CameraTests;
 import tests.testcase.NodeTests;
 import tests.testcase.SpriteTests;
 
@@ -105,7 +106,7 @@ public class TestController {
 //    		System.out.println("d = " + this + "  " + _director);
     		addTest("NodeTests", ()->{return new NodeTests();});
     		addTest("SpriteTests", ()->{return new SpriteTests();});
-    		addTest("test_test3", ()->{return new TestCaseSimple();});
+    		addTest("CameraTests", ()->{return new CameraTests();});
     		addTest("test_test4", ()->{return new TestCaseSimple();});
     		addTest("test_test5", ()->{return new TestCaseSimple();});
     		addTest("test_test6", ()->{return new TestCaseSimple();});

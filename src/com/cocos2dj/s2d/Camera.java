@@ -307,6 +307,7 @@ public class Camera extends Node implements ICamera {
     
     /**
      * set depth, camera with larger depth is drawn on top of camera with smaller depth, the depth of camera with CameraFlag::DEFAULT is 0, user defined camera is -1 by default
+     * <br>depth越小 越先绘制
      */
     public void setDepth(int depth) {
     	if(_depth != depth) {
@@ -326,8 +327,14 @@ public class Camera extends Node implements ICamera {
      get rendered order
      */
     public  int getRenderOrder() {
-    	//TODO
-    	return 0;
+    	int result = 0;
+//    	if(_fob != null) {
+    		
+//    	} else {
+    		result = 127 << 8;
+//    	}
+    	result += _depth;
+    	return result;
     }
     
     /**Get the frustum's far plane.*/

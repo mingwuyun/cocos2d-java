@@ -12,7 +12,6 @@ import com.cocos2dj.base.Director.MATRIX_STACK_TYPE;
 import com.cocos2dj.base.Rect;
 import com.cocos2dj.base.Size;
 import com.cocos2dj.s2d.Camera;
-import com.cocos2dj.s2d.Scene;
 
 /**
  * Renderer.java
@@ -82,15 +81,14 @@ public class Renderer {
 	 * 相机包含测试
 	 * @param transform 变换
 	 * @param size 尺寸
+	 * @param anchorPointInPoints 锚dian偏移
 	 * @return
 	 */
-	public final boolean checkVisibility(final Matrix4 transform, final Size size) {
+	public final boolean checkVisibility(final Matrix4 transform, final Size size, final Vector2 anchorPointInPoints) {
 		final Director director = Director.getInstance();
-	    Scene scene = (Scene) director.getRunningScene();
-	    
 	    //If draw to Rendertexture, return true directly.
 	    // only cull the default camera. The culling algorithm is valid for default camera.
-	    if (scene == null || (scene.getDefaultCamera() != Camera.getVisitingCamera())) {
+	    if (director.getRunningScene() == null) {// || (scene.getDefaultCamera() != Camera.getVisitingCamera())) {
 	        return true;
 	    }
 	    
@@ -102,7 +100,7 @@ public class Renderer {
 	    // transform center point to screen space
 	    float hSizeX = size.width/2;
 	    float hSizeY = size.height/2;
-	    Vector3 v3p = stackVec3.set(hSizeX, hSizeY, 0);
+	    Vector3 v3p = stackVec3.set(hSizeX - anchorPointInPoints.x, hSizeY - anchorPointInPoints.y, 0);
 	    v3p.mul(transform);
 //	    transform.transformPoint(v3p);
 	    Vector2 v2p = Camera.getVisitingCamera().projectGL(v3p);
@@ -122,6 +120,7 @@ public class Renderer {
 	    visiableRect.width += wshw * 2;
 	    visiableRect.height += wshh * 2;
 	    boolean ret = visiableRect.containsPoint(v2p);
+//	    System.out.println("visiableRect = " + visiableRect + " pos = " + v2p);
 	    return ret;
 	}
 	

@@ -13,7 +13,6 @@ public class Main_Tests {
 	public static void main(String[] args) {
 		
 		LwjglApplicationConfiguration conf = ApplicationStartup.getConfiguration();
-//		conf.width = 	800;  	conf.height = 	450; 
 		conf.width = 	600;  	conf.height = 	338; 
 		ApplicationStartup.start(new TestAppDelegate_Tests());
 	}

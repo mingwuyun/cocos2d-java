@@ -100,6 +100,7 @@ public class Node implements INode, IUpdater {
     
     //TODO Setters & Getters for Graphic Peroperties
     /**
+     * 越小越先渲染<p>
      LocalZOrder is the 'key' used to sort the node relative to its siblings.
      The Node's parent will sort all its children based ont the LocalZOrder value.
      If two nodes have the same LocalZOrder, then the node that was added first to the children's array will be in front of the other node in the array.
@@ -1123,7 +1124,6 @@ public class Node implements INode, IUpdater {
     		_onEnterCallback.onEnter(this);
     	}	
     	
-    	//TODO component
     	if (_componentContainer != null && !_componentContainer.isEmpty()) {
             _componentContainer.onEnter();
         }
@@ -1196,11 +1196,11 @@ public class Node implements INode, IUpdater {
     //////////////////////////////////
     //TODO renderer 
     final protected boolean isVisitableByVisitingCamera() {
-    	//TODO unfinsh
     	Camera camera = Camera.getVisitingCamera();
-//    	boolean visibleByCamera = camera == null ? true : (camera.getCameraFlag() & _cameraMask) != 0;
-//    	return visibleByCamera;
-    	return true;
+    	boolean visibleByCamera = camera == null ? true : (camera.getCameraFlag() & _cameraMask) != 0;
+//    	System.out.println(camera.getCameraFlag() + "  " + _cameraMask);
+//    	System.out.println("result = " + visibleByCamera);
+    	return visibleByCamera;
     }
     
     /**
@@ -1240,10 +1240,16 @@ public class Node implements INode, IUpdater {
         _director.pushMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW, _modelViewTransform);
         
         boolean visibleByCamera = isVisitableByVisitingCamera();
-
+        
+        //修改：如果父节点的camera可见检测失败，直接返回
+        //避免大量的重复遍历
+        if(!visibleByCamera) {
+        	_director.popMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+        	return;
+        }
+        
+        
         int i = 0;
-
-//        System.out.println("node =" + _scaleX);
         
         if(_children.size > 0) {
             sortAllChildren();
@@ -1259,14 +1265,15 @@ public class Node implements INode, IUpdater {
             }
             
             // self draw
-            if (visibleByCamera) {
-                this.draw(renderer, _modelViewTransform, flags);
-        	}
+//            if (visibleByCamera) {
+            this.draw(renderer, _modelViewTransform, flags);
+//        	}
             
             for(; i < _children.size; ++i) {
             	_children.get(i).visit(renderer, _modelViewTransform, flags);
             }
-        } else if (visibleByCamera) {
+        } else { 
+//        	if (visibleByCamera) {
             this.draw(renderer, _modelViewTransform, flags);
         }
         
@@ -2228,8 +2235,7 @@ public class Node implements INode, IUpdater {
     static final Matrix4 poolMatrix_1 = new Matrix4();
     static final Vector2 poolVector2_1 = new Vector2();
 
-
-    private int _cameraMask;
+    private int _cameraMask = 0xffffffff;		// 节点默认可以通过所有相机的绘制测试
     /**
      * get & set camera mask, the node is visible by the camera whose camera flag & node's camera mask is true
      */
@@ -2241,7 +2247,12 @@ public class Node implements INode, IUpdater {
      * @param applyChildren A boolean value to determine whether the mask bit should apply to its children or not.
      */
     public void setCameraMask(int mask, boolean applyChildren) {
-    	
+    	this._cameraMask = mask;
+    	if(applyChildren) {
+    		for(int i = 0; i < _children.size; ++i) {
+    			_children.get(i).setCameraMask(mask, true);
+    		}
+    	}
     }
     
     public void setCameraMask(int mask) {
