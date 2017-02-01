@@ -1,10 +1,14 @@
 *.class
 
+/bin/
+*.DS_Store
+*.project
+*.classpath
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
-*.jar
+# Package Files #:
 *.war
 *.ear
 
