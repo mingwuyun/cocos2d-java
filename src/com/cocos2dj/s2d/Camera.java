@@ -171,8 +171,6 @@ public class Camera extends Node implements ICamera {
 	    if (_viewProjectionDirty) {
 	        _viewProjectionDirty = false;
 	        _viewProjection.set(_projection).mul(_view);
-//	        System.out.println("viewport update >>>>>>");
-//	        Mat4::multiply(_projection, _view, &_viewProjection);
 	    }
 	    return _viewProjection;
      }

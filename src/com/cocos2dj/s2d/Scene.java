@@ -12,7 +12,11 @@ import com.cocos2dj.protocol.ICamera;
 import com.cocos2dj.protocol.IScene;
 import com.cocos2dj.renderer.Renderer;
 
-
+/**
+ * 
+ * @author Copyright (c) 2017 xu jun
+ *
+ */
 public class Scene extends Node implements IScene {
 	
 	public static Scene createScene() {

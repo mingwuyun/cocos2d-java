@@ -1762,18 +1762,19 @@ public class Node implements INode, IUpdater {
         }
 
         if (_additionalTransform != null) {
-        	//TODO unfinished
 //            // This is needed to support both Node::setNodeToParentTransform() and Node::setAdditionalTransform()
 //            // at the same time. The scenario is this:
 //            // at some point setNodeToParentTransform() is called.
 //            // and later setAdditionalTransform() is called every time. And since _transform
 //            // is being overwritten everyframe, _additionalTransform[1] is used to have a copy
 //            // of the last "_trasform without _additionalTransform"
-//            if (_transformDirty)
-////                _additionalTransform[1] = _transform;
+            if (_transformDirty) {
+                _additionalTransform[1].set(_transform);
+            }
 //
-//            if (_transformUpdated)
-//                _transform = _additionalTransform[1] * _additionalTransform[0];
+            if (_transformUpdated) {
+                _transform.set(_additionalTransform[1].mul(_additionalTransform[0]));
+        	}
         }
 
         _transformDirty = _additionalTransformDirty = false;
@@ -1789,21 +1790,32 @@ public class Node implements INode, IUpdater {
     /** 
      * Sets the Transformation matrix manually.
      */
-    public void setNodeToParentTransform( Matrix4 transform) {
+    public void setNodeToParentTransform(Matrix4 transform) {
+    	_transform.set(transform);
+    	_transformDirty = false;
+    	_transformUpdated = true;
     	
-    	return;
+    	if(_additionalTransform != null) {
+	    	if(_additionalTransform[1] == null) {
+	    		_additionalTransform[1] = new Matrix4();
+	    	}
+	    	_additionalTransform[1].set(transform);
+    	}
     }
 
     /** @deprecated use getNodeToParentTransform() instead */
 //    CC_DEPRECATED_ATTRIBUTE inline public AffineTransform nodeToParentTransform()  { return getNodeToParentAffineTransform(); }
-
     /**
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.
      * The matrix is in Pixels.
      */
     public  Matrix4 getParentToNodeTransform() {
-    	
-    	return null;
+    	if(_inverseDirty) {
+    		if(_lazy_inverse == null) {_lazy_inverse = new Matrix4();}
+    		_lazy_inverse.set(getNodeToParentTransform()).inv();
+    		_inverseDirty = false;
+    	}
+    	return _lazy_inverse;
     }
     
     public AffineTransform getParentToNodeAffineTransform() {
@@ -1831,10 +1843,12 @@ public class Node implements INode, IUpdater {
 
     /**
      * Returns the inverse world affine transform matrix. The matrix is in Pixels.
+     * <br>返回栈对象
+     * <b>pool object</b>
      */
     public Matrix4 getWorldToNodeTransform() {
-    	
-    	return null;
+    	poolMatrix_1.set(getNodeToWorldTransform()).inv();
+    	return poolMatrix_1;
     }
     
     public AffineTransform getWorldToNodeAffineTransform() {
@@ -1851,49 +1865,57 @@ public class Node implements INode, IUpdater {
 
     /**
      * Converts a Vector2 to node (local) space coordinates. The result is in Points.
+     * <br>返回栈对象
+     * <b>pool object</b>
      */
     public Vector2 convertToNodeSpace( Vector2 worldPoint) {
-    	
-    	return null;
+    	Matrix4 tmp = getWorldToNodeTransform();
+    	final Vector3 ret = poolVector3_1.set(worldPoint.x, worldPoint.y, 0);
+    	poolVector3_1.mul(tmp);
+    	return poolVector2_1.set(ret.x, ret.y);
     }
 
     /**
      * Converts a Vector2 to world space coordinates. The result is in Points.
      */
     public Vector2 convertToWorldSpace( Vector2 nodePoint) {
-    	
-    	return null;
+    	Matrix4 tmp = getNodeToWorldTransform();
+    	final Vector3 ret = poolVector3_1.set(nodePoint.x, nodePoint.y, 0);
+    	poolVector3_1.mul(tmp);
+    	return poolVector2_1.set(ret.x, ret.y);
     }
 
     /**
      * Converts a Vector2 to node (local) space coordinates. The result is in Points.
      * treating the returned/received node point as anchor relative.
      */
-    public Vector2 convertToNodeSpaceAR( Vector2 worldPoint) {
-    	return null;
-    }
+//    public Vector2 convertToNodeSpaceAR( Vector2 worldPoint) {
+//    	return null;
+//    }
 
     /**
      * Converts a local Vector2 to world space coordinates.The result is in Points.
      * treating the returned/received node point as anchor relative.
      */
-    public Vector2 convertToWorldSpaceAR( Vector2 nodePoint) {
-    	return null;
-    }
+//    public Vector2 convertToWorldSpaceAR( Vector2 nodePoint) {
+//    	return null;
+//    }
 
     /**
      * convenience methods which take a Touch instead of Vector2
+     * <br>返回栈对象
+     * <b>pool object</b>
      */
     public Vector2 convertTouchToNodeSpace(Touch  touch) {
-    	return null;
+    	return convertToNodeSpace(touch.getLocation());
     }
 
     /**
      * converts a Touch (world coordinates) into a local coordinate. This method is AR (Anchor Relative).
      */
-    public Vector2 convertTouchToNodeSpaceAR(Touch  touch) {
-    	return null;
-    }
+//    public Vector2 convertTouchToNodeSpaceAR(Touch  touch) {
+//    	return null;
+//    }
 
 	/**
      *  Sets an additional transform matrix to the node.
@@ -1904,7 +1926,18 @@ public class Node implements INode, IUpdater {
      *        It could be used to simulate `parent-child` relationship between two nodes (e.g. one is in BatchNode, another isn't).
      */
     public void setAdditionalTransform(Matrix4 additionalTransform) {
-    	
+    	if(additionalTransform == null) {
+    		_additionalTransform = null;
+    	} else {
+    		if(_additionalTransform == null) {
+    			_additionalTransform = new Matrix4[2];
+    			// _additionalTransform[1] is used as a backup for _transform
+    			_additionalTransform[1] = new Matrix4(_transform);
+    		}
+    		
+    		_additionalTransform[0] = additionalTransform;
+    	}
+    	_transformUpdated = _additionalTransformDirty = _inverseDirty = true;
     }
     
     public void setAdditionalTransform( AffineTransform additionalTransform) {
@@ -2165,7 +2198,7 @@ public class Node implements INode, IUpdater {
     protected  boolean _transformDirty;   ///< transform dirty flag
     protected  Matrix4 _lazy_inverse;        //lazy ///< inverse transform
     protected  boolean _inverseDirty;     ///< inverse transform dirty flag
-    protected  Matrix4 _additionalTransform; ///< transform
+    protected  Matrix4 _additionalTransform[]; ///< transform
     protected boolean _useAdditionalTransform;   ///< The flag to check whether the additional transform is dirty
     protected boolean _transformUpdated;         ///< Whether or not the Transform object was updated since the last frame
     
@@ -2234,6 +2267,7 @@ public class Node implements INode, IUpdater {
     
     static final Matrix4 poolMatrix_1 = new Matrix4();
     static final Vector2 poolVector2_1 = new Vector2();
+    static final Vector3 poolVector3_1 = new Vector3();
 
     private int _cameraMask = 0xffffffff;		// 节点默认可以通过所有相机的绘制测试
     /**

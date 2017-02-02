@@ -13,6 +13,11 @@ import com.cocos2dj.renderer.Renderer;
 import com.cocos2dj.renderer.Texture;
 import com.cocos2dj.renderer.TextureRegion;
 
+/**
+ * Sprite.java
+ * <p>
+ * @author Copyright (c) 2017 xu jun
+ */
 public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
      /* Sprite invalid index on the SpriteBatchNode. */
     public static final int INDEX_NOT_INITIALIZED = -1;

@@ -36,9 +36,9 @@ public class CameraTests extends TestSuite {
 			
 			// 两个相机
 			camera1 = getDefaultCamera();
-			camera1.setCameraFlag(1);
+			camera1.setCameraFlag(Camera.USER1);
 			camera2 = Camera.create();
-			camera2.setCameraFlag(0x0002);
+			camera2.setCameraFlag(Camera.USER2);
 			addChild(camera2);
 			
 			camera2.setDepth(1);
@@ -46,20 +46,17 @@ public class CameraTests extends TestSuite {
 			
 			
 			c2Spr1 = Sprite.create("background.png", Rect.Get(0, 0, 1136, 640));
-//			c2Spr1.setUseCulling(false);
 			c1Spr1 = Sprite.create("SpinningPeas.png");
-//			c1Spr1.setUseCulling(false);
 			c1Spr2 = Sprite.create("Pea.png");
-//			c1Spr2.setUseCulling(false);
 			addChild(c2Spr1);
 			addChild(c1Spr1); addChild(c1Spr2);
 			
-			c2Spr1.setCameraMask(0x0002);
+			c2Spr1.setCameraMask(Camera.USER2);
 			
 			c1Spr1.setPosition(400, 200);
-			c1Spr1.setCameraMask(0x0001); 
+			c1Spr1.setCameraMask(Camera.USER1); 
 			c1Spr2.setPosition(800, 200);
-			c1Spr2.setCameraMask(0x0001);
+			c1Spr2.setCameraMask(Camera.USER1);
 			
 			//两个相机以不同到速度移动
 			camera2.schedule((dt)->{
@@ -104,6 +101,8 @@ public class CameraTests extends TestSuite {
 			c2Spr1 = Sprite.create("background.png", Rect.Get(0, 0, 320, 200)); c2Spr1.setName("c2Spr1");
 			c1Spr1 = Sprite.create("SpinningPeas.png");
 			c1Spr2 = Sprite.create("Pea.png");
+			c2Spr1.setRotation(45);
+			
 			addChild(c2Spr1);
 			addChild(c1Spr1); 
 			addChild(c1Spr2);
