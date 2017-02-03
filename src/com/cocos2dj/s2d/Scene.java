@@ -73,7 +73,6 @@ public class Scene extends Node implements IScene {
 	
 	@Override
 	public void render(Renderer renderer, Matrix4 eyeTransform, Matrix4 eyeProjection) {
-//	    Camera defaultCamera = null;
 	    final Matrix4 transform = getNodeToParentTransform();
 	    for (Camera camera : getCameras()) {
 	        if (!camera.isVisible()) {
@@ -117,23 +116,7 @@ public class Scene extends Node implements IScene {
 	        // from "update" or other parts of the game to calculate culling or something else.
 //	        camera->setNodeToParentTransform(eyeCopy);
 	    }
-	    
-//	#if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION
-//	    if (_physics3DWorld && _physics3DWorld->isDebugDrawEnabled())
-//	    {
-//	        director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-//	        director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _physics3dDebugCamera != nullptr ? _physics3dDebugCamera->getViewProjectionMatrix() : defaultCamera->getViewProjectionMatrix());
-//	        _physics3DWorld->debugDraw(renderer);
-//	        renderer->render();
-//	        director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-//	    }
-//	#endif
-		
-//		visit(renderer, eyeTransform, 0);
 	    CameraManager._visitingCamera = null;
-	    
-	    
-	   
 	}
 
 

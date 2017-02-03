@@ -41,8 +41,10 @@ public class Renderer {
 		_projection = projection;
 	}
 	
+	/**清理gl状态 */
 	public void clear() {
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		batch.totalRenderCalls = 0;	//debug
 	}
 	
 	public void clearDrawStats() {
@@ -50,16 +52,8 @@ public class Renderer {
 	}
 	
 	public void render() {
-//		System.out.println("Camera._visitingCamera" + Camera._visitingCamera);
-//		if(Camera._visitingCamera != null) {
-//			batch.setProjectionMatrix(Camera._visitingCamera.getViewProjectionMatrix());
-//		} else {
-//			
-//		}
 		batch.setProjectionMatrix(Director.getInstance().getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION));
-//		for(int i = commandQueue.size - 1; i >= 0; --i) {
-//			commandQueue.removeIndex(i).execute(this);
-//		}
+		
 		for(int i = 0, n = commandQueue.size; i < n; ++i) {
 			commandQueue.get(i).execute(this);
 		}

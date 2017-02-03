@@ -746,8 +746,6 @@ public class Director {
 	///////////////////////////////////////////
 	//TODO mainLoop 
 	public final void mainLoop(int deltaMS) {
-//		_scheduler.update(deltaMS);
-		// 好像没什么事情了? ...
 		if(!_paused) {
 			_eventDispatcher.dispatchEvent(_eventBeforeUpdate);
 		}

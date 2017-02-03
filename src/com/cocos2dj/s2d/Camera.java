@@ -371,16 +371,9 @@ public class Camera extends Node implements ICamera {
      Before rendering scene with this camera, the background need to be cleared. It clears the depth buffer with max depth by default. Use setBackgroundBrush to modify the default behavior
      */
     public void clearBackground() {
-//    	System.out.println("clearColor");
-//    	Gdx.gl.glClearDepthf(0);
-
-		
-    	Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-//    	Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
-//    	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    	if(_clearBrush != null) {
-    		_clearBrush.drawBackground(this);
-    	}
+//    	if(_clearBrush != null) {
+//    		_clearBrush.drawBackground(this);
+//    	}
     }
     
     /**
@@ -438,9 +431,7 @@ public class Camera extends Node implements ICamera {
     
 //CC_RUCTOR_ACCESS:
     //ctor>>
-    Camera() {
-    	
-    }
+    Camera() {}
     
     /**
      * 可能涉及到frameBuffer 需要调用该方法销毁
@@ -536,10 +527,6 @@ public class Camera extends Node implements ICamera {
     
     final void applyViewport() {
 		Gdx.gl.glGetIntegerv(GL20.GL_VIEWPORT, _oldViewport);
-		
-//    	Gdx.gl.glGetIntegerv(GL20.GL_VIEWPORT, _oldViewport);
-    	
-//    	glGetIntegerv(GL_VIEWPORT, _oldViewport);
     	
 //        if(null == _fbo) {
     		final Viewport defaultViewport = Viewport._defaultViewport;
