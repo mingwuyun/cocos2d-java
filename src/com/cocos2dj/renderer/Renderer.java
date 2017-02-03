@@ -32,9 +32,8 @@ public class Renderer {
 	Matrix4					_projection;	//当前相机投影矩阵
 	
 	public Renderer() {
-		batch = new PolygonSpriteBatch();
+		batch = new PolygonSpriteBatch(2000, GLProgramCache.getInstance().getSpriteBatchDefaultProgram());
 		commandQueue = new Array<>(128);
-//		spriteCache = new sp
 	}
 	
 	
@@ -70,8 +69,6 @@ public class Renderer {
 		}
 		
 		commandQueue.clear();
-		
-//		batch.
 	}
 	
 	static final Rect stackRect = new Rect();

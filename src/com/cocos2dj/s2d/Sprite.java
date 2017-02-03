@@ -3,11 +3,13 @@ package com.cocos2dj.s2d;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.base.Rect;
 import com.cocos2dj.base.Size;
 import com.cocos2dj.macros.CCLog;
+import com.cocos2dj.renderer.GLProgramCache;
 import com.cocos2dj.renderer.RenderCommand;
 import com.cocos2dj.renderer.Renderer;
 import com.cocos2dj.renderer.Texture;
@@ -699,6 +701,16 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
    
     @Override
 	public void onCommand(PolygonSpriteBatch batch) {
+    	if(_shaderProgram == null) {
+    		ShaderProgram p = GLProgramCache.getInstance().getSpriteBatchDefaultProgram();
+    		if(batch.getShader() != p) {
+    			batch.setShader(null);
+    		}
+    	} else {
+    		if(batch.getShader() != _shaderProgram) {
+    			batch.setShader(_shaderProgram);
+    		}
+    	}
 		_sprite.draw(batch);
 	}
     

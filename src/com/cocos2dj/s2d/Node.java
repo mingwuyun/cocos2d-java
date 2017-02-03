@@ -2,6 +2,7 @@ package com.cocos2dj.s2d;
 
 import java.util.Comparator;
 
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -1066,10 +1067,7 @@ public class Node implements INode, IUpdater {
     	this._userData = userData;
     }
     ////////////////////////////////////////////////////////
-
-
-    /// @{
-    /// @name GLProgram
+    //TODO Shader
     /**
      * Return the GLProgram (shader) currently used for this node
      *
@@ -1077,8 +1075,9 @@ public class Node implements INode, IUpdater {
      */
 //    Shad getGLProgram() ;
 //    CC_DEPRECATED_ATTRIBUTE GLProgram* getShaderProgram()  { return getGLProgram(); }
-
-//    GLProgramState *getGLProgramState() ;
+    public ShaderProgram getGLProgramShader() {
+    	return _shaderProgram;
+    }
 //    void setGLProgramState(GLProgramState *glProgramState);
 //    ShaderProgram d;
 
@@ -1087,14 +1086,17 @@ public class Node implements INode, IUpdater {
      *
      * Since v2.0, each rendering node must set its shader program.
      * It should be set in initialize phase.
-     @code
-     node->setGLrProgram(GLProgramCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
-     @endcode
      *
      * @param shaderProgram The shader program
      */
-//    public void setGLProgram(GLProgram *glprogram);
-//    CC_DEPRECATED_ATTRIBUTE void setShaderProgram(GLProgram *glprogram) { setGLProgram(glprogram); }
+    public void setGLProgram(ShaderProgram glprogram) {
+    	if (glprogram.isCompiled() == false) {
+    		throw new IllegalArgumentException("Error compiling shader: " + glprogram.getLog());
+    	}
+    	_shaderProgram = glprogram;
+    }
+    
+    public void setShaderProgram(ShaderProgram glprogram) { setGLProgram(glprogram); }
     /// @} end of Shader Program
 
 
@@ -2192,6 +2194,7 @@ public class Node implements INode, IUpdater {
     
     protected float	_modelRotationZ = 0;
     
+    protected ShaderProgram _shaderProgram;
     
     // "cache" variables are allowed to be mutable
     protected  Matrix4 _transform = new Matrix4();      ///< transform
@@ -2255,7 +2258,7 @@ public class Node implements INode, IUpdater {
 //    Color3B	    _displayedColor;
 //    Color3B     _realColor;
     boolean		_cascadeColorEnabled;
-    boolean        _cascadeOpacityEnabled;
+    boolean     _cascadeOpacityEnabled;
 
     static int s_globalOrderOfArrival;
     
