@@ -2,7 +2,17 @@ package com.cocos2dj.renderer;
 
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteCache;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+/**
+ * RenderCommand.java
+ * <br>BatchCommand
+ * <br>CacheCommand
+ * <br>DrawCommand
+ * <br>ShapeCommand
+ * <p>
+ * @author Copyright(c) 2017 xujun
+ */
 public interface RenderCommand {
 	
 	public static enum RenderCommandType {
@@ -72,6 +82,25 @@ public interface RenderCommand {
 		}
 	}
 	
+	public final class ShapeCommand implements RenderCommand {
+		final ShapeCommandCallback _callback;
+		public ShapeCommand(ShapeCommandCallback callback) {
+			this._callback = callback;
+		}
+		@Override
+		public RenderCommandType getCommandType() {
+			return RenderCommandType.Draw;
+		}
+		@Override
+		public void execute(Renderer render) {
+			ShapeRenderer shapeRender = render.getShapeRenderer();
+			if(!shapeRender.isDrawing()) {
+				shapeRender.begin();
+			}
+			this._callback.onCommand(shapeRender);
+		}
+	}
+	
 	public static interface BatchCommandCallback {
 		public void onCommand(PolygonSpriteBatch batch);
 	}
@@ -82,5 +111,9 @@ public interface RenderCommand {
 	
 	public static interface DrawCommandCallback {
 		public void onCommand();
+	}
+	
+	public static interface ShapeCommandCallback {
+		public void onCommand(ShapeRenderer shapeRenderer);
 	}
 }

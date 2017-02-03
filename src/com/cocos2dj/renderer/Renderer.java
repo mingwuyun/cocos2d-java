@@ -3,6 +3,7 @@ package com.cocos2dj.renderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -27,6 +28,7 @@ public class Renderer {
 	
 	
 	PolygonSpriteBatch		batch;
+	ShapeRenderer 			shapeRenderer;	//lazy
 //	SpriteCache				spriteCache;
 	Array<RenderCommand>	commandQueue;
 	Matrix4					_projection;	//当前相机投影矩阵
@@ -36,6 +38,12 @@ public class Renderer {
 		commandQueue = new Array<>(128);
 	}
 	
+	final ShapeRenderer getShapeRenderer() {
+		if(shapeRenderer == null) {
+			shapeRenderer = new ShapeRenderer(1000);
+		}
+		return shapeRenderer;
+	}
 	
 	public void setCurrentProjection(Matrix4 projection) {
 		_projection = projection;
@@ -45,6 +53,7 @@ public class Renderer {
 	public void clear() {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		batch.totalRenderCalls = 0;	//debug
+		
 	}
 	
 	public void clearDrawStats() {
@@ -61,7 +70,9 @@ public class Renderer {
 		if(batch.isDrawing()) {
 			batch.end();
 		}
-		
+		if(shapeRenderer != null && shapeRenderer.isDrawing()) {
+			shapeRenderer.end();
+		}
 		commandQueue.clear();
 	}
 	
