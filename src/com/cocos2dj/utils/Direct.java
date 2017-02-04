@@ -1,7 +1,7 @@
 package com.cocos2dj.utils;
 
-import com.physicscard2d.framework.common.MathUtils;
-
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 
 /**������������<p>
  * ����Ӧ�����ķ�����ѷ����� �ṩͳһ�ĳ�����ʾ
@@ -22,7 +22,7 @@ public class Direct {
 	
 	/**����t1�����t0�ķ�λ���ķ���
 	 * @return t1�����t0�ķ�λ Direct��ĳ��� */
-	public static final int getDirect4(final V2 t1, final V2 t0){
+	public static final int getDirect4(final Vector2 t1, final Vector2 t0){
 		final float dx = t1.x-t0.x;
 		final float dy = t1.y-t0.y;
 		
@@ -38,7 +38,7 @@ public class Direct {
 	
 	/**����t1�����t0�ķ�λ���˷���
 	 * @return t1�����t0�ķ�λ Direct��ĳ��� */
-	public static final int getDirect8(final V2 t1, final V2 t0){
+	public static final int getDirect8(final Vector2 t1, final Vector2 t0){
 		final float dx = t1.x-t0.x;
 		final float dy = t1.y-t0.y;
 		
@@ -72,7 +72,7 @@ public class Direct {
 	
 	/**����t1�����t0�ķ�λ������ֵ��
 	 * @return �����t0����ϵ�Ļ��� */
-	public static final float getDirectRad(final V2 t1, final V2 t0){
+	public static final float getDirectRad(final Vector2 t1, final Vector2 t0){
 		final float dx = t1.x-t0.x;
 		final float dy = t1.y-t0.y;
 		

@@ -298,8 +298,8 @@ public class Director {
             loadIdentityMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
     		break;
     	case _3D:
-    		 float zeye = this.getZEye();
-    		 Matrix4 matrixPerspective = new Matrix4(), matrixLookup = new Matrix4();
+//    		 float zeye = this.getZEye();
+//    		 Matrix4 matrixPerspective = new Matrix4(), matrixLookup = new Matrix4();
     		 
              // issue #1334
 //    		 matrixPerspective.setToProjection(near, far, fovy, aspectRatio)

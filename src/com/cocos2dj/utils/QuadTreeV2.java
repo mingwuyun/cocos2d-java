@@ -1,13 +1,12 @@
-package com.stormframework.util;
+package com.cocos2dj.utils;
 
 import com.badlogic.gdx.utils.Array;
-import com.stormframework.util.QuadTree.IQuadTreeObject;
 import com.badlogic.gdx.math.Rectangle;
 
 public class QuadTreeV2 extends QuadTree{
 	
 	
-	/**³éÏóµÄ½Úµã */
+	/**ï¿½ï¿½ï¿½ï¿½Ä½Úµï¿½ */
 //	public static interface IQuadTreeNode {
 //		public void build(int currDepth);
 //		public void query();
@@ -15,12 +14,12 @@ public class QuadTreeV2 extends QuadTree{
 //		public void destroy();
 //	}
 	
-	/**±ß½Úµã */
+	/**ï¿½ß½Úµï¿½ */
 	public static class QuadTreeSide {
 		
-		private float min, max;	//±ßµÄ·¶Î§
-		private int type;		//½ÚµãÀàÐÍ
-		private float centerX, centerY;//·Ö¸îÖÐÐÄµã
+		private float min, max;	//ï¿½ßµÄ·ï¿½Î§
+		private int type;		//ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½
+		private float centerX, centerY;//ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Äµï¿½
 		
 		private Array<IQuadTreeObject> objs = new Array<IQuadTreeObject>();
 		private QuadTreeSide[] children;
@@ -64,14 +63,14 @@ public class QuadTreeV2 extends QuadTree{
 					}
 				}
 				
-				//±éÀú²¢·ÖÅä¶ÔÏó
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				for(int n = objs.size - 1; n >= 0; --n) {
 					IQuadTreeObject obj = objs.get(n);
 					
 					for(int i = 0; i < children.length; ++i) {
 						if(children[i].insert(obj, currDepth + 1)) {
-							//Ìí¼Ó³É¹¦
-//							System.out.println("###½«¶ÔÏóobj" + n + obj + " Ìí¼Óµ½[Ïß¶Î]½Úµã [" + i + "]");
+							//ï¿½ï¿½Ó³É¹ï¿½
+//							System.out.println("###ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½obj" + n + obj + " ï¿½ï¿½Óµï¿½[ï¿½ß¶ï¿½]ï¿½Úµï¿½ [" + i + "]");
 							objs.removeIndex(n);
 							break;
 						}
@@ -79,7 +78,7 @@ public class QuadTreeV2 extends QuadTree{
 				}
 				
 				final int nextDepth = currDepth + 1;
-				//×Ó½Úµã¹¹½¨Ê÷
+				//ï¿½Ó½Úµã¹¹ï¿½ï¿½ï¿½ï¿½
 				for(int i = 0; i < children.length; ++i) {
 					children[i].build(nextDepth);
 				}
@@ -88,8 +87,8 @@ public class QuadTreeV2 extends QuadTree{
 			}
 		}
 		
-		/**Ìí¼Ó¶ÔÏó
-		 * @return ³É¹¦·µ»Øtrue Ê§°Ü·µ»Øfalse */
+		/**ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
+		 * @return ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½true Ê§ï¿½Ü·ï¿½ï¿½ï¿½false */
 		public boolean insert(IQuadTreeObject obj, int currDepth) {
 //			System.out.println("caonima" + obj.getBoundsString() + type + " " + centerX + " " + centerY);
 			final Rectangle rect = obj.getRectangle();
@@ -130,7 +129,7 @@ public class QuadTreeV2 extends QuadTree{
 			return false;
 		}
 		
-		/**Ïß¿Õ¼äËÑË÷*/
+		/**ï¿½ß¿Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½*/
 		public void query(Rectangle rect, Array<IQuadTreeObject> ret) {
 //			System.out.println("query side begin ---------- ");
 //			System.out.println("rect = " + rect + " type = " + type + "min, max, centerX, centerY = " 
@@ -193,7 +192,7 @@ public class QuadTreeV2 extends QuadTree{
 	}
 	
 	
-	//½áµã
+	//ï¿½ï¿½ï¿½
 	public static class QuadTreeNode {
 		
 		private float x0, y0, x1, y1;
@@ -204,8 +203,8 @@ public class QuadTreeV2 extends QuadTree{
 		
 		private QuadTreeNode[] children; //= new QuadTreeNode[4];
 		private QuadTreeSide[] sides; //=new QuadTreeSide[4];
-		//²ÉÓÃÕâÑùÒ»ÖÖ²ßÂÔ£ºÏÈÈ¥È«²¿·ÅÈë£¬ÐèÒª·Ö¸îµÄÊ±ºò
-		//ÔÙ±éÀú¶ÔÏó£¬¿´ÄÜ·ñÌíÈë×Ó¶ÔÏóÖÐ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Ö²ï¿½ï¿½Ô£ï¿½ï¿½ï¿½È¥È«ï¿½ï¿½ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½Òªï¿½Ö¸ï¿½ï¿½Ê±ï¿½ï¿½
+		//ï¿½Ù±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬¿ï¿½ï¿½Ü·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½
 		Array<IQuadTreeObject> objs = new Array<IQuadTreeObject>();
 		
 		
@@ -263,11 +262,11 @@ public class QuadTreeV2 extends QuadTree{
 			objs.add(obj);
 		}
 		
-		/**ÓÃÒÑ¾­·ÅÈëµÄ¶ÔÏó¹¹½¨ËÄ²æÊ÷ */
+		/**ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ó¹¹½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ */
 		public boolean build(int currDepth) {
 //			System.out.println("depth = " + currDepth + "size = " + objs.size);
 			if(objs.size >= maxObject && currDepth <= tree.maxDepth) {
-				System.out.println("node insert : ÐèÒªÇÐ¸î[" + centerX + " " + centerY+"]");
+				System.out.println("node insert : ï¿½ï¿½Òªï¿½Ð¸ï¿½[" + centerX + " " + centerY+"]");
 				if(children == null) {		
 					children = new QuadTreeNode[4];
 					children[0] = new QuadTreeNode(tree, 0, centerX, centerY, x1, y1);
@@ -276,31 +275,31 @@ public class QuadTreeV2 extends QuadTree{
 					children[3] = new QuadTreeNode(tree, 3, centerX, y0, x1, centerY);			
 				}
 				
-				//±éÀú²¢·ÖÅä¶ÔÏóµ½¿Õ¼ä½Úµã
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½óµ½¿Õ¼ï¿½Úµï¿½
 				for(int n = objs.size - 1; n >= 0; --n) {
 					IQuadTreeObject obj = objs.get(n);
 					
 					for(int i = 0; i < children.length; ++i) {
 						if(children[i].insert(obj, currDepth)) {
-							//Ìí¼Ó³É¹¦
-//							System.out.println("½«¶ÔÏóobj" + n + obj + " Ìí¼Óµ½[Ïß¶Î]½Úµã [" + i + "]");
+							//ï¿½ï¿½Ó³É¹ï¿½
+//							System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½obj" + n + obj + " ï¿½ï¿½Óµï¿½[ï¿½ß¶ï¿½]ï¿½Úµï¿½ [" + i + "]");
 							objs.removeIndex(n);
 							break;
 						}
 					}
 				}
 					
-				//×Ó½Úµã¹¹½¨Ê÷
+				//ï¿½Ó½Úµã¹¹ï¿½ï¿½ï¿½ï¿½
 				final int nextDepth = currDepth + 1;
 				for(int i = 0; i < children.length; ++i) {
 					children[i].build(nextDepth);
 				}
 			}
 			
-			//Èç¹û¶ÔÏóÊýÁ¿ÒÀÈ»³¬³öÔò·ÖÅä±ß½Úµã
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß½Úµï¿½
 			if(objs.size >= maxObject && currDepth <= tree.maxDepth) {
-				System.out.println("[side] insert : " + objs.size + " ÐèÒªÇÐ¸î[" + centerX + " " + centerY+"]");
-				if(sides == null) {	//ÇÐ¸î±ß
+				System.out.println("[side] insert : " + objs.size + " ï¿½ï¿½Òªï¿½Ð¸ï¿½[" + centerX + " " + centerY+"]");
+				if(sides == null) {	//ï¿½Ð¸ï¿½ï¿½
 					sides = new QuadTreeSide[4];
 					sides[0] = new QuadTreeSide(tree, 0, centerX, centerY, centerX, x1);	//x +
 					sides[1] = new QuadTreeSide(tree, 1, centerX, centerY, centerY, y1);	//y +
@@ -308,21 +307,21 @@ public class QuadTreeV2 extends QuadTree{
 					sides[3] = new QuadTreeSide(tree, 3, centerX, centerY, y0, centerY);	//- y
 				}
 				
-				//±éÀú²¢·ÖÅä¶ÔÏóµ½¿Õ¼ä½Úµã
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½óµ½¿Õ¼ï¿½Úµï¿½
 				for(int n = objs.size - 1; n >= 0; --n) {
 					IQuadTreeObject obj = objs.get(n);
 					
 					for(int i = 0; i < sides.length; ++i) {
 						if(sides[i].insert(obj, currDepth)) {
-							//Ìí¼Ó³É¹¦
-//							System.out.println("½«¶ÔÏóobj" + n + obj + " Ìí¼Óµ½[Ïß¶Î]½Úµã [" + i + "]");
+							//ï¿½ï¿½Ó³É¹ï¿½
+//							System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½obj" + n + obj + " ï¿½ï¿½Óµï¿½[ï¿½ß¶ï¿½]ï¿½Úµï¿½ [" + i + "]");
 							objs.removeIndex(n);
 							break;
 						}
 					}					
 				}
 				
-				//×Ó½Úµã¹¹½¨Ê÷
+				//ï¿½Ó½Úµã¹¹ï¿½ï¿½ï¿½ï¿½
 				final int nextDepth = currDepth + 1;
 				
 				if(sides != null) {
@@ -331,7 +330,7 @@ public class QuadTreeV2 extends QuadTree{
 					}
 				}
 			}
-//			System.out.println("¹¹½¨½áÊø£¬ ¸Ã½ÚµãÊ£Óà¶ÔÏóÊýÁ¿ = " + objs.size);
+//			System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½Úµï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ = " + objs.size);
 			return false;
 		}
 		
@@ -342,22 +341,22 @@ public class QuadTreeV2 extends QuadTree{
 				ret.addAll(objs);
 			}
 			
-			if(!rect.overlaps(_rect)) {		//¾ØÐÎÓë¸Ã½Úµã²»Ïà½»£¬Ö±½ÓÍË³ö
+			if(!rect.overlaps(_rect)) {		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã½Úµã²»ï¿½à½»ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Ë³ï¿½
 				
 				return;
 			}
 			
 //			System.out.println("query node : success -------------------");
-			//½Úµã¿Õ¼äÒ²´æ·Å¶ÔÏó£¬Í¨¹ýÏà½»²âÊÔÔòÈ«²¿Ìí¼Ó
+			//ï¿½Úµï¿½Õ¼ï¿½Ò²ï¿½ï¿½Å¶ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½à½»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½
 			for(int i = objs.size - 1; i >= 0; --i) {
 				ret.add(objs.get(i));
 			}
 //			ret.addAll(objs);
 			
 			if(sides != null) {
-				//ËÑË÷Ïß¿Õ¼ä
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ß¿Õ¼ï¿½
 				for(int i = 0; i < sides.length; ++i) {
-					//ÐèÒªÏß¶Î×Ô¼ºÈ¥ÅÐ¶ÏÊÇ·ñÔÚÇøÓòÄÚ
+					//ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½Ô¼ï¿½È¥ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					sides[i].query(rect, ret);
 				}
 			}
@@ -383,9 +382,9 @@ public class QuadTreeV2 extends QuadTree{
 			System.out.println(sb);
 			
 			if(sides != null) {
-				//ËÑË÷Ïß¿Õ¼ä
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ß¿Õ¼ï¿½
 				for(int i = 0; i < sides.length; ++i) {
-					//ÐèÒªÏß¶Î×Ô¼ºÈ¥ÅÐ¶ÏÊÇ·ñÔÚÇøÓòÄÚ
+					//ï¿½ï¿½Òªï¿½ß¶ï¿½ï¿½Ô¼ï¿½È¥ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					sides[i].visit(currDepth + 1);
 				}
 			}
@@ -398,7 +397,7 @@ public class QuadTreeV2 extends QuadTree{
 		}
 	}
 	
-	//ÔÝÊ±Ê¹ÓÃÕâ¸ö×÷Îª²âÊÔ
+	//ï¿½ï¿½Ê±Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
 	public static class QuadTreeObject implements IQuadTreeObject {
 		public float x0, y0, x1, y1;
 		Rectangle r = new Rectangle();
@@ -425,8 +424,8 @@ public class QuadTreeV2 extends QuadTree{
 	
 	
 	QuadTreeNode root;
-	static int maxDepth = 5;//Ê÷Éî¶È×î´ó5
-	static int maxObject = 8;//Ò»¸öÇøÓòÄÚ³¬¹ý8¸ö¾ÍÐèÒª»®·Ö×Ó½Úµã
+	static int maxDepth = 5;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½5
+	static int maxObject = 8;//Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½ï¿½8ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Ó½Úµï¿½
 	
 	Array<IQuadTreeObject> tempObjects = new Array<IQuadTreeObject>();
 	
@@ -468,7 +467,7 @@ public class QuadTreeV2 extends QuadTree{
 //	public void query() {
 //		
 //	}
-	//²åÈëÒ»¸ö¶ÔÏó
+	//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	void insert(QuadTreeObject obj) {
 		System.out.println("insertObject : " + obj);
 		
@@ -543,11 +542,11 @@ public class QuadTreeV2 extends QuadTree{
 //		if(true) return;
 		Array<IQuadTreeObject> ret = new Array<IQuadTreeObject>(256);
 		Rectangle rect = new Rectangle(200, 100, 100, 80);
-		//Ê®´ÎËÄ²æÊ÷²éÑ¯
+		//Ê®ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯
 		long time = 0;
 		int n = 1000;
 		
-		//Ê®´ÎÏßÐÔ²éÑ¯
+		//Ê®ï¿½ï¿½ï¿½ï¿½ï¿½Ô²ï¿½Ñ¯
 //		time = System.nanoTime();
 //		for(int i = 0; i < n; i++) {
 //			qt.slowQuery(rect, ret);
@@ -555,7 +554,7 @@ public class QuadTreeV2 extends QuadTree{
 //				ret.clear();
 //			}
 //		}
-//		System.out.println("ÏßÐÔ²éÑ¯½áÊø ½á¹û = " + ret.size + " Ê±¼ä = " + (System.nanoTime() - time));
+//		System.out.println("ï¿½ï¿½ï¿½Ô²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ = " + ret.size + " Ê±ï¿½ï¿½ = " + (System.nanoTime() - time));
 //		
 		time = System.currentTimeMillis();
 		
@@ -566,10 +565,10 @@ public class QuadTreeV2 extends QuadTree{
 			}
 		}
 
-		System.out.println("ËÄ²æÊ÷2²éÑ¯½áÊø ½á¹û = " + ret.size + 
-				" Ê±¼ä = " + (System.currentTimeMillis() - time));
-//		System.out.println("ËÄ²æÊ÷2²éÑ¯½áÊø ½á¹û = " + ret.size + 
-//				" Ê±¼ä = " + (System.nanoTime() - time)/1000);
+		System.out.println("ï¿½Ä²ï¿½ï¿½ï¿½2ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ = " + ret.size + 
+				" Ê±ï¿½ï¿½ = " + (System.currentTimeMillis() - time));
+//		System.out.println("ï¿½Ä²ï¿½ï¿½ï¿½2ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ = " + ret.size + 
+//				" Ê±ï¿½ï¿½ = " + (System.nanoTime() - time)/1000);
 		ret.clear();
 	}
 }
