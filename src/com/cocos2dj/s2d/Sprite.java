@@ -413,6 +413,14 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	this._useCulling = useCulling;
     }
     
+    /**设置sprite的显示矩形 
+     * 结果不受anchorPoint影响 */
+    public final void setRect(float x, float y, float width, float height) {
+    	setContentSize(width, height);
+    	Vector2 temp = getAnchorPointInPoints();
+    	setPosition(x + temp.x, y + temp.y);
+    }
+    
     public void setContentSize(float width, float height) {
     	super.setContentSize(width, height);
     	SET_DIRTY_RECURSIVELY();

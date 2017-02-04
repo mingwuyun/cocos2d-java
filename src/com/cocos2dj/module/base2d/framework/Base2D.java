@@ -8,7 +8,7 @@ import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.jbox2d.BroadPhase;
 import com.cocos2dj.module.base2d.jbox2d.RayCastInput;
 /**
- * C2PhysicsSystem<p>
+ * Base2D<p>
  * 
  * card2D引擎的物理系统部分。系统构建于jbox2D的broadPhase算法之上，并对其内容进行了一些修改。
  * 系统采用纯Java实现 本版替换了原先的扫掠排序法改为了对应的动态树。<p>
@@ -33,11 +33,11 @@ import com.cocos2dj.module.base2d.jbox2d.RayCastInput;
  * @author xu jun
  * Copyright (c) 2015. All rights reserved.
  */
-public class PhysicsCard2D {
+public class Base2D {
 	/**支持的最大多边形数*/
 	public static final int MAX_POINT = 8;	
 	/**system*/
-	private static PhysicsCard2D instance;
+	private static Base2D instance;
 	
 	
 	/**仿真器用来处理物体的移动*/
@@ -54,7 +54,7 @@ public class PhysicsCard2D {
 		}
 	}
 	
-	private PhysicsCard2D(){
+	private Base2D(){
 		time.dt = config.dt;
 		time.setIteration(config.iteration);
 		simulator = new Simulator();
@@ -107,15 +107,15 @@ public class PhysicsCard2D {
 
 	/**必须先调用<code>initSystem(final int PHYSICS_SYSTEM_MODE)</code><br>
 	 * 否则返回为null*/
-	public static PhysicsCard2D instance(){
+	public static Base2D instance(){
 		return instance;
 	}
 
 	/**初始化物理系统<br>
 	 * @return */
-	public static PhysicsCard2D initPhysicsCard2D(){
+	public static Base2D initBase2D(){
 		if(instance == null) {
-			instance = new PhysicsCard2D();
+			instance = new Base2D();
 		}
 		return instance;
 	}

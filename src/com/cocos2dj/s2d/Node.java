@@ -17,6 +17,7 @@ import com.cocos2dj.base.Rect;
 import com.cocos2dj.base.Scheduler;
 import com.cocos2dj.base.Size;
 import com.cocos2dj.base.Touch;
+import com.cocos2dj.protocol.IComponent;
 import com.cocos2dj.protocol.IFunctionOneArgRet;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.protocol.IUpdater;
@@ -1951,7 +1952,7 @@ public class Node implements INode, IUpdater {
     /**
      *   gets a component by its name
      */
-    public Component getComponent(String name) {
+    public IComponent getComponent(String name) {
     	if(_componentContainer != null) {
     		return _componentContainer.get(name);
     	}
@@ -1961,7 +1962,7 @@ public class Node implements INode, IUpdater {
     /**
      *   gets a component by its index
      */
-    public Component getComponent(int index) {
+    public IComponent getComponent(int index) {
     	if(_componentContainer != null) {
     		return _componentContainer.get(index);
     	}
@@ -1971,7 +1972,7 @@ public class Node implements INode, IUpdater {
     /**
      *   adds a component
      */
-    public int addComponent(Component component) {
+    public int addComponent(IComponent component) {
     	if(_componentContainer == null) {
     		_componentContainer = new ComponentContainer(this);
     	}
@@ -1991,7 +1992,7 @@ public class Node implements INode, IUpdater {
     	return false;
     }
     
-    public boolean removeComponent(Component comp) {
+    public boolean removeComponent(IComponent comp) {
     	if(_componentContainer != null) {
     		return _componentContainer.remove(comp);
     	}

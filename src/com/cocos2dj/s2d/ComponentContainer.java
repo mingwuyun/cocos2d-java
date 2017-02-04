@@ -1,9 +1,10 @@
 package com.cocos2dj.s2d;
 
 import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.protocol.IComponent;
 
 /**
- * ComponentContainer.java
+ * IComponentContainer.java
  * <p>
  *
  * @author Copyright (c) 2017 xu jun
@@ -14,15 +15,15 @@ public class ComponentContainer {
 		this._owner = node;
 	}
 	
-	public Component get(int index) {
+	public IComponent get(int index) {
 		return _components.get(index);
 	}
 	
-	public Component get(String name) {
-		Component ret = null;
+	public IComponent get(String name) {
+		IComponent ret = null;
 		for(int i = 0; i < _components.size; ++i) {
-			Component curr = _components.get(i);
-			if(name.equals(curr._name)) {
+			IComponent curr = _components.get(i);
+			if(name.equals(curr.getName())) {
 				ret = curr;
 				break;
 			}
@@ -35,13 +36,13 @@ public class ComponentContainer {
 	 * @param com
 	 * @return
 	 */
-	public int add(Component com) {
+	public int add(IComponent com) {
 		int ret = _components.size;
-		assert com != null: "Component must be non-nil";
-	    assert com.getOwner() == null: "Component already added. It can't be added again";
+		assert com != null: "IComponent must be non-nil";
+	    assert com.getOwner() == null: "IComponent already added. It can't be added again";
 	    
 	    if(get(com.getName()) != null) {
-	    	assert false: "ComponentContainer already have this kind of component";
+	    	assert false: "IComponentContainer already have this kind of component";
 	    	return -1;
 	    }
 	    
@@ -60,7 +61,7 @@ public class ComponentContainer {
 	 */
 	public boolean remove(String name) {
 		for(int i = 0; i < _components.size; ++i) {
-			Component curr = _components.get(i);
+			IComponent curr = _components.get(i);
 			if(name.equals(curr.getName())) {
 				_components.removeIndex(i);
 				curr.onRemove();
@@ -71,13 +72,13 @@ public class ComponentContainer {
 		return false;
 	}
 	
-	public boolean remove(Component com) {
+	public boolean remove(IComponent com) {
 		return remove(com.getName());
 	}
 	
 	public void removeAll() {
 		for(int i = _components.size - 1; i >= 0; --i) {
-			Component curr = _components.get(i);
+			IComponent curr = _components.get(i);
 			curr.onRemove();
 			curr.setOwner(null);
 			_components.removeIndex(i);
@@ -110,7 +111,7 @@ public class ComponentContainer {
 	
 	
 	//fields>>
-	private Array<Component> 	_components = new Array<>(2);
+	private Array<IComponent> 	_components = new Array<>(2);
 	private final Node 			_owner;
 	//fields<<
 }

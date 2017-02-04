@@ -43,7 +43,7 @@ public final class PhysicsObjectStatic implements IPhysicsObject {
 	public final void setPosition(float x, float y) {
 		position.set(x, y);
 		updateSweepAABB();
-		PhysicsCard2D.instance()._getBroadPhase().moveProxy(
+		Base2D.instance()._getBroadPhase().moveProxy(
 				obj.getProxy(), obj.getSweepAABB(), new Vector2(0, 0));
 	}
 
