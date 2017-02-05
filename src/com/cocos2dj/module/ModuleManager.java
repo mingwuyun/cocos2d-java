@@ -68,7 +68,7 @@ public class ModuleManager {
 		return null;
 	}
 	
-	/**检测模块是否可以安装 */
+	/**检测模块是否可以安装 不能重复添加*/
 	private boolean checkModule(Module module) {
 		if(modules.contains(module, true)) {
 			CCLog.engine("ModuleManager", "module already exists");

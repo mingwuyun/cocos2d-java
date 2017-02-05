@@ -137,6 +137,18 @@ public class PhysicsObject {
 	}
 	
 	
+	public boolean isSleep() {
+		return sleep;
+	}
+	
+	/**
+	 * 设置物体休眠状态 休眠状态的物体会取消所有接触
+	 * 不会继续模拟 直到将sleep设置为false
+	 * @param sleep
+	 */
+	public void setSleep(boolean sleep) {
+		this.sleep = sleep;
+	}
 	
 	public boolean isRemoved() {
 		return scene == null;
@@ -176,13 +188,6 @@ public class PhysicsObject {
 		return this.targetGroupID != null;
 	}
 	
-	public final boolean isSleep() {
-		return sleep;
-	}
-	
-	public final void sleep(final boolean sleep) {
-		this.sleep = sleep;
-	}
 	/**@return 返回用户信息 */
 	public Object getUserData(){
 		return userData;

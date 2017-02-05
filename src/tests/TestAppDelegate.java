@@ -1,16 +1,13 @@
 package tests;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.files.FileHandle;
 import com.cocos2dj.base.Director;
-import com.cocos2dj.base.Rect;
 import com.cocos2dj.platform.AppDelegate;
 import com.cocos2dj.platform.FileUtils;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.Node;
 import com.cocos2dj.s2d.Scene;
-import com.cocos2dj.s2d.Sprite;
 
 public class TestAppDelegate implements AppDelegate {
 

@@ -1,6 +1,7 @@
 package com.cocos2dj.s2d;
 
 import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.protocol.IComponent;
 
 /**
@@ -31,6 +32,19 @@ public class ComponentContainer {
 		return ret;
 	}
 	
+	
+	/**检测组件能否添加 */
+	public boolean checkComponent(IComponent com) {
+		if(com.getOwner() != null) {
+			CCLog.error("ComponentCantainer", "component added in other node. ");
+			return false;
+		} else if(com.getOwner() == _owner) {
+			CCLog.error("ComponentCantainer", "component already in the node. ");
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * 返回components的当前尺寸，可以保存后使用index
 	 * @param com
@@ -41,8 +55,12 @@ public class ComponentContainer {
 		assert com != null: "IComponent must be non-nil";
 	    assert com.getOwner() == null: "IComponent already added. It can't be added again";
 	    
-	    if(get(com.getName()) != null) {
+	    if(com.getName() != null && get(com.getName()) != null) {
 	    	assert false: "IComponentContainer already have this kind of component";
+	    	return -1;
+	    }
+	    
+	    if(!checkComponent(com)) {
 	    	return -1;
 	    }
 	    
