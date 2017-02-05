@@ -32,15 +32,18 @@ public class Renderer {
 //	SpriteCache				spriteCache;
 	Array<RenderCommand>	commandQueue;
 	Matrix4					_projection;	//当前相机投影矩阵
+	Director				_director;
 	
 	public Renderer() {
 		batch = new PolygonSpriteBatch(2000, GLProgramCache.getInstance().getSpriteBatchDefaultProgram());
 		commandQueue = new Array<>(128);
+		_director = Director.justInstance();
 	}
 	
 	final ShapeRenderer getShapeRenderer() {
 		if(shapeRenderer == null) {
 			shapeRenderer = new ShapeRenderer(1000);
+			shapeRenderer.setAutoShapeType(true);
 		}
 		return shapeRenderer;
 	}
@@ -61,8 +64,11 @@ public class Renderer {
 	}
 	
 	public void render() {
-		batch.setProjectionMatrix(Director.getInstance().getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION));
-		
+		_projection = _director.getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION);
+		batch.setProjectionMatrix(_projection);
+		if(shapeRenderer != null) {
+			shapeRenderer.setProjectionMatrix(_projection);
+		}
 		for(int i = 0, n = commandQueue.size; i < n; ++i) {
 			commandQueue.get(i).execute(this);
 		}
@@ -136,6 +142,10 @@ public class Renderer {
 	}
 	
 	public final void addDrawCommand(RenderCommand.DrawCommand cmd) {
+		commandQueue.add(cmd);
+	}
+	
+	public final void addShapeCommand(RenderCommand.ShapeCommand cmd) {
 		commandQueue.add(cmd);
 	}
 	

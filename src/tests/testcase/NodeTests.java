@@ -1,6 +1,7 @@
 package tests.testcase;
 
 import com.cocos2dj.protocol.IComponent;
+import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
 
 import tests.TestCase;
@@ -42,11 +43,14 @@ public class NodeTests extends TestSuite {
 //			node.scheduleUpdate();
 			
 //			System.out.println("debug enter >>>>>> ");
-			schedule((t)->{
-				System.out.println("move");
-				node.setPosition(1 + node.getPositionX(), 10);
-				return false;
-			}, 1);
+//			schedule((t)->{
+//				System.out.println("move");
+//				node.setPosition(1 + node.getPositionX(), 10);
+//				return false;
+//			}, 1);
+			
+			DrawNode dn = new DrawNode();
+			addChild(dn);
 		}
 		
 		
