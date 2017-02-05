@@ -1,9 +1,8 @@
 package tests.testcase;
 
-import com.cocos2dj.module.base2d.framework.Base2D;
-import com.cocos2dj.module.base2d.framework.PhysicsObject;
-import com.cocos2dj.module.base2d.framework.PhysicsObjectType;
-import com.cocos2dj.module.base2d.framework.PhysicsScene;
+import com.cocos2dj.module.base2d.ComponentPhysics;
+import com.cocos2dj.module.base2d.ModuleBase2d;
+import com.cocos2dj.s2d.Node;
 import com.cocos2dj.s2d.Sprite;
 
 import tests.TestCase;
@@ -25,63 +24,54 @@ public class Base2dTests extends TestSuite {
 		
 	}
 	
-	//不用插件运行base2d
 	static class Base2DTest1 extends Base2DDemo {
 		
-		PhysicsScene scene;
-		Sprite spr1;		PhysicsObject phy1;
-		Sprite spr2;		PhysicsObject phy2;
-		Sprite sprGround;	PhysicsObject phyGround;		//地面
+		Sprite spr1;		ComponentPhysics phy1;
+		Sprite spr2;		ComponentPhysics phy2;
+		Sprite sprGround;	ComponentPhysics phyGround;		//地面
+		
+		ModuleBase2d moduleBase2d;
 		
 		public void onEnter() {
-			Base2D.initPhysicsCard2D();
-			
 			super.onEnter();
-			scene = new PhysicsScene();
-			Base2D.instance().loadScene(scene);
 			
-			spr1 = Sprite.create("powered.png"); addChild(spr1);
-			spr2 = Sprite.create("powered.png"); addChild(spr2);
-			sprGround = Sprite.create("powered.png"); addChild(sprGround);
+			// 添加moduleBase2d插件
+			moduleBase2d = (ModuleBase2d) addModule(new ModuleBase2d());	
 			
-			phy1 = new PhysicsObject();
-			phy2 = new PhysicsObject();
-			phyGround = new PhysicsObject(PhysicsObjectType.Static);
+			spr1 = Sprite.create("powered.png"); //addChild(spr1);
+			spr2 = Sprite.create("powered.png"); 
+			addChild(spr2);
+			sprGround = Sprite.create("powered.png"); 
+			addChild(sprGround);
 			
-			phy1.createShapeAsAABB(-50, -50, 50, 50);
+			Node spr1Node = Node.create();
+			addChild(spr1Node);
+			spr1Node.addChild(spr1);
+			spr1Node.setPosition(200, 200);
+			
+			phy1 = moduleBase2d.createDynamicObjectWithAABB(-50, -50, 50, 50);
+			spr1.addComponent(phy1);	//绑定phy1
 			spr1.setContentSize(100, 100);
-			spr1.scheduleUpdate();
-			spr1.setOnUpdateCallback((node, dt)->{
-				spr1.setPosition(phy1.getPosition());
-			});
-			phy1.setPosition(400, 400);
 			phy1.setVelocityX(5);
 			phy1.setAccelerateY(-0.5f);
+			spr1.setPosition(400, 400);		//位置同步，设置node会自动同步到phy对象
+
 			
-			
-			phy2.createShapeAsAABB(-50, -50, 50, 50);
+			phy2 = moduleBase2d.createDynamicObjectWithAABB(-50, -50, 50, 50);
+			spr2.addComponent(phy2);
 			spr2.setContentSize(100, 100);
-			spr2.scheduleUpdate();
-			spr2.setOnUpdateCallback((node, dt)->{
-				spr2.setPosition(phy2.getPosition());
-			});
-			phy2.setPosition(800, 300);
 			phy2.setAccelerateY(-0.5f);
+			phy2.setPosition(800, 300);		//直接设置phy也可以
 			
-			phyGround.createShapeAsAABB(0, 0, 1200, 100);
+			phyGround = moduleBase2d.createStaticObjectWithAABB(0, 0, 1200, 100);
 			sprGround.setRect(0, 0, 1200, 100);
 			
-			scene.add(phy1);
-			scene.add(phy2);
-			scene.add(phyGround);
-			scheduleUpdate();
+			schedule((t)->{
+				phy1.setPosition(500, 200);
+				return false;
+			}, 1);
 		}
 		
-		public boolean update(float dt) {
-			super.update(dt);
-			Base2D.instance().step(dt);
-			return false;
-		}
 		
 		public String subtitle() {
 			return "physicsTest";

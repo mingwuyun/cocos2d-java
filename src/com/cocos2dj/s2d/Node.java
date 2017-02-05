@@ -303,6 +303,7 @@ public class Node implements INode, IUpdater {
         _usingNormalizedPosition = true;
         _normalizedPositionDirty = true;
         _transformUpdated = _transformDirty = _inverseDirty = true;
+        _physicsCallFlag = false;
     }
 
     /**
@@ -349,6 +350,7 @@ public class Node implements INode, IUpdater {
         
         _transformUpdated = _transformDirty = _inverseDirty = true;
         _usingNormalizedPosition = false;
+        _physicsCallFlag = false;
     }
     
     /**
@@ -530,7 +532,7 @@ public class Node implements INode, IUpdater {
     	    
     	_rotationZ = rotation;
 	    _transformUpdated = _transformDirty = _inverseDirty = true;
-	    
+	    _physicsCallFlag = false;
 	    updateRotationQuat();
     }
     
@@ -1704,12 +1706,17 @@ public class Node implements INode, IUpdater {
      */
     public final Matrix4 getNodeToParentTransform(Node ancestor) {
     	final Matrix4 t = poolMatrix_1;
+    	
+//    	System.out.println("dirty = " + _transformDirty + this);
+//    	System.out.println("nodeToParentTransform = " + getNodeToParentTransform() + this);
+    	
     	t.set(getNodeToParentTransform());
 //        Mat4 t(this->getNodeToParentTransform());
         for (Node p = _parent;  p != null && p != ancestor ; p = p._parent) {
 //            t = p->getNodeToParentTransform() * t;
             t.mulLeft(p.getNodeToParentTransform());
         }
+//        System.out.println("getNodeToParentTransform" + t);
         return t;
     }
     
@@ -1850,8 +1857,8 @@ public class Node implements INode, IUpdater {
      * <b>pool object</b>
      */
     public Matrix4 getWorldToNodeTransform() {
-    	poolMatrix_1.set(getNodeToWorldTransform()).inv();
-    	return poolMatrix_1;
+    	poolMatrix_2.set(getNodeToWorldTransform()).inv();
+    	return poolMatrix_2;
     }
     
     public AffineTransform getWorldToNodeAffineTransform() {
@@ -1873,8 +1880,9 @@ public class Node implements INode, IUpdater {
      */
     public Vector2 convertToNodeSpace( Vector2 worldPoint) {
     	Matrix4 tmp = getWorldToNodeTransform();
+//    	System.out.println("temp = " + tmp);
     	final Vector3 ret = poolVector3_1.set(worldPoint.x, worldPoint.y, 0);
-    	poolVector3_1.mul(tmp);
+    	ret.mul(tmp);
     	return poolVector2_1.set(ret.x, ret.y);
     }
 
@@ -2039,6 +2047,10 @@ public class Node implements INode, IUpdater {
     public final void setonExitTransitionDidStartCallback(OnExitTransitionDidStartCallback callback) { _onExitTransitionDidStartCallback = callback; }
     public final OnExitTransitionDidStartCallback getonExitTransitionDidStartCallback()  { return _onExitTransitionDidStartCallback; }   
     
+    
+    public final void setOnTransformCallback(OnTransformCallback callback) { _onTransformCallback = callback; }
+    public final OnTransformCallback getOnTransformCallback()  { return _onTransformCallback; }   
+    
     //java ext
     public final void setNodeCallback(NodeCallback callback) {
     	this._onEnterCallback = callback;
@@ -2121,10 +2133,16 @@ public class Node implements INode, IUpdater {
 //	    	System.out.println("update >>>>> trans" + getDescription() + _position
 //	    			+ "\n" + parentTransform);
 	        _modelViewTransform = this.transform(parentTransform);
+	        
+	        if(_onTransformCallback != null && !_physicsCallFlag) {
+		    	_onTransformCallback.onTransform(this);
+		    }
 //	        Vector3 d = new Vector3();
 //	        _modelViewTransform.getTranslation(d);
 //	        System.out.println("transro m = \n" + _modelViewTransform);
 	    }
+	    
+	   
 	    
 	    _transformUpdated = false;
 	    _contentSizeDirty = false;
@@ -2269,7 +2287,21 @@ public class Node implements INode, IUpdater {
     protected OnEnterTransitionDidFinishCallback 	_onEnterTransitionDidFinishCallback;
     protected OnExitTransitionDidStartCallback 		_onExitTransitionDidStartCallback;
     
+    protected OnTransformCallback	_onTransformCallback;
+    protected boolean 				_physicsCallFlag;		
+    /** 物理对象修正标志，不会触发onTransform
+     * 手动调用一次setPosition后失效 <b>不要手动调用</b> */
+    public final void _setPhysicsCallFlag() {
+    	_physicsCallFlag = true;
+    }
+    
+    /**返回位置更新标志 在drawScene（visit方法调用）后会失效 */
+    public final boolean getTransformDirty() {
+    	return _transformDirty;
+    }
+    
     static final Matrix4 poolMatrix_1 = new Matrix4();
+    static final Matrix4 poolMatrix_2 = new Matrix4();
     static final Vector2 poolVector2_1 = new Vector2();
     static final Vector3 poolVector3_1 = new Vector3();
 

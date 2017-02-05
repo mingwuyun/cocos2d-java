@@ -312,6 +312,7 @@ public class PhysicsObject {
 	 * @param positionY */
 	public final void setPosition(final float positionX,final float positionY){
 		physicsImpl.setPosition(positionX, positionY);
+		listener.onUpdatePosition(this);
 		
 	}
 	

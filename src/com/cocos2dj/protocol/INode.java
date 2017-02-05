@@ -63,6 +63,9 @@ public interface INode {
 	
 	////////////////////////////////////////////
 	// callback
+	/**变换更新时调用 */
+	public static interface OnTransformCallback {public void onTransform(INode n);}
+	
 	public static interface OnEnterCallback {public void onEnter(INode n);}
 	public static interface OnExitCallback {public void onExit(INode n);}
 	public static interface OnExitTransitionDidStartCallback {public void onExitTransitionDidStart(INode n);}
