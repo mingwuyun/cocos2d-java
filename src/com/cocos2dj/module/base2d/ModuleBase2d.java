@@ -96,6 +96,32 @@ public class ModuleBase2d extends Module implements IUpdater {
 		return phy;
 	}
 	
+	public ComponentPhysics createMoveObject(Shape shape) {
+		if(physicsScene == null) {
+			return null;
+		}
+		ComponentPhysics phy = new ComponentPhysics(PhysicsObjectType.Move);
+		phy.addShape(shape);
+		physicsScene.add(phy);
+		return phy;
+	}
+	
+	public ComponentPhysics createDetectObject(Shape shape) {
+		if(physicsScene == null) {
+			return null;
+		}
+		ComponentPhysics phy = new ComponentPhysics(PhysicsObjectType.Detect);
+		phy.addShape(shape);
+		physicsScene.add(phy);
+		return phy;
+	}
+	
+	public ComponentPhysics createDetectObjectWithAABB(float x0, float y0, float x1, float y1) {
+		AABBShape shape = new AABBShape();
+		shape.setAABBShape(x0, y0, x1, y1);
+		return createDetectObject(shape);
+	}
+	
 	public ComponentPhysics createStaticObjectWithAABB(float x, float y, float width, float height) {
 		AABBShape shape = new AABBShape();
 		shape.setAABBShape(0, 0, width, height);
