@@ -2302,6 +2302,11 @@ public class Node implements INode, IUpdater {
     
     protected OnTransformCallback	_onTransformCallback;
     protected boolean 				_physicsCallFlag;		
+    
+    public final float getModelRotation() {
+    	return _modelRotationZ;
+    }
+    
     /** 物理对象修正标志，不会触发onTransform
      * 手动调用一次setPosition后失效 <b>不要手动调用</b> */
     public final void _setPhysicsCallFlag() {

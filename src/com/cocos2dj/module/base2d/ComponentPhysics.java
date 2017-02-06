@@ -80,6 +80,10 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 		listener = null;
 	}
 	
+	/*
+	 * base2d并不是刚体模拟物理引擎，
+	 * rotation不做同步
+	 */
 	//node更新物理对象位置
 	@Override
 	public final void onTransform(INode n) {

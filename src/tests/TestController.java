@@ -121,7 +121,6 @@ public class TestController {
     }
     
     static class MyTestCase extends TestCase {
-    	
     	public void onEnter() {
     		System.out.println("MyTestCase ");
     		super.onEnter();

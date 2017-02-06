@@ -1,20 +1,34 @@
-package com.stormframework.util;
+package com.cocos2dj.utils;
 
 import java.lang.reflect.Field;
 
+import com.badlogic.gdx.math.Vector2;
+
 /**
- * ÒıÇæ³£ÓÃ¹¤¾ß<p>
+ * MessUtils.java
+ * <p>
  * 
- * @author xu jun
+ * å„ç§ä¹±ä¸ƒå…«ç³Ÿçš„åŠŸèƒ½é›†åˆ
+ * 
+ * @author Copyright(c) 2016-2017 xu jun
  */
-public class SUtils {
+public class MessUtils {
 	
-	/**»ñÈ¡ËùÓĞpublicÈ¨ÏŞµÄfields */
+	public static float[] pointsToFloats(Vector2...verts) {
+		float[] ps = new float[verts.length];
+    	for(int i = 0; i < verts.length; ++i) {
+    		ps[i * 2] = verts[i].x;
+    		ps[i * 2 + 1] = verts[i].y;
+    	}
+    	return ps;
+	}
+	
+	/** */
 	public static String getFieldsStr(Object o) {
 		return getFieldsStr(o, true);
 	}
 	
-	/**»ñÈ¡¸Ã¶ÔÏóµÄfields*/
+	/***/
 	public static String getFieldsStr(Object o, boolean onlyPublic) {
 		StringBuilder sb = new StringBuilder();
 		Field[] fs;

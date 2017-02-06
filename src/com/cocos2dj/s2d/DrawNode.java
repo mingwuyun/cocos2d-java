@@ -5,9 +5,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.cocos2dj.renderer.RenderCommand;
 import com.cocos2dj.renderer.Renderer;
+import com.cocos2dj.utils.MessUtils;
 import com.cocos2dj.renderer.RenderCommand.ShapeCommandCallback;
 
 /**
@@ -15,7 +17,7 @@ import com.cocos2dj.renderer.RenderCommand.ShapeCommandCallback;
  * <p>
  * 
  * 图元绘制指令缓存：
- * Type, color, pointLen, x0, y1, x1, y1, ...
+ * Type, color, borderWidth, pointLen, x0, y1, x1, y1, ...
  * 
  * @author Copyright(c) 2017 xu jun
  */
@@ -54,7 +56,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @js NA
      */
     public void drawPoint(Vector2 point, float pointSize, Color color) {
-    	
+    	drawDot(point, color);
     }
     
     /** Draw a group point.
@@ -64,9 +66,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color The point color.
      * @js NA
      */
-    public void drawPoints(Vector2 position, int numberOfPoints, Color color) {
-    	
-    }
+//    public void drawPoints(Vector2 position, int numberOfPoints, Color color) { }
     
     /** Draw a group point.
      *
@@ -76,9 +76,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color The point color.
      * @js NA
      */
-    public void drawPoints(Vector2 position, int numberOfPoints,  float pointSize,  Color color) {
-    	
-    }
+//    public void drawPoints(Vector2 position, int numberOfPoints,  float pointSize,  Color color) { }
     
     /** Draw an line from origin to destination with color. 
      * 
@@ -88,7 +86,8 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @js NA
      */
     public void drawLine( Vector2 origin,  Vector2 destination,  Color color) {
-    	
+    	//暂时这样
+    	drawSegment(origin, destination, 1f, color);
     }
     
     /** Draws a rectangle given the origin and destination point measured in points.
@@ -99,7 +98,15 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color The rectangle color.
      */
     public void drawRect( Vector2 origin,  Vector2 destination,  Color color) {
-    	
+    	drawSolidRect(origin.x, origin.y, destination.x, destination.y, color);
+    }
+    
+    public void drawRect(float fromX, float fromY, float toX, float toY, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Rect, color, ShapeType.Line, lineWidth, 
+    			fromX, fromY, toX, toY);
     }
     
     /** Draws a polygon given a pointer to point coordinates and the number of vertices measured in points.
@@ -110,9 +117,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param closePolygon The polygon can be closed or open.
      * @param color The polygon color.
      */
-    public void drawPoly( Vector2[] poli, boolean closePolygon,  Color color) {
-    	
-    }
+//    public void drawPoly( Vector2[] poli, boolean closePolygon,  Color color) {    	}
     
     /** Draws a circle given the center, radius and number of segments.
      *
@@ -125,9 +130,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param scaleY The scale value in y.
      * @param color Set the circle color.
      */
-    public void drawCircle(  Vector2 center, float radius, float angle,  int segments, boolean drawLineToCenter, float scaleX, float scaleY,  Color color) {
-    	
-    }
+//    public void drawCircle(  Vector2 center, float radius, float angle,  int segments, boolean drawLineToCenter, float scaleX, float scaleY,  Color color) {}
     
     /** Draws a circle given the center, radius and number of segments.
      *
@@ -138,8 +141,24 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param drawLineToCenter Whether or not draw the line from the origin to center.
      * @param color Set the circle color.
      */
-    public void drawCircle( Vector2 center, float radius, float angle,  int segments, boolean drawLineToCenter,  Color color) {
-    	
+    public void drawCircle( Vector2 center, float radius, int segments, Color color) {
+    	drawCircle(center.x, center.y, radius, segments, color);
+    }
+    
+    public void drawCircle( Vector2 center, float radius, Color color) {
+    	drawCircle(center.x, center.y, radius, -1, color);
+    }
+    
+    public void drawCircle(float x, float y, float radius,  Color color) {
+    	drawCircle(x, y, radius, -1, color);
+    }
+    
+    public void drawCircle(float x, float y, float radius,int segments,  Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Circle, color, ShapeType.Line, 
+    			radius, x, y, segments);
     }
     
     /** Draws a quad bezier path.
@@ -151,7 +170,23 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color Set the quad bezier color.
      */
     public void drawQuadBezier( Vector2 origin,  Vector2 control,  Vector2 destination,  int segments,  Color color) {
-    	
+    	drawQuadBezier(origin.x, origin.y, control.x, control.y, destination.x, destination.y, segments, color);
+    }
+    
+    public void drawQuadBezier( Vector2 origin,  Vector2 control,  Vector2 destination,  Color color) {
+    	drawQuadBezier(origin, control, destination, 16, color);
+    }
+    
+    public void drawQuadBezier(float x1, float y1, float cx, float cy, float x2, float y2,  Color color) {
+    	drawQuadBezier(x1, y1, cx, cy, x2, y2, 16, color);
+    }
+    
+    public void drawQuadBezier(float x1, float y1, float cx, float cy, float x2, float y2, int segments,  Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Bezier, color, ShapeType.Line, lineWidth, 
+    			x1, y1, cx, cy, cx, cy, x2, y2, segments);
     }
 
     /** Draw a cubic bezier curve with color and number of segments
@@ -164,7 +199,28 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color Set the cubic bezier color.
      */
     public void drawCubicBezier( Vector2 origin,  Vector2 control1,  Vector2 control2,  Vector2 destination,  int segments,  Color color) {
-    	
+    	drawCubicBezier(origin.x, origin.y, control1.x, control1.y, 
+    			control2.x, control2.y, destination.x, destination.y, segments, color);
+    }
+    
+    public void drawCubicBezier( Vector2 origin,  Vector2 control1,  Vector2 control2,  Vector2 destination,  Color color) {
+    	drawCubicBezier(origin, control1, control2, destination, 16, color);
+    }
+    
+    public void drawCubicBezier(float x1, float y1, float c1x, float c1y, float c2x, float c2y,  float x2, float y2,  Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Bezier, color, ShapeType.Line, lineWidth, 
+    			x1, y1, c1x, c1y, c2x, c2y, x2, y2, 16);
+    }
+    
+    public void drawCubicBezier(float x1, float y1, float c1x, float c1y, float c2x, float c2y,  float x2, float y2,  int segments,  Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Bezier, color, ShapeType.Line, lineWidth, 
+    			x1, y1, c1x, c1y, c2x, c2y, x2, y2, segments);
     }
     
     /** Draws a Cardinal Spline path.
@@ -191,8 +247,24 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param radius The dot radius.
      * @param color The dot color.
      */
-    public void drawDot(Vector2 pos, float radius,  Color color) {
-    	
+    public void drawDot(Vector2 pos, float radius, Color color) {
+    	drawDot(pos.x, pos.y, radius, color);
+    }
+    
+    public void drawDot(Vector2 pos, Color color) {
+    	drawDot(pos.x, pos.y, color);
+    }
+    
+    public void drawDot(float x, float y, Color color) {
+    	drawDot(x, y, lineWidth, color);	// 使用默认尺寸
+    }
+    
+    public void drawDot(float x, float y, float radius, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Dot, color, ShapeType.Filled, radius, 
+    			x, y);
     }
     
     /** Draws a rectangle with 4 points.
@@ -203,9 +275,9 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param p4 The rectangle vertex point.
      * @param color The rectangle color.
      */
-    public void drawRect( Vector2 p1,  Vector2 p2,  Vector2 p3,  Vector2 p4,  Color color) {
-    	
-    }
+//    public void drawRect( Vector2 p1,  Vector2 p2,  Vector2 p3,  Vector2 p4,  Color color) {
+//    	drawSolidRect(origin.x, origin.y, destination.x, destination.y, color);
+//    }
     
     /** Draws a solid rectangle given the origin and destination point measured in points.
      * The origin and the destination can not have the same x and y coordinate.
@@ -216,7 +288,15 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @js NA
      */
     public void drawSolidRect( Vector2 origin,  Vector2 destination,  Color color) {
-    	
+    	drawSolidRect(origin.x, origin.y, destination.x, destination.y, color);
+    }
+    
+    public void drawSolidRect(float fromX, float fromY, float toX, float toY, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Rect, color, ShapeType.Filled, lineWidth, 
+    			fromX, fromY, toX, toY);
     }
     
     /** Draws a solid polygon given a pointer to CGPoint coordinates, the number of vertices measured in points, and a color.
@@ -225,34 +305,40 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color The solid polygon color.
      * @js NA
      */
-    public void drawSolidPoly( Vector2[] poli, Color color) {
-    	
+//    public void drawSolidPoly( Vector2[] poli, Color color) {
+//    }
+    
+    /** Draws a solid circle given the center, radius and number of segments.
+     * @param center The circle center point.
+     * @param radius The circle rotate of radius.
+     * @param color The solid circle color.
+     * @js NA
+     */
+    public void drawSolidCircle( Vector2 center, float radius, Color color) {
+    	drawSolidCircle(center.x, center.y, radius, color);
     }
     
     /** Draws a solid circle given the center, radius and number of segments.
      * @param center The circle center point.
      * @param radius The circle rotate of radius.
-     * @param angle  The circle angle.
      * @param segments The number of segments.
-     * @param scaleX The scale value in x.
-     * @param scaleY The scale value in y.
      * @param color The solid circle color.
      * @js NA
      */
-    public void drawSolidCircle( Vector2 center, float radius, float angle,  int segments, float scaleX, float scaleY,  Color color) {
-    	
+    public void drawSolidCircle( Vector2 center, float radius, int segments,  Color color) {
+    	drawSolidCircle(center.x, center.y, radius, segments, color);
     }
     
-    /** Draws a solid circle given the center, radius and number of segments.
-     * @param center The circle center point.
-     * @param radius The circle rotate of radius.
-     * @param angle  The circle angle.
-     * @param segments The number of segments.
-     * @param color The solid circle color.
-     * @js NA
-     */
-    public void drawSolidCircle( Vector2 center, float radius, float angle,  int segments,  Color color) {
-    	
+    public void drawSolidCircle(float x, float y, float radius, Color color) {
+    	drawSolidCircle(x, y, radius, -1, color);
+    }
+
+    public void drawSolidCircle(float x, float y, float radius, int segments, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Circle, color, ShapeType.Filled, 
+    			radius, x, y, segments);
     }
     
     /** draw a segment with a radius and color. 
@@ -263,19 +349,23 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param color The segment color.
      */
     public void drawSegment( Vector2 from,  Vector2 to, float radius,  Color color) {
-    	
+    	drawSegment(from.x, from.y, to.x, to.y, radius, color);
     }
+    
+    public void drawSegment( Vector2 from,  Vector2 to,  Color color) {
+    	drawSegment(from.x, from.y, to.x, to.y, lineWidth, color);
+    }
+    
+    public void drawSegment(float fromX, float fromY, float toX, float toY) {
+    	drawSegment(fromX, fromY, toX, toY, lineWidth, null);
+    }
+    
     public void drawSegment( float fromX, float fromY, float toX, float toY, float radius,  Color color) {
     	if(!batchCommand) {	
     		clear();
     	}
-    	pushShapeCommandCell(DrawType.Segment, color, ShapeType.Filled,
+    	pushShapeCommandCell(DrawType.Segment, color, ShapeType.Filled, 
     			radius, fromX, fromY, toX, toY);
-    	/*
-    	 * 格式：
-    	 * width : if 0 draw line else draw rectLine
-    	 * x0, y0, x1, y1 
-    	 */
     }
     
     /** draw a polygon with a fill color and line color
@@ -286,24 +376,58 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     * @endcode
     * @param verts A pointer to point coordinates.
     * @param fillColor The color will fill in polygon.
-    * @param borderWidth The border of line width.
     * @param borderColor The border of line color.
     * @js NA
     */
-    public void drawPolygon(Vector2[] verts, Color fillColor, float borderWidth,  Color borderColor) {
-    	
+    public void drawPolygon(Vector2[] verts, Color fillColor) {
+    	drawPolygon(MessUtils.pointsToFloats(verts), fillColor);
     }
 	
+    public void drawPolygon(float[] verts, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Polygon, color, ShapeType.Line, lineWidth, 
+    			verts);
+    }
+    
+    public void drawSolidTriangle( Vector2 p1,  Vector2 p2,  Vector2 p3,  Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Triange, color, ShapeType.Line,
+    			lineWidth, MessUtils.pointsToFloats(p1, p2, p3));
+    }
+    
+    public void drawSolidTriangle(float x0, float y0, float x1, float y1, float x2, float y2, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Triange, color, ShapeType.Filled,
+    			lineWidth, x0, y0, x1, y1, x2, y2);
+    }
+    
     /** draw a triangle with color. 
      *
      * @param p1 The triangle vertex point.
      * @param p2 The triangle vertex point.
      * @param p3 The triangle vertex point.
      * @param color The triangle color.
-     * @js NA
      */
     public void drawTriangle( Vector2 p1,  Vector2 p2,  Vector2 p3,  Color color) {
-    	
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Triange, color, ShapeType.Line,
+    			lineWidth, MessUtils.pointsToFloats(p1, p2, p3));
+    }
+    
+    public void drawTriangle(float x0, float y0, float x1, float y1, float x2, float y2, Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Triange, color, ShapeType.Line,
+    			lineWidth, x0, y0, x1, y1, x2, y2);
     }
 
     /** draw a quadratic bezier curve with color and number of segments, use drawQuadBezier instead.
@@ -334,37 +458,19 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     * @lua NA
     */
 //    void setBlendFunc( BlendFunc blendFunc);
-
-//    /**
-//     * @js NA
-//     */
-//    virtual void onDraw( Mat4 transform, uint32_t flags);
-//    /**
-//     * @js NA
-//     */
-//    virtual void onDrawGLLine( Mat4 transform, uint32_t flags);
-//    /**
-//     * @js NA
-//     */
-//    virtual void onDrawGLPoint( Mat4 transform, uint32_t flags);
-//    
-//    // Overrides
-//    virtual void draw(Renderer *renderer,  Mat4 transform, uint32_t flags) override;
     
     public void setLineWidth(int lineWidth) {
-    	
+    	this.lineWidth = lineWidth;
     }
 
     // Get CocosStudio guide lines width.
     public float getLineWidth() {
-    	//TODO
-    	return 0;
+    	return lineWidth;
     }
     
     ///////////////////////////////////////
     //TODO 绘制命令相关
     static enum DrawType {
-    	Line,	//直线
     	Triange,
     	Circle,
     	Segment, //线段
@@ -376,6 +482,8 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     Array<Object> 	shapeCommandQueues = new Array<>();
     private int 	currShapePos;
     private boolean	batchCommand = false;
+    float 			lineWidth = 2;
+    static final Vector3 stackVec3 = new Vector3();
     
     public final DrawNode startBatch() {
     	batchCommand = true;
@@ -384,13 +492,14 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     
     /**添加shape绘制命令缓存 */
     final void pushShapeCommandCell(DrawType type, Color color, ShapeType drawType,
-    		float...vs) {
+    		float borderWidth, float...vs) {
     	shapeCommandQueues.add(type);
     	if(color == null) {
     		color = Color.BLUE;
     	}
     	shapeCommandQueues.add(color);
     	shapeCommandQueues.add(drawType);
+    	shapeCommandQueues.add(borderWidth);
     	shapeCommandQueues.add(vs.length);
     	for(float v : vs) {
     		shapeCommandQueues.add(v);
@@ -406,6 +515,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     	stackCommand.drawType = (DrawType) shapeCommandQueues.get(currShapePos++);
     	stackCommand.color = (Color) shapeCommandQueues.get(currShapePos++);
     	stackCommand.shapeType = (ShapeType) shapeCommandQueues.get(currShapePos++);
+    	stackCommand.borderWidth = (float) shapeCommandQueues.get(currShapePos++);
     	int dataLen = (int) shapeCommandQueues.get(currShapePos++);
     	for(int i = 0; i < dataLen; ++i) {
     		stackCommand.vertexArray.add((Float) shapeCommandQueues.get(currShapePos++));
@@ -419,30 +529,151 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     	DrawType 		drawType;
     	ShapeType		shapeType;
     	Color			color;
+    	float			borderWidth;
     	Array<Float> 	vertexArray = new Array<>();
     	
     	final void clear() {
     		vertexArray.clear();
     	}
     	
-    	final void drawShape(ShapeRenderer shapeRenderer) {
+    	final void drawShape(ShapeRenderer shapeRenderer, Matrix4 trans) {
     		if(shapeType != shapeRenderer.getCurrentType()) {
     			shapeRenderer.set(shapeType);
     		}
     		switch(drawType) {
-    		case Segment:
+    		case Segment: {
     			shapeRenderer.setColor(color);
-    			float width = vertexArray.get(0);
-    			float x0 = vertexArray.get(1);
-    			float y0 = vertexArray.get(2);
-    			float x1 = vertexArray.get(3);
-    			float y1 = vertexArray.get(4);
-    			if(width <= 0) {
+    			float x0 = vertexArray.get(0);
+    			float y0 = vertexArray.get(1);
+    			float x1 = vertexArray.get(2);
+    			float y1 = vertexArray.get(3);
+    			
+    			//坐标变换
+    			stackVec3.set(x0, y0, 0).mul(trans);
+    			x0 = stackVec3.x; y0 = stackVec3.y;
+    			stackVec3.set(x1, y1, 0).mul(trans);
+    			x1 = stackVec3.x; y1 = stackVec3.y;
+    			
+    			if(borderWidth <= 0) {
     				shapeRenderer.line(x0, y0, x1, y1);
     			} else {
-    				shapeRenderer.rectLine(x0, y0, x1, y1, width);
+    				shapeRenderer.rectLine(x0, y0, x1, y1, borderWidth);
     			}
-    			break;
+    		} break;
+    		case Polygon: {
+    			shapeRenderer.setColor(color);
+    			float[] points = new float[vertexArray.size];
+    			for(int i = 0; i < points.length; i+=2) {
+    				float x = vertexArray.get(i);
+    				float y = vertexArray.get(i + 1);
+    				stackVec3.set(x, y, 0).mul(trans);
+    				points[i] = stackVec3.x;
+    				points[i + 1] = stackVec3.y;
+    			}
+    			shapeRenderer.polygon(points);
+    		} break;
+    		case Triange: {
+    			shapeRenderer.setColor(color);
+    			float x0 = vertexArray.get(0);
+    			float y0 = vertexArray.get(1);
+    			float x1 = vertexArray.get(2);
+    			float y1 = vertexArray.get(3);
+    			float x2 = vertexArray.get(4);
+    			float y2 = vertexArray.get(5);
+    			
+    			stackVec3.set(x0, y0, 0).mul(trans);
+    			x0 = stackVec3.x; y0 = stackVec3.y;
+    			stackVec3.set(x1, y1, 0).mul(trans);
+    			x1 = stackVec3.x; y1 = stackVec3.y;
+    			stackVec3.set(x2, y2, 0).mul(trans);
+    			x2 = stackVec3.x; y2 = stackVec3.y;
+    			
+    			shapeRenderer.triangle(x0, y0, x1, y1, x2, y2);
+    		} break;
+    		case Rect: {
+    			shapeRenderer.setColor(color);
+    			float x0 = vertexArray.get(0);
+    			float y0 = vertexArray.get(1);
+    			float x2 = vertexArray.get(2);
+    			float y2 = vertexArray.get(3);
+    			float x1 = x2;
+    			float y1 = y0;
+    			float x3 = x0;
+    			float y3 = y2;
+    			
+    			stackVec3.set(x0, y0, 0).mul(trans);
+    			x0 = stackVec3.x; y0 = stackVec3.y;
+    			stackVec3.set(x1, y1, 0).mul(trans);
+    			x1 = stackVec3.x; y1 = stackVec3.y;
+    			stackVec3.set(x2, y2, 0).mul(trans);
+    			x2 = stackVec3.x; y2 = stackVec3.y;
+    			stackVec3.set(x3, y3, 0).mul(trans);
+    			x3 = stackVec3.x; y3 = stackVec3.y;
+    			
+    			if(shapeType == ShapeType.Filled) {
+    				shapeRenderer.triangle(x0, y0, x1, y1, x3, y3);
+    				shapeRenderer.triangle(x3, y3, x1, y1, x2, y2);
+    			} else {
+    				shapeRenderer.line(x0, y0, x1, y1);
+    				shapeRenderer.line(x1, y1, x2, y2);
+    				shapeRenderer.line(x2, y2, x3, y3);
+    				shapeRenderer.line(x3, y3, x0, y0);
+    			}
+    		} break;
+    		case Dot: {
+    			shapeRenderer.setColor(color);
+    			float x = vertexArray.get(0);
+    			float y = vertexArray.get(1);
+    			stackVec3.set(x, y, 0).mul(trans);
+    			x = stackVec3.x; y = stackVec3.y;
+//    			System.out.println("x = " + x + " y = " + y + " broadWidth = " + borderWidth);
+    			if(borderWidth < 1) {
+    				shapeRenderer.circle(x, y, 1);
+    			} else {
+    				shapeRenderer.circle(x, y, borderWidth);
+    			}
+    		} break;
+    		case Circle: {
+    			shapeRenderer.setColor(color);
+    			
+    			float x = vertexArray.get(0);
+    			float y = vertexArray.get(1);
+    			stackVec3.set(x, y, 0).mul(trans);
+    			x = stackVec3.x; y = stackVec3.y;
+    			
+    			float scaleX = trans.getScaleX();
+    			
+    			float segmentCount = vertexArray.get(2);
+    			if(segmentCount < 1) {
+    				shapeRenderer.circle(x, y, borderWidth * scaleX);
+    			} else {
+    				shapeRenderer.circle(x, y, borderWidth * scaleX, (int)segmentCount);
+    			}
+    		} break;
+    		
+    		case Bezier: {
+    			shapeRenderer.setColor(color);
+    			float x1 = vertexArray.get(0);
+    			float y1 = vertexArray.get(1);
+    			float cx1 = vertexArray.get(2);
+    			float cy1 = vertexArray.get(3);
+    			float cx2 = vertexArray.get(4);
+    			float cy2 = vertexArray.get(5);
+    			float x2 = vertexArray.get(6);
+    			float y2 = vertexArray.get(7);
+    			float segments = vertexArray.get(8);
+    			
+    			stackVec3.set(x1, y1, 0).mul(trans);
+    			x1 = stackVec3.x; y1 = stackVec3.y;
+    			stackVec3.set(cx1, cy1, 0).mul(trans);
+    			cx1 = stackVec3.x; cy1 = stackVec3.y;
+    			stackVec3.set(cx2, cy2, 0).mul(trans);
+    			cx2 = stackVec3.x; cy2 = stackVec3.y;
+    			stackVec3.set(x2, y2, 0).mul(trans);
+    			x2 = stackVec3.x; y2 = stackVec3.y;
+    			
+    			shapeRenderer.curve(x1, y1, cx1, cy1, cx2, cy2, x2, y2, (int)segments);
+    		} break;
     		}
     	}
     }
@@ -472,18 +703,9 @@ public class DrawNode extends Node implements ShapeCommandCallback {
 		currShapePos = 0;
 		StructShapeCommand cmd = popShapeCommandCell();
 		while(cmd != null) {
-			cmd.drawShape(shapeRenderer);
+			cmd.drawShape(shapeRenderer, _modelViewTransform);
 			cmd = popShapeCommandCell();
 		}
 		batchCommand = false;	//绘制一次后，batch命令清除
-		
-		//test
-//		shapeRenderer.set(ShapeType.Filled);
-//		shapeRenderer.setColor(Color.BLUE);
-//		shapeRenderer.rectLine(20, 20, 300, 300, 10);
-		
-//		shapeRenderer.line(20, 20, 300, 300);
-//		shapeRenderer.rect(20, 100, 500, 200);
-//		shapeRenderer.line(0, 200, 800, 300);
 	}
 }
