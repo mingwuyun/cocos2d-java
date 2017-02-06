@@ -484,6 +484,12 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     private boolean	batchCommand = false;
     float 			lineWidth = 2;
     static final Vector3 stackVec3 = new Vector3();
+    private boolean _useCulling = true;
+    private boolean _insideBounds = true;
+    
+    public final boolean isInsideBounds() {
+    	return _insideBounds;
+    }
     
     public final DrawNode startBatch() {
     	batchCommand = true;
@@ -504,6 +510,22 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     	for(float v : vs) {
     		shapeCommandQueues.add(v);
     	}
+    	
+    	//contentSize
+    	switch(type) {
+    	case Circle:
+    		float width = getContentSize().width;
+    		float height = getContentSize().height;
+    		width = borderWidth > width ? borderWidth : width;
+    		height = borderWidth > height ? borderWidth : height;
+    		setContentSize(borderWidth, borderWidth);	//circle special
+    		break;
+    	default:
+    		//自动忽略最后一位数
+    		calculateContentSize(vs);
+    		break;
+    	}
+//    	System.out.println("content = " + getContentSize());
     }
     
     final StructShapeCommand popShapeCommandCell() {
@@ -683,7 +705,29 @@ public class DrawNode extends Node implements ShapeCommandCallback {
 //    	
 //    }
     final void calculateContentSize(float[] points) {
+    	float x0 = Float.MAX_VALUE;
+    	float y0 = Float.MAX_VALUE;
+    	float x1 = Float.MIN_VALUE;
+    	float y1 = Float.MIN_VALUE;
     	
+    	for(int i = 0, n = points.length/2; i < n; ++i) {
+    		float x = points[i*2];
+    		float y = points[i*2+1];
+    		
+    		x0 = x < x0 ? x : x0;
+    		y0 = y < y0 ? y : y0;
+    		x1 = x > x1 ? x : x1;
+    		y1 = y > y1 ? y : y1;
+    	}
+    	
+    	float width = getContentSize().width;
+		float height = getContentSize().height;
+    	float nwidth = x1 - x0;
+		float nheight = y1 - y0;
+		
+		width = nwidth > width ? nwidth : width;
+		height = nheight > height ? nheight : height;
+    	setContentSize(width, height);
     }
     
     final void calculateContentSizeCircle(float x, float y, float radious) {
@@ -693,7 +737,15 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     
     
     public void draw(Renderer renderer, Matrix4 transform, int flags) {
-    	renderer.addShapeCommand(_shapeCommand);
+    	if(_useCulling) {
+			_insideBounds = renderer.checkVisibility(transform, _contentSize, _anchorPointInPoints);
+    	} else {
+    		_insideBounds = true;
+    	}
+    	
+    	if(_insideBounds) {
+    		renderer.addShapeCommand(_shapeCommand);
+    	}
     }
     
     final RenderCommand.ShapeCommand _shapeCommand;
