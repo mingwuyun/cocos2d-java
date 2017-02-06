@@ -7,6 +7,7 @@ import com.cocos2dj.base.Touch;
 
 import tests.testcase.Base2dTests;
 import tests.testcase.CameraTests;
+import tests.testcase.DrawNodeTests;
 import tests.testcase.NodeTests;
 import tests.testcase.ShaderTests;
 import tests.testcase.SpriteTests;
@@ -51,6 +52,7 @@ public class TestController {
 
     public boolean blockTouchBegan(Touch touch, Event event) {
     	
+    	return false;
     }
 
     public void setCurrTestSuite(TestSuite testSuite) { _testSuite = testSuite;}
@@ -73,6 +75,7 @@ public class TestController {
     
     private boolean checkTest(TestCase testCase) {
     	
+    	return true;
     }
 
     private void logEx(String msg) {
@@ -111,7 +114,7 @@ public class TestController {
     		addTest("CameraTests", ()->{return new CameraTests();});
     		addTest("ShaderTests", ()->{return new ShaderTests();});
     		addTest("Base2DPhysicsTests", ()->{return new Base2dTests();});
-    		addTest("test_test6", ()->{return new TestCaseSimple();});
+    		addTest("DrawNodeTests", ()->{return new DrawNodeTests();});
     		addTest("test_test7", ()->{return new TestCaseSimple();});
     	}
     	

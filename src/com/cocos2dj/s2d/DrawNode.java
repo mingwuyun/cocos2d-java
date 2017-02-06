@@ -2,8 +2,10 @@ package com.cocos2dj.s2d;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.cocos2dj.renderer.RenderCommand;
 import com.cocos2dj.renderer.Renderer;
 import com.cocos2dj.renderer.RenderCommand.ShapeCommandCallback;
@@ -26,7 +28,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     * @return Return an autorelease object.
     */
    public static DrawNode create() {
-   	
+   		return new DrawNode();
    }
    
     /** creates and initialize a DrawNode node.
@@ -34,7 +36,9 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @return Return an autorelease object.
      */
     public static DrawNode create(int defaultLineWidth) {
-    	
+    	DrawNode ret = new DrawNode();
+    	ret.setLineWidth(defaultLineWidth);
+    	return ret;
     }
 
     
@@ -106,7 +110,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
      * @param closePolygon The polygon can be closed or open.
      * @param color The polygon color.
      */
-    public void drawPoly( Vector2 poli,  int numberOfPoints, boolean closePolygon,  Color color) {
+    public void drawPoly( Vector2[] poli, boolean closePolygon,  Color color) {
     	
     }
     
@@ -218,11 +222,10 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     /** Draws a solid polygon given a pointer to CGPoint coordinates, the number of vertices measured in points, and a color.
      *
      * @param poli A solid polygon given a pointer to CGPoint coordinates.
-     * @param numberOfPoints The number of vertices measured in points.
      * @param color The solid polygon color.
      * @js NA
      */
-    public void drawSolidPoly( Vector2 poli,  int numberOfPoints,  Color color) {
+    public void drawSolidPoly( Vector2[] poli, Color color) {
     	
     }
     
@@ -262,6 +265,18 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     public void drawSegment( Vector2 from,  Vector2 to, float radius,  Color color) {
     	
     }
+    public void drawSegment( float fromX, float fromY, float toX, float toY, float radius,  Color color) {
+    	if(!batchCommand) {	
+    		clear();
+    	}
+    	pushShapeCommandCell(DrawType.Segment, color, ShapeType.Filled,
+    			radius, fromX, fromY, toX, toY);
+    	/*
+    	 * 格式：
+    	 * width : if 0 draw line else draw rectLine
+    	 * x0, y0, x1, y1 
+    	 */
+    }
     
     /** draw a polygon with a fill color and line color
     * @code
@@ -270,13 +285,12 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     * In lua:local drawPolygon(local pointTable,local tableCount,local fillColor,local width,local borderColor)
     * @endcode
     * @param verts A pointer to point coordinates.
-    * @param count The number of verts measured in points.
     * @param fillColor The color will fill in polygon.
     * @param borderWidth The border of line width.
     * @param borderColor The border of line color.
     * @js NA
     */
-    public void drawPolygon( Vector2 verts, int count,  Color fillColor, float borderWidth,  Color borderColor) {
+    public void drawPolygon(Vector2[] verts, Color fillColor, float borderWidth,  Color borderColor) {
     	
     }
 	
@@ -305,7 +319,7 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     
     /** Clear the geometry in the node's buffer. */
     public void clear() {
-    	
+    	shapeCommandQueues.clear();
     }
     
     /** Get the color mixed mode.
@@ -347,6 +361,104 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     	return 0;
     }
     
+    ///////////////////////////////////////
+    //TODO 绘制命令相关
+    static enum DrawType {
+    	Line,	//直线
+    	Triange,
+    	Circle,
+    	Segment, //线段
+    	Dot,
+    	Rect,
+    	Bezier,
+    	Polygon,
+    }
+    Array<Object> 	shapeCommandQueues = new Array<>();
+    private int 	currShapePos;
+    private boolean	batchCommand = false;
+    
+    public final DrawNode startBatch() {
+    	batchCommand = true;
+    	return this;
+    }
+    
+    /**添加shape绘制命令缓存 */
+    final void pushShapeCommandCell(DrawType type, Color color, ShapeType drawType,
+    		float...vs) {
+    	shapeCommandQueues.add(type);
+    	if(color == null) {
+    		color = Color.BLUE;
+    	}
+    	shapeCommandQueues.add(color);
+    	shapeCommandQueues.add(drawType);
+    	shapeCommandQueues.add(vs.length);
+    	for(float v : vs) {
+    		shapeCommandQueues.add(v);
+    	}
+    }
+    
+    final StructShapeCommand popShapeCommandCell() {
+    	if(currShapePos >= shapeCommandQueues.size) {
+    		return null;
+    	}
+    	
+    	stackCommand.clear();
+    	stackCommand.drawType = (DrawType) shapeCommandQueues.get(currShapePos++);
+    	stackCommand.color = (Color) shapeCommandQueues.get(currShapePos++);
+    	stackCommand.shapeType = (ShapeType) shapeCommandQueues.get(currShapePos++);
+    	int dataLen = (int) shapeCommandQueues.get(currShapePos++);
+    	for(int i = 0; i < dataLen; ++i) {
+    		stackCommand.vertexArray.add((Float) shapeCommandQueues.get(currShapePos++));
+    	}
+    	return stackCommand;
+    }
+
+    
+    /**用于临时存放图元命令的数据结构 */
+    static class StructShapeCommand {
+    	DrawType 		drawType;
+    	ShapeType		shapeType;
+    	Color			color;
+    	Array<Float> 	vertexArray = new Array<>();
+    	
+    	final void clear() {
+    		vertexArray.clear();
+    	}
+    	
+    	final void drawShape(ShapeRenderer shapeRenderer) {
+    		if(shapeType != shapeRenderer.getCurrentType()) {
+    			shapeRenderer.set(shapeType);
+    		}
+    		switch(drawType) {
+    		case Segment:
+    			shapeRenderer.setColor(color);
+    			float width = vertexArray.get(0);
+    			float x0 = vertexArray.get(1);
+    			float y0 = vertexArray.get(2);
+    			float x1 = vertexArray.get(3);
+    			float y1 = vertexArray.get(4);
+    			if(width <= 0) {
+    				shapeRenderer.line(x0, y0, x1, y1);
+    			} else {
+    				shapeRenderer.rectLine(x0, y0, x1, y1, width);
+    			}
+    			break;
+    		}
+    	}
+    }
+    static StructShapeCommand stackCommand = new StructShapeCommand();
+    
+//    final void calculateContentSize(Vector2[] points) {
+//    	
+//    }
+    final void calculateContentSize(float[] points) {
+    	
+    }
+    
+    final void calculateContentSizeCircle(float x, float y, float radious) {
+    	
+    }
+    ///////////////////////////////////////
     
     
     public void draw(Renderer renderer, Matrix4 transform, int flags) {
@@ -357,9 +469,21 @@ public class DrawNode extends Node implements ShapeCommandCallback {
 
 	@Override
 	public void onCommand(ShapeRenderer shapeRenderer) {
+		currShapePos = 0;
+		StructShapeCommand cmd = popShapeCommandCell();
+		while(cmd != null) {
+			cmd.drawShape(shapeRenderer);
+			cmd = popShapeCommandCell();
+		}
+		batchCommand = false;	//绘制一次后，batch命令清除
+		
 		//test
-		shapeRenderer.setColor(Color.BLUE);
-		shapeRenderer.rect(20, 100, 500, 200);
+//		shapeRenderer.set(ShapeType.Filled);
+//		shapeRenderer.setColor(Color.BLUE);
+//		shapeRenderer.rectLine(20, 20, 300, 300, 10);
+		
+//		shapeRenderer.line(20, 20, 300, 300);
+//		shapeRenderer.rect(20, 100, 500, 200);
 //		shapeRenderer.line(0, 200, 800, 300);
 	}
 }

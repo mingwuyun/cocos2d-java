@@ -54,6 +54,19 @@ public class Node implements INode, IUpdater {
 	public static final int FLAGS_CONTENT_SIZE_DIRTY = (1 << 1);
 	public static final int FLAGS_DIRTY_MASK = (FLAGS_TRANSFORM_DIRTY | FLAGS_CONTENT_SIZE_DIRTY);
 
+	/**
+	 * 工具方法 使用如下:
+	 * <pre>
+	 * Node node1 = Node.create.addTo(this);
+	 * Node node2 = Node.create.addTo(node1);
+	 * </pre>
+	 * @param scene
+	 * @return
+	 */
+	public final Node addTo(Node scene) {
+		scene.addChild(this);
+		return this;
+	}
 	
     ///////////////////////////////////
     /// @name Constructor, Destructor and Initializers

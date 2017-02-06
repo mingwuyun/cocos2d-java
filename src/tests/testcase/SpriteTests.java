@@ -37,13 +37,10 @@ public class SpriteTests extends TestSuite {
 		
 		public void onEnter() {
 			super.onEnter();
-			spritePos = Sprite.create("powered.png");
-			addChild(spritePos);
+			spritePos = (Sprite) Sprite.create("powered.png").addTo(this);
 			spritePos.setPosition(600, 400);
 			
-			spriteRotate = Sprite.create("powered.png");
-			addChild(spriteRotate);
-			
+			spriteRotate = (Sprite) Sprite.create("powered.png").addTo(this);
 			spriteRotate.setPosition(100, 100);
 			spriteRotate.setRotation(60);
 		}
@@ -62,9 +59,8 @@ public class SpriteTests extends TestSuite {
 			frame2 = Director.getInstance().getTextureCache().addImage("powered.png").createTextureRegion();
 			frame3 = Director.getInstance().getTextureCache().addImage("SpinningPeas.png").createTextureRegion();
 			
-			sprite = Sprite.create();
+			sprite = (Sprite) Sprite.create().addTo(this);
 			sprite.setPosition(400, 200);
-			addChild(sprite);
 			
 			Director.getInstance().getScheduler().schedule((t)->{
 				sprite.setSpriteFrame(frame2, true);	//重置尺寸数据
