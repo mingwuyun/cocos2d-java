@@ -8,6 +8,7 @@ public class Rect extends Rectangle {
 	
 	private static final long serialVersionUID = -3855101754113979241L;
 	private static final Rect _rect = new Rect();
+	
 	/**
 	 * 值传递使用的Rect 返回一个静态Rect
 	 */
@@ -18,6 +19,10 @@ public class Rect extends Rectangle {
 	
 	public Rect() {
 		super();
+	}
+	
+	public boolean isZero() {
+		return x == 0 && y == 0 && width == 0 && height == 0;
 	}
 	
     /**

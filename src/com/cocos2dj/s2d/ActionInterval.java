@@ -1,6 +1,8 @@
 package com.cocos2dj.s2d;
 
+import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.macros.CCMacros;
+import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.Action.FiniteTimeAction;
 
 /**
@@ -42,10 +44,19 @@ public class ActionInterval extends FiniteTimeAction {
 	   return _elapsed >= _duration;
    }
    
+   public ActionInterval copy() {
+	   return null;
+   }
+   
+   public ActionInterval reverse() {
+		return null;
+	}
+   
    /**
     * @param dt in seconds
     */
    public void step(float dt) {
+	   dt *= 0.001;		//ms to second
 	   if(_firstTick) {
 		   _firstTick = false;
 		   _elapsed = 0;
@@ -56,27 +67,15 @@ public class ActionInterval extends FiniteTimeAction {
 	// needed for rewind. elapsed could be negative
 	   float updateDt = Math.max(0, Math.min(1, _elapsed / _duration));
 	   
-//	   if(send)
-	   
 	   this.update(updateDt);
    }
    
-   public void startWithTarget(Node target) {
+   public void startWithTarget(INode target) {
 	   super.startWithTarget(target);
 	   _elapsed = 0.0f;
 	   _firstTick = true;
    }
    
-//   public ActionInterval reverse() {
-//       assert false : "";
-//       return null;
-//   }
-//
-//   virtual ActionInterval *clone() const override
-//   {
-//       CC_ASSERT(0);
-//       return nullptr;
-//   }
 
    /** initializes the action */
    boolean initWithDuration(float d) {
@@ -96,8 +95,8 @@ public class ActionInterval extends FiniteTimeAction {
 	    return true;
    }
 
-   protected float _elapsed;
-   protected boolean   _firstTick;
+   protected float 		_elapsed;
+   protected boolean   	_firstTick;
 
    protected boolean sendUpdateEventToScript(float dt, Action actionObject) {
 	   return false;
@@ -107,4 +106,83 @@ public class ActionInterval extends FiniteTimeAction {
    /////////////////////////////////////////
    //TODO Sequence
    
+   
+   /////////////////////////////////////////
+   //TODO MoveBy
+   public static class MoveBy extends ActionInterval {
+	   
+	   /** 
+		 * Creates the action.
+		 *
+		 * @param duration Duration time, in seconds.
+		 * @param deltaPosition The delta distance in 2d, it's a Vec2 type.
+		 * @return An autoreleased MoveBy object.
+		 */
+	    public static MoveBy create(float duration, Vector2 deltaPosition) {
+	    	return create(duration, deltaPosition.x, deltaPosition.y);
+	    }
+	    
+	    public static MoveBy create(float duration, float deltaPositionX, float deltaPositionY) {
+	    	MoveBy ret = new MoveBy();
+	    	ret.initWithDuration(duration, deltaPositionX, deltaPositionY);
+	    	return ret;
+	    }
+	    
+	    /**
+	     * Creates the action.
+	     *
+	     * @param duration Duration time, in seconds.
+	     * @param deltaPosition The delta distance in 3d, it's a Vec3 type.
+	     * @return An autoreleased MoveBy object.
+	     */
+//	    static MoveBy* create(float duration, const Vec3& deltaPosition);
+	
+	    //
+	    // Overrides
+	    //
+	    public MoveBy copy() {
+	    	return MoveBy.create(_duration, _positionDeltaX, _positionDeltaY);
+	    }
+	    public MoveBy reverse() {
+	    	return MoveBy.create(_duration, -_positionDeltaX, -_positionDeltaY);
+	    }
+	    public void startWithTarget(INode arg_target) {
+	    	Node target = (Node) arg_target;
+	    	super.startWithTarget(target);
+	    	_previousPositionX = _startPositionX = target.getPositionX();
+	    	_previousPositionY = _startPositionY = target.getPositionY();
+	    }
+	    /**
+	     * @param time in seconds
+	     */
+	    public void update(float t) {
+	    	if(_target != null) {
+	    		_target.setPosition(_startPositionX + _positionDeltaX * t, 
+	    				_startPositionY + _positionDeltaY * t);
+	    	}
+	    }
+	    
+	    /** initializes the action */
+		public final boolean initWithDuration(float duration, Vector2 deltaPosition) {
+			return initWithDuration(duration, deltaPosition.x, deltaPosition.y);
+		}
+		public final boolean initWithDuration(float duration, float deltaPositionX, float deltaPositionY) {
+			if(super.initWithDuration(duration)) {
+				_positionDeltaX = deltaPositionX;
+				_positionDeltaY = deltaPositionY;
+				return true;
+			}
+			return false;
+		}
+//		public boolean initWithDuration(float duration, const Vec3& deltaPosition) {
+//			
+//		}
+	
+		protected float _positionDeltaX;
+		protected float _positionDeltaY;
+		protected float _startPositionX;
+		protected float _startPositionY;
+		protected float _previousPositionX;
+		protected float _previousPositionY;
+	}
 }

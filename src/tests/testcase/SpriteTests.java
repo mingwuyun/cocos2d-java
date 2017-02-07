@@ -1,7 +1,6 @@
 package tests.testcase;
 
 import com.cocos2dj.base.Director;
-import com.cocos2dj.base.Rect;
 import com.cocos2dj.renderer.TextureRegion;
 import com.cocos2dj.s2d.Sprite;
 
