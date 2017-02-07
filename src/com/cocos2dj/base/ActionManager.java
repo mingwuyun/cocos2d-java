@@ -294,7 +294,7 @@ public class ActionManager implements IUpdater {
 				   IAction a = _currentTarget.currentAction; 
 				   _currentTarget.currentActionSalvaged = false;
 				   
-				   a.step(dt);
+				   a.step(dt * 0.001f);	//ms to s
 				   
 				   if(_currentTarget.currentActionSalvaged) {
 					   _currentTarget.currentAction = null;

@@ -129,7 +129,15 @@ public class Action implements IAction {
 		public final float getDuration() {return _duration;}
 		public final void setDuration(float duration) {_duration = duration;}
 		
-		protected float _duration;
+		public FiniteTimeAction reverse() {
+			return null;
+		}
+		
+		public FiniteTimeAction copy() {
+			return null;
+		}
+		
+		protected float 	_duration;
 	}
 	
 	/** @class Speed

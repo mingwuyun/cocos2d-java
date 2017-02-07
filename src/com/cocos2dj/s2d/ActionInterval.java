@@ -1,6 +1,7 @@
 package com.cocos2dj.s2d;
 
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.macros.CCMacros;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.Action.FiniteTimeAction;
@@ -41,6 +42,7 @@ public class ActionInterval extends FiniteTimeAction {
    //
    // Overrides
    public boolean isDone() {
+//	   System.out.println(this + " [" + _elapsed + " " + _duration+"]"); 
 	   return _elapsed >= _duration;
    }
    
@@ -56,7 +58,7 @@ public class ActionInterval extends FiniteTimeAction {
     * @param dt in seconds
     */
    public void step(float dt) {
-	   dt *= 0.001;		//ms to second
+//	   dt *= 0.001;		//ms to second
 	   if(_firstTick) {
 		   _firstTick = false;
 		   _elapsed = 0;
@@ -105,6 +107,310 @@ public class ActionInterval extends FiniteTimeAction {
    
    /////////////////////////////////////////
    //TODO Sequence
+   public static class Sequence extends ActionInterval {
+	    /** Helper ructor to create an array of sequenceable actions.
+	     *
+	     * @return An autoreleased Sequence object.
+	     */
+	    public static Sequence create(FiniteTimeAction...actions) {
+	    	Sequence ret = new Sequence();
+	    	ret.init(actions);
+	    	return ret;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public Sequence copy() {
+	    	FiniteTimeAction[] newActions = new FiniteTimeAction[_actions.length];
+	    	final int n = _actions.length - 1;
+	    	for(int i = 0; i <= n; ++i) {
+	    		newActions[i] = _actions[i].copy();
+	    	}
+	    	return Sequence.create(newActions);
+	    }
+	    
+	    public Sequence reverse() {
+	    	FiniteTimeAction[] newActions = new FiniteTimeAction[_actions.length];
+	    	final int n = _actions.length - 1;
+	    	for(int i = 0; i <= n; ++i) {
+	    		newActions[i] = _actions[n - i].reverse();
+	    	}
+	    	return Sequence.create(newActions);
+	    }
+	    
+	    public void startWithTarget(INode target) {
+	    	if (target == null) {
+	            CCLog.error("Sequence", "Sequence::startWithTarget error: target is nullptr!");
+	            return;
+	        }
+	        if (_actions[0] == null || _actions[1] == null) {
+	        	CCLog.error("Sequence", "Sequence::startWithTarget error: _actions[0] or _actions[1] is nullptr!");
+	            return;
+	        }
+//	        if (_duration > CCMacros.FLT_EPSILON) {
+////	            _split = _actions[0].getDuration() / _duration;
+//	        }
+	        super.startWithTarget(target);
+	        
+	        _currAction = 0;
+	        _totalTime = 0;
+	        _actions[0].startWithTarget(target);
+//	        System.out.println("start >>>>>>>");
+	    }
+	    
+	    public void stop() {
+	    	for(int i = _currAction; i < _actions.length; ++i) {
+	    		_actions[i].stop();
+	    	}
+//	    	if(_last != -1 && _actions[_last] != null) {
+//	    		_actions[_last].stop();
+//	    	}
+	    	super.stop();
+	    }
+	    
+	    float modifer = 0;
+	    /**
+	     * @param t In seconds.
+	     */
+	    public void step(float dt) {
+//	 	   if(_firstTick) {
+//	 		   _firstTick = false;
+//	 		   _elapsed = 0;
+//	 	   } else {
+//	 		   _elapsed += dt;
+//	 	   }
+	    
+	    	//时间略有偏差，但基本正确
+	 	   if(_currAction >= _actions.length) {
+	 		    _elapsed = _duration;	//stop 
+	    		return;
+	 	   }
+	 	   
+			FiniteTimeAction currAction = _actions[_currAction];
+			
+			if(currAction.isDone()) {
+				++_currAction;
+				if(_currAction < _actions.length) {
+					_actions[_currAction].startWithTarget(_target);
+				}
+			} else {
+				currAction.step(dt);
+			}
+	    }
+	    
+	    public Sequence() {
+	    	
+	    }
+
+	    /** initializes the action */
+//	    public boolean initWithTwoActions(FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo);
+//	    bool init( Vector<FiniteTimeAction*>& arrayOfActions);
+	    public boolean init(FiniteTimeAction...actions) {
+	    	int count = actions.length;
+	    	if(count == 0) {
+	    		return false;
+	    	}
+	    	int totalD = 0;
+	    	for(int i = 0; i < count; ++i) {
+	    		totalD += actions[i].getDuration();
+	    	}
+	    	initWithDuration(totalD);
+	    	
+	    	_actions = actions;
+	    	return true;
+	    }
+	    
+	    protected FiniteTimeAction[] _actions;
+	    protected int 		_currAction = 0;
+	    protected float		_totalTime = 0;
+//	    protected float _split;
+//	    protected int _last;
+   }
+   
+	/////////////////////////////////////////
+	//TODO Repeat
+   public static class Repeat extends ActionInterval {
+	    /** Creates a Repeat action. Times is an unsigned integer between 1 and pow(2,30).
+	     *
+	     * @param action The action needs to repeat.
+	     * @param times The repeat times.
+	     * @return An autoreleased Repeat object.
+	     */
+	    public static Repeat create(FiniteTimeAction action, int times) {
+	    	
+	    }
+
+	    /** Sets the inner action.
+	     *
+	     * @param action The inner action.
+	     */
+	    public final void setInnerAction(FiniteTimeAction action) {
+	        if (_innerAction != action) {
+	            _innerAction = action;
+	        }
+	    }
+
+	    /** Gets the inner action.
+	     *
+	     * @return The inner action.
+	     */
+	    public final FiniteTimeAction getInnerAction() {
+	        return _innerAction;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public Repeat copy() {
+	    	
+	    }
+	    public Repeat reverse() {
+	    	
+	    }
+	    public void startWithTarget(INode target) {
+	    	
+	    }
+	    public void stop() {
+	    	
+	    }
+	    
+	    /**
+	     * @param t In seconds.
+	     */
+	    public void update(float t) {
+	    	
+	    }
+	    
+	    public boolean isDone() {
+	    	
+	    }
+	    
+	    public Repeat() {
+	    	
+	    }
+
+	    /** initializes a Repeat action. Times is an unsigned integer between 1 and pow(2,30) */
+	    public boolean initWithAction(FiniteTimeAction pAction, int times) {
+	    	
+	    }
+
+	    protected int _times;
+	    protected int _total;
+	    protected float _nextDt;
+	    protected boolean _actionInstant;
+	    /** Inner action */
+	    protected FiniteTimeAction _innerAction;
+   }
+   
+   //////////////////////////////////////////
+   //TODO RepeatForever
+   public static class  RepeatForever extends ActionInterval {
+       /** Creates the action.
+        *
+        * @param action The action need to repeat forever.
+        * @return An autoreleased RepeatForever object.
+        */
+       public static RepeatForever create(ActionInterval action) {
+    	   
+       }
+
+       /** Sets the inner action.
+        *
+        * @param action The inner action.
+        */
+       public final void setInnerAction(ActionInterval action) {
+           if (_innerAction != action) {
+               _innerAction = action;
+           }
+       }
+
+       /** Gets the inner action.
+        *
+        * @return The inner action.
+        */
+       public final ActionInterval getInnerAction() {
+           return _innerAction;
+       }
+
+       //
+       // Overrides
+       //
+       public RepeatForever copy() {
+	    	
+	   }
+	   public RepeatForever reverse() {
+	    	
+	   }
+	   public void startWithTarget(INode target) {
+	    	
+	   }
+	   /**
+	    * @param t In seconds.
+	    */
+	   public void step(float t) {
+	    	
+	   }
+	    
+	   public boolean isDone() {
+	    	
+	   }
+	    
+       
+       public RepeatForever() {
+		   
+	   }
+
+       /** initializes the action */
+       public boolean initWithAction(ActionInterval action) {
+    	   
+       }
+
+       /** Inner action */
+       protected ActionInterval _innerAction;
+   }
+   
+   //////////////////////////////////////
+   //TODO Spawn
+   public class Spawn extends ActionInterval {
+       public static Spawn create(FiniteTimeAction...actions) {
+    	   
+       }
+
+       //
+       // Overrides
+       //
+        public Spawn clone() {
+        	
+        }
+        public Spawn reverse() {
+        	
+        }
+        public void startWithTarget(INode target) {
+        	
+        }
+        public void stop() {
+        	
+        }
+       /**
+        * @param time In seconds.
+        */
+        public void update(float time) {
+        	
+        }
+       
+       public Spawn() {
+    	   
+       }
+
+       public boolean initWithTwoActions(FiniteTimeAction...actions) {
+    	   
+       }
+       
+       protected FiniteTimeAction[] _actions;
+//	   protected FiniteTimeAction _one;
+//       protected FiniteTimeAction _two;
+   }
    
    
    /////////////////////////////////////////
@@ -135,7 +441,7 @@ public class ActionInterval extends FiniteTimeAction {
 	     * @param deltaPosition The delta distance in 3d, it's a Vec3 type.
 	     * @return An autoreleased MoveBy object.
 	     */
-//	    static MoveBy* create(float duration, const Vec3& deltaPosition);
+//	    static MoveBy* create(float duration,  Vec3& deltaPosition);
 	
 	    //
 	    // Overrides
@@ -174,7 +480,7 @@ public class ActionInterval extends FiniteTimeAction {
 			}
 			return false;
 		}
-//		public boolean initWithDuration(float duration, const Vec3& deltaPosition) {
+//		public boolean initWithDuration(float duration,  Vec3& deltaPosition) {
 //			
 //		}
 	
