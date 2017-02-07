@@ -217,6 +217,7 @@ public final class Contact {
 			while(s2 != null){
 				//处理形状相交
 				shapesID = s1.shapeTypeID * s2.shapeTypeID;
+				
 				if(o1.isSensor()||o2.isSensor()||
 						o1.getContactFilter().testPass(o2.getContactFilter())) {
 					//仅测试碰撞不修正
@@ -535,7 +536,6 @@ public final class Contact {
 	 * @param o2  */
 	private final void PolygonTestAABB(final Shape s1,final Shape s2,
 			final Vector2 positionA, final Vector2 positionB){
-		
 		if(s1.shapeTypeID == Shape.ID_POLYGON){
 			if(Intersect((Polygon)s1, (AABBShape)s2, positionA, positionB)){
 				contacting = true;
@@ -560,19 +560,9 @@ public final class Contact {
 				contacting = true;
 				handleResult();
 			}
-		}else{
+		} else {
 			if(Intersect((Polygon)s2,(AABBShape)s1, positionB, positionA, MTD)){
-				
 				contacting = true;
-			
-//				if(o1.isStaticObject()||o2.isStaticObject())
-//					rate=1.0f;
-//				else
-//					rate=0.5f;
-			
-				//这里由于shape1与shape2互换所以这里也互换
-//				o1.modifierPosition(MTD.mul(-rate));
-//				o2.modifierPosition(MTD.mul(rate));	
 				this.handleResultInv();
 			}
 		}

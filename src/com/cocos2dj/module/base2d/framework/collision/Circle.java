@@ -124,7 +124,7 @@ public class Circle extends Shape {
 			float height) {
 	}
 
-	public void resetShapeAsPolygon(Vector2... points) {
+	public void resetShapeAsPolygon(Vector2[] points) {
 		
 	}
 

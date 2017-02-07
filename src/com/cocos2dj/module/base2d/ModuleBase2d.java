@@ -131,7 +131,7 @@ public class ModuleBase2d extends Module implements IUpdater {
 	public ComponentPhysics createStaticObjectWithAABBWorld(float x0, float y0, float x1, float y1) {
 		AABBShape shape = new AABBShape();
 		shape.setAABBShape(0, 0, x1 - x0, y1 - y0);
-		return createStaticObject(shape, x0, y1);
+		return createStaticObject(shape, x0, y0);
 	}
 	//static<<
 	

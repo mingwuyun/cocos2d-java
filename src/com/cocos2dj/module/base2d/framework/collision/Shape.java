@@ -174,5 +174,5 @@ public abstract class Shape {
 	/**设置形状为指定的多边形
 	 * 仅使用与polygon形状 
 	 * @param points 各个点的坐标 顺序为逆时针 */
-	public abstract void resetShapeAsPolygon(Vector2... points);
+	public abstract void resetShapeAsPolygon(Vector2[] points);
 }

@@ -1076,7 +1076,7 @@ public class PhysicsObject {
 	 * @param n 物体形状序号 
 	 * 0是第一个形状 1是第二个形状...依次类推
 	 * @param Vector2 points 逆时针相对坐标  */
-	public void resetShapeAsRectangle(int n, Vector2 points) {
+	public void resetShapeAsRectangle(int n, Vector2[] points) {
 		Shape temp=shapeList;
 		for(int i=0;i<n;++i){
 			temp=shapeList.next;

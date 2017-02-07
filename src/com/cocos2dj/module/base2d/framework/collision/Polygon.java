@@ -190,7 +190,7 @@ public final class Polygon extends Shape {
 		computeShapeAABB();
 	}
 
-	public void resetShapeAsPolygon(Vector2... points) {
+	public void resetShapeAsPolygon(Vector2[] points) {
 		this.points=points;
 		computeShapeAABB();
 	}

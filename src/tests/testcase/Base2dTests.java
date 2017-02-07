@@ -1,12 +1,19 @@
 package tests.testcase;
 
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.basic.BaseInput;
 import com.cocos2dj.module.base2d.ComponentPhysics;
 import com.cocos2dj.module.base2d.ComponentPhysics.ContactCallback;
 import com.cocos2dj.module.base2d.ModuleBase2d;
 import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
+import com.cocos2dj.module.base2d.framework.collision.Polygon;
+import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
+import com.cocos2dj.s2d.Scene;
 import com.cocos2dj.s2d.Sprite;
 
 import tests.TestCase;
@@ -20,6 +27,7 @@ import tests.TestSuite;
 public class Base2dTests extends TestSuite {
 	
 	public Base2dTests() {
+		addTestCase("Base2DTest2", ()->{return new Base2DTest2();});
 		addTestCase("Base2DTest1", ()->{return new Base2DTest1();});
 	}
 	
@@ -27,13 +35,7 @@ public class Base2dTests extends TestSuite {
 		
 	}
 	
-	/////////////////////
-	//小人
-	static class Mario {
-		Node 				aim;
-		DrawNode			debugDraw;
-		ComponentPhysics	body;
-	}
+	
 	/////////////////////
 	
 	//Base2D运行测试 测试了碰撞监听和休眠
@@ -119,16 +121,117 @@ public class Base2dTests extends TestSuite {
 		}
 	}
 	
-	
+	/////////////////////
+	//TODO some one
+	static class Mario extends InputAdapter implements INode.NodeCallback {
+		Node 				aim;
+		DrawNode			debugDraw;
+		ComponentPhysics	body;
+		
+		static final float WIDTH = 50;
+		static final float HEIGHT = 50;
+		static final float SPEED = 10f;
+		static final float JUMP = 20f;
+		
+		boolean leftFlag = false;
+		boolean rightFlag = false;
+		boolean jumpFlag = false;
+		
+		public void init(Scene scene) {
+			ModuleBase2d base2d = (ModuleBase2d) scene.getModule(ModuleBase2d.class);
+			aim = Node.create().addTo(scene);
+			aim.setNodeCallback(this);
+			aim.scheduleUpdate();
+			
+			debugDraw = (DrawNode) DrawNode.create().addTo(aim);
+			debugDraw.drawSolidRect(-WIDTH/2, 0, WIDTH/2, HEIGHT, Color.GREEN);
+			debugDraw.setPosition(0, 0);
+			body = base2d.createDynamicObjectWithAABB(-WIDTH/2, 0, WIDTH/2, HEIGHT).bindNode(aim);
+			body.setAccelerateY(-3f);
+			
+			BaseInput.instance().addInputProcessor(this);
+			
+			body.setContactCallback(new ContactCallback() {
+				public void onContactCreated(ComponentPhysics self, ComponentPhysics other, Vector2 MTD,
+						ContactCollisionData data) {
+					
+				}
+				public void onContactPersisted(ComponentPhysics self, ComponentPhysics other, Vector2 MTD,
+						ContactCollisionData data) {
+					
+				}
+				public void onContactDestroyed(ComponentPhysics self, ComponentPhysics other, Vector2 MTD,
+						ContactCollisionData data) {
+				}
+			});
+		}
+		
+		@Override
+		public void onEnter(INode n) {
+			
+		}
+
+		@Override
+		public void onExit(INode n) {
+			
+		}
+
+		@Override
+		public void onUpdate(INode n, float dt) {
+			if(leftFlag) {
+				body.setVelocityX(-SPEED);
+			} else if(rightFlag) {
+				body.setVelocityX(SPEED);
+			} else {
+				body.setVelocityX(0f);
+			}
+			
+			if(jumpFlag) {
+				body.setVelocityY(JUMP);
+			}
+		}
+		
+		public boolean keyDown(int keycode) {
+			switch(keycode) {
+			case Keys.A:
+			case Keys.LEFT:
+				leftFlag = true;
+				break;
+			case Keys.D:
+			case Keys.RIGHT:
+				rightFlag = true;
+				break;
+			case Keys.SPACE:
+				jumpFlag = true;
+				break;
+			}
+			return false;
+		}
+		
+		public boolean keyUp(int keycode) {
+			switch(keycode) {
+			case Keys.A:
+			case Keys.LEFT:
+				leftFlag = false;
+				break;
+			case Keys.D:
+			case Keys.RIGHT:
+				rightFlag = false;
+				break;
+			case Keys.SPACE:
+				jumpFlag = false;
+				break;
+			}
+			return false;
+		}
+	}
+
 	//Base2D运行测试 测试 多边形和地面检测
 	// test polygon and ground check
 	static class Base2DTest2 extends Base2DDemo {
 		
-		ComponentPhysics phy1;
-//		ComponentPhysics phy2;
-		ComponentPhysics phyGround;		//地面
-		
-		ModuleBase2d moduleBase2d;
+		ModuleBase2d 	moduleBase2d;
+		Mario 			mario;
 		
 		public void onEnter() {
 			super.onEnter();
@@ -136,67 +239,36 @@ public class Base2dTests extends TestSuite {
 			// 添加moduleBase2d插件
 			moduleBase2d = createModule(ModuleBase2d.class);	
 			
-//			spr1 = Sprite.create("powered.png"); //addChild(spr1);
-//			spr2 = Sprite.create("powered.png"); 
-//			addChild(spr2);
-//			sprGround = Sprite.create("powered.png"); 
-//			addChild(sprGround);
-//			
-//			Node spr1Node = Node.create();
-//			addChild(spr1Node);
-//			spr1Node.addChild(spr1);
-//			spr1Node.setPosition(200, 200);
-//			
-//			phy1 = moduleBase2d.createDynamicObjectWithAABB(-50, -50, 50, 50).bindNode(spr1);
-//			//spr1.addComponent(phy1);
-//			spr1.setContentSize(100, 100);
-//			phy1.setVelocityX(5);
-//			phy1.setAccelerateY(-0.5f);
-//			spr1.setPosition(400, 400);		//位置同步，设置node会自动同步到phy对象
-//
-//			
-//			phy2 = moduleBase2d.createDynamicObjectWithAABB(-50, -50, 50, 50).bindNode(spr2);
-//			spr2.setContentSize(100, 100);
-//			phy2.setAccelerateY(-0.5f);
-//			phy2.setPosition(800, 300);		//直接设置phy也可以
-//			
-//			phyGround = moduleBase2d.createStaticObjectWithAABB(0, 0, 1200, 100);
-//			sprGround.setRect(0, 0, 1200, 100);
-//			
-//			schedule((t)->{
-//				phy1.setPosition(500, 200);
-//				return false;
-//			}, 2);
-//			schedule((t)->{
-//				//唤醒 phy2
-//				phy2.setSleep(false);
-//				spr2.setVisible(true);
-//				phy2.setPosition(800, 300);
-//				return false;
-//			}, 3);
-//			
-//			//碰撞监听
-//			phy1.setContactCallback(new ContactCallback() {
-//				@Override
-//				public void onContactDestroyed(ComponentPhysics self, ComponentPhysics other, Vector2 MTD, ContactCollisionData data) {
-//					System.out.println("onContactDestroyed");
-//				}
-//				@Override
-//				public void onContactPersisted(ComponentPhysics self, ComponentPhysics other, Vector2 MTD, ContactCollisionData data) {
-//					
-//				}
-//				@Override
-//				public void onContactCreated(ComponentPhysics self, ComponentPhysics other, Vector2 MTD, ContactCollisionData data) {
-//					Node otherNode = other.getOwner();
-//					//phy2休眠
-//					if(otherNode != null) {
-//						otherNode.setVisible(false);
-//						other.setSleep(true);
-//					}
-//				}
-//			});
+			DrawNode ground = (DrawNode) DrawNode.create().addTo(this);
+			ground.drawRect(0, 0, 1500, 100, null);
+			moduleBase2d.createStaticObjectWithAABBWorld(0, 0, 1500, 100);
+			
+			mario = new Mario();
+			mario.init(this);
+			
+			mario.aim.setPosition(50, 300);
+			
+			DrawNode groundPolygon = (DrawNode) DrawNode.create().addTo(this);
+			
+			float[] points = new float[]{
+				-400, -10,
+				400, -10,
+				400, 100
+			};
+			groundPolygon.drawPolygon(points, null);
+			groundPolygon.setPosition(500, 100);
+			Polygon shape = new Polygon();
+			shape.setPoints(points);
+			
+//			AABBShape shape = new AABBShape();
+//			shape.setAABBShape(100, 50);
+			moduleBase2d.createStaticObject(shape, 500, 100);
 		}
 		
+		public boolean update(float dt) {
+			super.update(dt);
+			return false;
+		}
 		
 		public String subtitle() {
 			return "contactListener and sleep/awake";

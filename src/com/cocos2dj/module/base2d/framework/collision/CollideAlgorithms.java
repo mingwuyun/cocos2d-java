@@ -20,24 +20,30 @@ public final class CollideAlgorithms {
 	private static final int MAX_VERTICES = 12;
 
 	private static final Vector2[] poolVector2Array;
-	private static FloatPair pair=null;
+	private static final Vector2[] poolVector2Interval;
+	
+	private static FloatPair pair = null;
 	/**轴X单位向量 使用后应初始化*/
-	public static final Vector2 axisX=new Vector2(1,0);
+	public static final Vector2 axisX = new Vector2(1,0);
 	/**轴Y单位向量 使用后应初始化*/
-	public static final Vector2 axisY=new Vector2(0,1);
+	public static final Vector2 axisY = new Vector2(0,1);
 	
 	//pools 基本都用在圆与多边形的测试上
-	private static final Vector2 pool1=new Vector2();
-	private static final Vector2 pool2=new Vector2();
-	private static final Vector2 pool3=new Vector2();
-	private static final Vector2 pool4=new Vector2();
-	private static final Vector2 pool5=new Vector2();
+	private static final Vector2 pool1 = new Vector2();
+	private static final Vector2 pool2 = new Vector2();
+	private static final Vector2 pool3 = new Vector2();
+	private static final Vector2 pool4 = new Vector2();
+	private static final Vector2 pool5 = new Vector2();
 	
 	static
 	{
-		poolVector2Array=new Vector2[MAX_VERTICES];
-		for(int i=0;i<MAX_VERTICES;++i){
-			poolVector2Array[i]=new Vector2();
+		poolVector2Array = new Vector2[MAX_VERTICES];
+		for(int i = 0; i < MAX_VERTICES; ++i){
+			poolVector2Array[i] = new Vector2();
+		}
+		poolVector2Interval = new Vector2[MAX_VERTICES];
+		for(int i = 0; i < MAX_VERTICES; ++i){
+			poolVector2Interval[i] = new Vector2();
 		}
 	}
 	
@@ -55,21 +61,22 @@ public final class CollideAlgorithms {
 	public static final FloatPair CalculateInterval(final Vector2 axis, final Polygon p,
 			final Vector2 position) {
 		
-		final Vector2[] points=p.getPoints();
+		final Vector2[] points = p.getPoints();
 //		a.x * b.x + a.y * b.y
 //		float d = Vector2.dot(axis, points[0]);
-		float d=axis.x*(points[0].x+position.x)+axis.y*(points[0].y+position.y);
-		float min=d;
-		float max=d;
+		float d = axis.x * (points[0].x + position.x) + axis.y * (points[0].y + position.y);
+		float min = d;
+		float max = d;
 
-	    final int length=points.length;
-	    for(int i=0;i<length;i++){
+	    final int length = points.length;
+	    for(int i = 0; i < length; i++){
 //	    	d=Vector2.dot(axis, points[i]);
-	    	d=axis.x*(points[i].x+position.x)+axis.y*(points[i].y+position.y);
-	    	if(d<min)
-	    		min=d;
-	    	else if(d>max)
-	    		max=d;
+	    	d = axis.x * (points[i].x + position.x) + axis.y * (points[i].y + position.y);
+	    	if(d < min) {
+	    		min = d;
+	    	} else if(d > max) {
+	    		max = d;
+	    	}
 		} 
 	    return FloatPair.getFloatPair(min, max);
 	}
@@ -371,10 +378,10 @@ public final class CollideAlgorithms {
 		axisY.set(0, 1);
 		
 		final Vector2[] pointsA=A.getPoints();
-		Vector2[] axis=poolVector2Array;   
+		Vector2[] axis = poolVector2Array;   
 		// max of 6 vertices per polygon
-		Vector2 tempE=pool1;
-		Vector2 tempN=null;
+		Vector2 tempE = pool1;
+		Vector2 tempN = null;
 		int numAxis = 0; 
 		
 		//用这个不用单独求0的情况
@@ -383,15 +390,19 @@ public final class CollideAlgorithms {
 //			tempE=A.getPoints()[i].sub(A.getPoints()[j]); 
 			tempE.set(pointsA[i].x-pointsA[j].x, pointsA[i].y-pointsA[j].y);
 			tempN=axis[numAxis++].set(-tempE.y, tempE.x);
-			if (axisSeparatePolygonsMTD(tempN, A, B, positionA, positionB)) 
+			if (axisSeparatePolygonsMTD(tempN, A, B, positionA, positionB)) {
+//				System.out.println("B = " + B);
 				return false; 
+			}
 		}
 
 		//对x以及y轴的简化测试
-		if (axisSeparatePolygonsMTDX(axisX, A, B, positionA, positionB)) 
+		if (axisSeparatePolygonsMTDX(axisX, A, B, positionA, positionB)) {
 			return false; 
-		if (axisSeparatePolygonsMTDY(axisY, A, B, positionA, positionB)) 
+		}
+		if (axisSeparatePolygonsMTDY(axisY, A, B, positionA, positionB)) { 
 			return false; 
+		}
 		
 		axis[numAxis++].set(axisX);
 		axis[numAxis++].set(axisY);
@@ -533,21 +544,19 @@ public final class CollideAlgorithms {
 	 * @return <code>true</code> A与B分离
 	 * <code>false</code> A与B重合*/
 	public static final FloatPair CalculateInterval(final Vector2 axis, final AABBShape p, final Vector2 position) {
-		final Vector2[] points=p.getPoints();
-		float d = V2.dot(axis, points[0].add(position)); 
-		float min=d;
-		float max=d;
-		final Vector2[] temp=new Vector2[]{points[0].add(position),
-				points[1].add(position),
-				points[2].add(position),
-				points[3].add(position)};
+		final Vector2[] points = p.getPoints();
+		float d = axis.x * (points[0].x + position.x) + axis.y * (points[0].y + position.y);
+		float min = d;
+		float max = d;
 		
-	    for(int i=0;i<4;i++){
-	    	d=V2.dot(axis, temp[i]);
-	    	if(d<min)
-	    		min=d;
-	    	else if(d>max)
-	    		max=d;
+	    for(int i = 0; i < 4; i++){
+//	    	d=V2.dot(axis, temp[i]);
+	    	d = axis.x * (points[i].x + position.x) + axis.y * (points[i].y + position.y);
+	    	if(d < min) {
+	    		min = d;
+	    	} else if(d > max) {
+	    		max = d;
+	    	}
 		} 
 	    return FloatPair.getFloatPair(min, max);
 	}
@@ -561,13 +570,13 @@ public final class CollideAlgorithms {
 	 * @return */
 	public static final boolean axisSeparatePolygons(final Vector2 Axis, final Polygon A, final AABBShape B,
 			final Vector2 positionA, final Vector2 positionB) {
-		pair=CalculateInterval(Axis, A, positionA);
-		final float mina=pair.min;
-		final float maxa=pair.max;
+		pair = CalculateInterval(Axis, A, positionA);
+		final float mina = pair.min;
+		final float maxa = pair.max;
 		
-		pair=CalculateInterval(Axis, B, positionB);
-		final float minb=pair.min;
-		final float maxb=pair.max;
+		pair = CalculateInterval(Axis, B, positionB);
+		final float minb = pair.min;
+		final float maxb = pair.max;
 		
 		if (mina > maxb || minb > maxa) 
 			return true; 

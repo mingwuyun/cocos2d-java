@@ -153,7 +153,7 @@ public final class AABBShape extends Shape {
 		this.computeShapeAABB();
 	}
 
-	public void resetShapeAsPolygon(Vector2... points) {
+	public void resetShapeAsPolygon(Vector2[] points) {
 		
 	}
 
@@ -167,5 +167,15 @@ public final class AABBShape extends Shape {
 
 	public float getRotate() {
 		return 0;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[AABB] : ").append("{");
+		for(Vector2 p : points) {
+			sb.append(p).append(',');
+		}
+		sb.append("}");
+		return sb.toString();
 	}
 }
