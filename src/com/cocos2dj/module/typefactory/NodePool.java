@@ -1,7 +1,11 @@
 package com.cocos2dj.module.typefactory;
 
 import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.protocol.INodePool;
 import com.cocos2dj.s2d.Node;
+import com.cocos2dj.utils.IObjectPool;
+import com.cocos2dj.utils.ObjectPool;
+import com.cocos2dj.utils.ObjectPoolLinear;
 
 /**
  * 对象池<p>
@@ -9,82 +13,70 @@ import com.cocos2dj.s2d.Node;
  * 
  * 增加了监听相关接口
  * 
- * @author xu jun
- * Copyright (c) 2012-2016. All rights reserved. 
- * 				2016-8-4
+ * @author Copyright (c) 2012-2016. xujun 
  */
-public class NodePool<T extends Node> {
+public class NodePool<T extends Node> implements INodePool {
 
 	public static final int NORMAL_POOL = 0;
 	public static final int ADDING_POOL = 1;
 	
-	private int id = -1;
-	private String name;
-	private IObjectPool<T> pool;
-	private final SObject parent;
-	private final Array<SObjectObserver>	observers = new Array<>();	//观察者
+	private int 			id = -1;
+	private String 			name;
+	private IObjectPool<T> 	pool;
+	private final Node 		parent;
+//	private final Array<SObjectObserver>	observers = new Array<>();	//观察者
 	
 	
-	public void addObserver(SObjectObserver observer) {
-		observers.add(observer);
-	}
-	
-	public void removeObserver(SObjectObserver observer) {
-		observers.removeValue(observer, true);
-	}
-	
+//	public void addObserver(SObjectObserver observer) {
+//		observers.add(observer);
+//	}
+//	
+//	public void removeObserver(SObjectObserver observer) {
+//		observers.removeValue(observer, true);
+//	}
+//	
 	public void clearObserver() {
-		observers.clear();
+//		observers.clear();
 	}
 	
 	final void observers_onPop(T t) {
-		for(int i = observers.size - 1; i >= 0; --i) {
-			final SObjectObserver obv = observers.get(i);
-			final boolean ret = obv.onObjectEvent(SObjectEvent.event_pop, t);
-			if(ret) {
-				observers.removeIndex(i);
-			}
-		}
+//		for(int i = observers.size - 1; i >= 0; --i) {
+//			final SObjectObserver obv = observers.get(i);
+//			final boolean ret = obv.onObjectEvent(SObjectEvent.event_pop, t);
+//			if(ret) {
+//				observers.removeIndex(i);
+//			}
+//		}
 	}
 	
 	final void observers_onPush(T t) {
-		for(int i = observers.size - 1; i >= 0; --i) {
-			final SObjectObserver obv = observers.get(i);
-			final boolean ret = obv.onObjectEvent(SObjectEvent.event_push, t);
-			if(ret) {
-				observers.removeIndex(i);
-			}
-		}
+//		for(int i = observers.size - 1; i >= 0; --i) {
+//			final SObjectObserver obv = observers.get(i);
+//			final boolean ret = obv.onObjectEvent(SObjectEvent.event_push, t);
+//			if(ret) {
+//				observers.removeIndex(i);
+//			}
+//		}
 	}
 	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public int getPoolID() {
-		return id;
-	}
+	public void setName(String name) {this.name = name;}
+	public String getName() {return name;}
+	public int getPoolID() {return id;}
 	
 	//ID的设置只能由Pools进行 所以这个为包访问权限
-	final void setPoolID(int id) {
-		this.id = id;
-	}
+	final void setPoolID(int id) {this.id = id;}
 	
 	/**对象池为AddingObjectPool
 	 * @param clazz 放入池中对象的类 
 	 * @param argInitSize 初始对象的数量 与每次扩容的数量（poolType=1）*/
-	public NodePool(SObject parent, Class<T> clazz, int initSize) {
+	public NodePool(Node parent, Class<T> clazz, int initSize) {
 		this(parent, 1, clazz, initSize);
 	}
 	
 	/**@param poolType 池的类型，与扩容方式有关  <code>0=扩两倍 1=增加固定数量</code>
 	 * @param clazz 放入池中对象的类 
 	 * @param argInitSize 初始对象的数量 与每次扩容的数量（poolType=1）*/
-	public NodePool(SObject parent, int poolType, Class<T> clazz, int initSize) {
+	public NodePool(Node parent, int poolType, Class<T> clazz, int initSize) {
 		this(parent, poolType, clazz, initSize, initSize);
 	}
 	/**@param poolType 池的类型，与扩容方式有关  <code>0=扩两倍 1=增加固定数量</code>
@@ -100,7 +92,7 @@ public class NodePool<T extends Node> {
 	 * @param clazz 放入池中对象的类 
 	 * @param argInitSize 初始对象的数量
 	 * @param argAddCount 如果选用addingpool则为每次扩容增加的容量否则无效 */
-	public NodePool(SObject parent, int poolType, Class<T> clazz, int argInitSize, int argAddCount) {
+	public NodePool(Node parent, int poolType, Class<T> clazz, int argInitSize, int argAddCount) {
 		this(parent, poolType, clazz, argInitSize, argAddCount, null, null);
 	}
 	
@@ -110,7 +102,7 @@ public class NodePool<T extends Node> {
 	 * 假设初始数量为10,如果类型为0则扩容2次后为10*2*2=40,而类型为1则扩容两次后为10+10+10=30.
 	 * @param argParam 构造函数的参数类型
 	 * @param argArgs 构造函数的参数*/
-	public NodePool(SObject parent, Class<T> clazz, int poolType, int argInitSize, Class<?>[] argParam, Object[] argArgs){
+	public NodePool(Node parent, Class<T> clazz, int poolType, int argInitSize, Class<?>[] argParam, Object[] argArgs){
 		this(parent ,poolType,
 				clazz,argInitSize,argInitSize,argParam,argArgs);
 	}
@@ -133,74 +125,55 @@ public class NodePool<T extends Node> {
 	 * @param argAddCount 如果选用addingpool则为每次扩容增加的容量否则无效
 	 * @param argParam 构造函数的参数类型
 	 * @param argArgs 构造函数的参数 */
-	public NodePool(SObject argparent, int poolType, Class<T> clazz, int argInitSize, int argAddCount,
+	public NodePool(Node argparent, int poolType, Class<T> clazz, int argInitSize, int argAddCount,
 			Class<?>[] argParam, final Object[] argArgs) {
-		/*System.out.println("create pool :");
-		System.out.println("type:"+poolType);
-		System.out.println("class name:"+clazz.getName());
-		if(argParam!=null)
-			for(int i=0;i<argParam.length;++i){
-				System.out.println("[param arg]"+i+" : "+argParam[i].getName()+" | "+argArgs.getClass().getName());
-			}
-		else System.out.println("no param ");*/
-		
-//		scene = argScene;
-		
 		this.parent = argparent;
-		
-		switch(poolType){
+		switch(poolType) {
 		case NORMAL_POOL:
 			pool = new ObjectPool<T>(clazz, argInitSize, argParam, argArgs) {
 				public void onCreated(T t){
-//					scene.add(t);
-//					t.created();
-					t._setObjectPool(NodePool.this);	//先设置为pool对象
+					t._setNodePool(NodePool.this);	//先设置为pool对象
 					parent.addChild(t);
 					onCreate(t);
-					t._onSleep();
+					t.onSleep();
 				}
-				
 				public void onPop(T t){
 					t._setInPool(false);
-					t._onAwake();
+					t.onAwake();
 				}
-				
 				public void onPush(T t){
 					t._setInPool(true);
-//					t._onSleep();	//引入延迟回收机制所以不调用这个方法了
+					t.onSleep();
 				}
 			};
 			break;
 		case ADDING_POOL:
 			pool = new ObjectPoolLinear<T>(clazz, argInitSize, argAddCount, argParam, argArgs){
 				public void onCreated(T t){
-//					scene.addEntity(t);
-//					t.created();
-					t._setObjectPool(NodePool.this);
+					t._setNodePool(NodePool.this);
 					parent.addChild(t);
 					onCreate(t);
-//					SLog.debug("OBJECTPOOL", "create it");
-					t._onSleep();
+					t.onSleep();
 				}
 				
 				public void onPop(T t){
 					t._setInPool(false);
-					t._onAwake();
+					t.onAwake();
 				}
 				
 				public void onPush(T t){
 					t._setInPool(true);
-//					t._onSleep();	//引入延迟回收机制所以不调用这个方法了
+					t.onSleep();
 				}
 			};
 			break;
 		}
 		
 		name = clazz.getName();
-		SPools.addObjectPool(this);
+		NodePools.addObjectPool(this);
 	}
 	
-	/**为了在C2EntityPool层面进行初始化操作设置的方法 */
+	/**为了在Pool层面进行初始化操作设置的方法 */
 	public void onCreate(T t) {
 		
 	}
@@ -252,14 +225,12 @@ public class NodePool<T extends Node> {
 	public final void dispose() {
 		for(int i = 0, n = pool.getAll().length; i < n; ++i ) {
 			T t = pool.getAll()[i];
-//			t.onCycle();
-//			t.remove();
-			t._onSleep();
-			t.destroySelf();
+			t.onSleep();
+			t.removeFromParent();
 		}
 		clearObserver();
 		pool.dispose();
-		SPools.removeObjectPool(this, false); //防止反复调用
+		NodePools.removeObjectPool(this, false); //防止反复调用
 	}
 	
 	
@@ -271,7 +242,5 @@ public class NodePool<T extends Node> {
 		sb.append(pool);
 		return sb.toString();
 	}
-	
-	
 	
 }

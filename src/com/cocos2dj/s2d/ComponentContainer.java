@@ -127,6 +127,18 @@ public class ComponentContainer {
 		return _components.size <= 0;
 	}
 	
+	//pools
+	public void onSleep() {
+		for(int i = 0; i < _components.size; ++i) {
+			_components.get(i).onSleep();
+		}
+	}
+	
+	public void onAwake() {
+		for(int i = 0; i < _components.size; ++i) {
+			_components.get(i).onAwake();
+		}
+	}
 	
 	//fields>>
 	private Array<IComponent> 	_components = new Array<>(2);

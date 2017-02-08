@@ -41,8 +41,7 @@ public interface IComponent {
 	public void onAdd();
 	public void onRemove();
 
-	
-	//fields>>
-
-	//fields<<
+	//pools
+	public void onSleep();
+	public void onAwake();
 }

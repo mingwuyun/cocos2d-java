@@ -20,6 +20,8 @@ import com.cocos2dj.base.Touch;
 import com.cocos2dj.protocol.IComponent;
 import com.cocos2dj.protocol.IFunctionOneArgRet;
 import com.cocos2dj.protocol.INode;
+import com.cocos2dj.protocol.INodePool;
+import com.cocos2dj.protocol.INodeType;
 import com.cocos2dj.protocol.IUpdater;
 import com.cocos2dj.renderer.Renderer;
 
@@ -2358,6 +2360,53 @@ public class Node implements INode, IUpdater {
 			return 1;
 		}
 	};
+
+	/////////////////////////////////////////////////////
+	//TODO pools about
+	@Override
+	public void pushBack() {
+		
+	}
+
+	@Override
+	public void onSleep() {
+		
+	}
+
+	@Override
+	public void onAwake() {
+		
+	}
+
+	@Override
+	public void _setNodePool(INodePool pool) {
+		
+	}
+
+	@Override
+	public INodePool getNodePool() {
+		return null;
+	}
+
+	@Override
+	public void _setInPool(boolean inPool) {
+		
+	}
+
+	@Override
+	public boolean isInPool() {
+		return false;
+	}
+
+	@Override
+	public void _setNodeType(INodeType nodeType) {
+		
+	}
+
+	@Override
+	public INodeType getNodeType() {
+		return null;
+	}
     
 //	@Override
 //	public int getCameraMask() {

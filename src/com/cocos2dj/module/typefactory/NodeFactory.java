@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.macros.CCLog;
+import com.cocos2dj.module.typefactory.NodeType.InstanceType;
+import com.cocos2dj.protocol.IFunctionOneArg;
+import com.cocos2dj.s2d.Node;
+import com.cocos2dj.s2d.Scene;
 
 /**实体工厂<p>
  * 
@@ -14,25 +19,22 @@ import com.badlogic.gdx.utils.Array;
  * 最后由系统在 scene的create方法的最后调用 {@link #end_createInstance(C2GameScene)} 
  * 强制刷新，将所有的类型实例化
  * 
- * 暂时把代理抠了
- * @author xu jun
- * Copyright (c) 2015. All rights reserved. */
-public class SceneFactory {
+ * @author Copyright (c) 2015 xu jun
+ * */
+public class NodeFactory {
 	
 	/**字符对象以及实体类型的映射关系 */
-	private final HashMap<String, SObjectType> actorTypeMap = new HashMap<String, SObjectType>();
+	private final HashMap<String, NodeType> actorTypeMap = new HashMap<String, NodeType>();
 	/**暂时缓存Type类型的数组 */
-	private Array<SObjectType> tempArray = new Array<SObjectType>();
+	private Array<NodeType> tempArray = new Array<NodeType>();
 	/**存储所有的单例类型实例*/
-	private final Array<SObject> singletonInstances = new Array<SObject>();
+	private final Array<Node> singletonInstances = new Array<Node>();
 	/**存储所有的对象池类型实例*/
-	private final Array<SObjectPool<? extends SObject>> poolInstances = 
-			new Array<SObjectPool<? extends SObject>>();
-	/**存放实体代理 非必须信息暂时保留 */
-//	private final Array<C2ActorProxy> proxies = new Array<C2ActorProxy>();
+	private final Array<NodePool<? extends Node>> poolInstances = 
+			new Array<NodePool<? extends Node>>();
 	
 	
-	static final String TAG = "SSceneFactory";
+	static final String TAG = "NodeFactory";
 	
 	
 	public final int getSingletonCount() {
@@ -40,9 +42,9 @@ public class SceneFactory {
 	}
 	
 	/**遍历处理单例object对象 */
-	public final void handleObject(IHandle<SObject> handle) {
+	public final void handleObject(IFunctionOneArg<Node> handle) {
 		for(int i = 0; i < singletonInstances.size; ++i) {
-			handle.onHandle(singletonInstances.get(i));
+			handle.callback(singletonInstances.get(i));
 		}
 	}
 	
@@ -52,9 +54,9 @@ public class SceneFactory {
 	
 	/**遍历处理pool对象 */
 	@SuppressWarnings("rawtypes")
-	public final void handleObjectPool(IHandle<SObjectPool> handle) {
+	public final void handleObjectPool(IFunctionOneArg<NodePool> handle) {
 		for(int i = 0; i < poolInstances.size; ++i) {
-			handle.onHandle(poolInstances.get(i));
+			handle.callback(poolInstances.get(i));
 		}
 	}
 	
@@ -63,38 +65,38 @@ public class SceneFactory {
 	}
 	
 	/**遍历并处理Type对象 */
-	public final void handleActorType(IHandle<SObjectType> handle) {
-		Iterator<java.util.Map.Entry<String, SObjectType>> it = actorTypeMap.entrySet().iterator();
+	public final void handleActorType(IFunctionOneArg<NodeType> handle) {
+		Iterator<java.util.Map.Entry<String, NodeType>> it = actorTypeMap.entrySet().iterator();
 		while(it.hasNext()) {
-			SObjectType t = it.next().getValue();
-			handle.onHandle(t);
+			NodeType t = it.next().getValue();
+			handle.callback(t);
 		}
 	}
 	
-	public final SSceneFactory putActorType(SObjectType type) {
+	public final NodeFactory putActorType(NodeType type) {
 		return putActorType(type.typeName, type);
 	}
 	
-	public final SSceneFactory putActorType(String key, SObjectType type) {
+	public final NodeFactory putActorType(String key, NodeType type) {
 		if(actorTypeMap.containsKey(key) || key == null) {
-			SLog.error("world", TAG, "key error: key = " + key);
+			CCLog.engine(TAG, "key error: key = " + key);
 			return this;
 		}
 		type.typeName = key;
 		actorTypeMap.put(key, type);
 		type.factory = this;
-		tempArray = tempArray == null ? new Array<SObjectType>() : tempArray;
+		tempArray = tempArray == null ? new Array<NodeType>() : tempArray;
 		tempArray.add(type);
 		return this;
 	}
 	
-	public final SObjectType getActorType(String key) {
+	public final NodeType getActorType(String key) {
 		return actorTypeMap.get(key);
 	}
 	
-	public final SSceneFactory flush_createInstances(final SScene scene) {
+	public final NodeFactory flush_createInstances(final Scene scene) {
 		for(int i = 0; i < tempArray.size; ++i) {
-			final SObjectType type = tempArray.get(i);
+			final NodeType type = tempArray.get(i);
 			switch(type.instanceType) {
 			case SINGLETON:
 				type.instanceID = singletonInstances.size;
@@ -110,7 +112,7 @@ public class SceneFactory {
 		return this;
 	}
 	
-	public final void end_createInstance(final SScene scene) {
+	public final void end_createInstance(final Scene scene) {
 		flush_createInstances(scene);
 		singletonInstances.ensureCapacity(0);
 		poolInstances.ensureCapacity(0);
@@ -129,20 +131,17 @@ public class SceneFactory {
 	}
 	
 	
-	private SObject createObject(final SObjectType type, final SScene scene) {
-		SObject temp = null;
+	private Node createObject(final NodeType type, final Scene scene) {
+		Node temp = null;
 		try {
 			if(type.initClasses != null)
 				temp = type.clazz.getConstructor(type.initClasses).newInstance(type.initArgs);
 			else
 				temp = type.clazz.newInstance();
-			
-			temp.setObjectType(type);
+			temp._setNodeType(type);
 			type.parent.addChild(temp);
-			temp._onSleep();
-			
-			SLog.debug("world", TAG, "create object : " + type);
-			
+			temp.onSleep();
+			CCLog.engine(TAG, "create object : " + type);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -159,20 +158,17 @@ public class SceneFactory {
 		return temp;
 	}
 	
-	private SObjectPool<? extends SObject> createObjectPool(final SObjectType type, 
-			final SScene scene) {
+	private NodePool<? extends Node> createObjectPool(final NodeType type, final Scene scene) {
 		int poolType;
 		if(type.instanceType != InstanceType.ADDING_POOL)
 			poolType = 0;
 		else
 			poolType = 1;
 		
-		SLog.debug("world", TAG, "create pool : " + type);
-//		System.out.println("create pool -----   class = " + type.clazz);
+		CCLog.engine(TAG, "create pool : " + type);
 		
-//		System.out.println(type.);
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		SObjectPool<? extends SObject> pool = new SObjectPool(
+		NodePool<? extends Node> pool = new NodePool(
 				type.parent,
 				poolType,
 				type.clazz,
@@ -180,8 +176,8 @@ public class SceneFactory {
 				type.poolAddCount,
 				type.initClasses,
 				type.initArgs) {
-			public void onCreate(SObject o) {
-				o.setObjectType(type);
+			public void onCreate(Node o) {
+				o._setNodeType(type);
 			}
 		};
 		
@@ -189,15 +185,15 @@ public class SceneFactory {
 	}
 	
 	/**按键值获取实体实例 */
-	public final SObject getObject(final String name) {
-		SObjectType t = actorTypeMap.get(name);
+	public final Node getObject(final String name) {
+		NodeType t = actorTypeMap.get(name);
 		if(t == null) return null;
 		return getObject(t);
 	}
 	
 	/**获取对象池 */
 	@SuppressWarnings("rawtypes")
-	final SObjectPool getPool(SObjectType at) {
+	final NodePool getPool(NodeType at) {
 		if(at.instanceType == InstanceType.ADDING_POOL || at.instanceType == InstanceType.NORMAL_POOL) {
 			final int id = at.instanceID;
 			if(id >= 0) return poolInstances.get(id);
@@ -209,14 +205,14 @@ public class SceneFactory {
 	 * 
 	 * @param at 实体类型(ActorType)
 	 * @return 实体的实例 获取失败时返回null */
-	final SObject getObject(SObjectType at) {
+	final Node getObject(NodeType at) {
 		switch(at.instanceType) {
 		case SINGLETON: 
 			{	
 				final int id = at.instanceID;
 				if(id >= 0) {	//手动唤醒
-					SObject ret = singletonInstances.get(id);
-					ret._onAwake();
+					Node ret = singletonInstances.get(id);
+					ret.onAwake();
 					return ret;
 				}
 			}
@@ -232,10 +228,10 @@ public class SceneFactory {
 	}
 	
 	final void clear() {
-		for(SObject o : singletonInstances) {
-			o.destroySelf();
+		for(Node o : singletonInstances) {
+			o.removeFromParent();
 		}
-		for(SObjectPool<?> pool : poolInstances) {
+		for(NodePool<?> pool : poolInstances) {
 			pool.dispose();
 		}
 	}

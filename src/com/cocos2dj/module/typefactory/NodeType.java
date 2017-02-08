@@ -1,53 +1,36 @@
 package com.cocos2dj.module.typefactory;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.cocos2dj.protocol.INodeType;
+import com.cocos2dj.s2d.Node;
 
-/**ʵ������<p>
+/**
+ * NodeType.java
+ * <p>
  * 
- * ���ƾ����һ��C2Actor�����Ӧ�Ѹ�C2ActorType(û���ֶ�����Ĭ��ΪNULL����)
+ * 一个NodeType对象管理一类node<pre>
  * 
- * @author xu jun
- * Copyright (c) 2014. All rights reserved. */
-public class NodeType {
+ * 
+ * Node node = type.getInstance();	//获取实例
+ * node.pushBack();					//归还实例
+ * </pre>
+ * @author Copyright (c) 2014. xu jun 
+ * */
+public class NodeType implements INodeType {
 	
-	/**ʵ������*/
 	public enum InstanceType {
-		/**����ģʽ ��ǰ����ֻ�����һ��ʵ��*/ SINGLETON,		
-		/**�ӷ������ �����ɻ��ն��� ����ʱ�̶���������*/ ADDING_POOL,
-		/**��ͨ����� �����ɻ��ն��� ����ʱ��������*/ NORMAL_POOL
+		/**单例类型 该type在一个scene中只会存在一个*/ 
+		SINGLETON,		
+		/**对象池类型 数量不够时线性增加 */ 
+		ADDING_POOL,
+		/**对象池类型 数量不够时指数增加 */ 
+		NORMAL_POOL
 	}
 	
-	/**���͵����ڹ��� */
-	SSceneFactory factory;
-	/**���͵����� */
-	String typeName = "null";
-	/**ʵ��λ�ã�ID��*/
-	int instanceID = -1;
-	/**ʵ���Ĵ������� */
-	InstanceType instanceType = InstanceType.SINGLETON;
-	/**ʵ�������Ͷ��� */
-	Class<? extends SObject> clazz;
-	/**��������������� */
-	Class<?>[] initClasses;
-	/**��������������� */
-	Object[] initArgs;
-	/**������������ */
-	int poolInitCount = 2, poolAddCount = 2;
-	SObject parent;
-	/**�����͵Ĵ��� */
-//	C2ActorProxy actorProxy;
 	
+	public String getTypeName() {return typeName;}
 	
-//	public final C2ActorType setProxy(C2ActorProxy proxy) {
-//		actorProxy = proxy;
-//		return this;
-//	}
-	
-	public String getTypeName() {
-		return typeName;
-	}
-	
-	public final NodeType setParent(SObject parent) {
+	public final NodeType setParent(Node parent) { 
 		this.parent = parent;
 		return this;
 	}
@@ -68,7 +51,7 @@ public class NodeType {
 		return this;
 	}
 	
-	public final NodeType setClass(Class<? extends SObject> clazz) {
+	public final NodeType setClass(Class<? extends Node> clazz) {
 		this.clazz = clazz;
 		return this;
 	}
@@ -81,33 +64,30 @@ public class NodeType {
 	
 	
 	
-	/**��ȡ��ʵ�壨��Ա�����͵�ʵ�� ��ȡʧ�ܻ��׳��쳣<p>
+	/**
+	 * 获取该type对应的node实例 <p>
 	 * 
-	 * @return  ʵ������ */
-	public final SObject getInstance() {
-		SObject a = factory.getObject(this);
+	 * 调用node.pushBack() 归还对象
+	 * @return Node */
+	public final Node getInstance() {
+		Node a = factory.getObject(this);
 		if(a == null) {
 			throw new GdxRuntimeException("getInstance fail: " + this);
 		}
 		return a;
 	}
 	
-	/**为对象池中的所有对象添加监听 */
-	public final void addObserver(SObjectObserver obv) {
-		factory.getPool(this).addObserver(obv);
-	}
-	
-	public final void removeObserver(SObjectObserver observer) {
-		factory.getPool(this).removeObserver(observer);
-	}
-	
-	public final void clearObserver() {
-		factory.getPool(this).clearObserver();
-	}
-	
-//	/**��ȡ���͵Ĵ��� */
-//	public final C2ActorProxy getActorProxy() {
-//		return actorProxy;
+//	/**为对象池中的所有对象添加监听 */
+//	public final void addObserver(SObjectObserver obv) {
+//		factory.getPool(this).addObserver(obv);
+//	}
+//	
+//	public final void removeObserver(SObjectObserver observer) {
+//		factory.getPool(this).removeObserver(observer);
+//	}
+//	
+//	public final void clearObserver() {
+//		factory.getPool(this).clearObserver();
 //	}
 	
 	
@@ -117,4 +97,17 @@ public class NodeType {
 		sb.append(" instanceID: "); sb.append(instanceID);
 		return sb.toString();
 	}
+
+	
+	//fields>>
+	NodeFactory 			factory;
+	String 					typeName = "null";
+	int 					instanceID = -1;
+	InstanceType 			instanceType = InstanceType.SINGLETON;
+	Class<? extends Node> 	clazz = Node.class;
+	Class<?>[] 				initClasses;
+	Object[] 				initArgs;
+	int 					poolInitCount = 2;
+	int 					poolAddCount = 2;
+	Node 					parent;
 }

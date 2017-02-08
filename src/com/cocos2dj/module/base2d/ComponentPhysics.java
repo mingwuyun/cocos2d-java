@@ -58,11 +58,21 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 
 	@Override
 	public void onEnter() {
-		sleep = false;
+		
 	}
 
 	@Override
 	public void onExit() {
+		
+	}
+	
+	@Override
+	public void onSleep() {
+		sleep = false;
+	}
+
+	@Override
+	public void onAwake() {
 		sleep = true;
 	}
 
