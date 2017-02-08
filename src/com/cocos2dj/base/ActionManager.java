@@ -290,20 +290,27 @@ public class ActionManager implements IUpdater {
 			   //更新时候需要从后向前——可能在过程中执行删除操作
 			   Array<IAction> actions = _currentTarget.actions;
 			   for(int i = actions.size - 1; i >= 0; --i) {
-				   _currentTarget.currentAction = actions.get(_currentTarget.actionIndex);
-				   IAction a = _currentTarget.currentAction; 
-				   _currentTarget.currentActionSalvaged = false;
+//				   _currentTarget.currentAction = actions.get(_currentTarget.actionIndex);
+//				   IAction a = _currentTarget.currentAction; 
+				   IAction a = actions.get(i);
+//				   _currentTarget.currentActionSalvaged = false;
 				   
 				   a.step(dt * 0.001f);	//ms to s
 				   
-				   if(_currentTarget.currentActionSalvaged) {
-					   _currentTarget.currentAction = null;
-				   } else if(_currentTarget.currentAction.isDone()) {
+				   if(a.isDone()) {
 					   a.stop();
-					   _currentTarget.currentAction = null;
+//					   _currentTarget.currentAction = null;
 					   removeAction(a);
 				   }
 				   
+////				   if(_currentTarget.currentActionSalvaged) {
+////					   _currentTarget.currentAction = null;
+//				   } else 
+//					   if(_currentTarget.currentAction.isDone()) {
+//					   a.stop();
+//					   _currentTarget.currentAction = null;
+//					   removeAction(a);
+//				   }
 				   _currentTarget.currentAction = null;
 			   }
 		   }

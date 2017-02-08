@@ -46,12 +46,17 @@ public class ActionManagerTests extends TestSuite {
 					MoveBy.create(1, 900, 300),
 					MoveBy.create(1, -900, -300)
 					));
+			sprite1.runAction(Sequence.create(
+					RotateBy.create(3, 900),
+					RotateBy.create(3, -900)
+					));
 //			//check count			
 //			sprite1.setOnUpdateCallback((n, dt)->{
 //				System.out.println("actionCount = " + 
 //						sprite1.getNumberOfRunningActions());
 //			});
 //			sprite1.scheduleUpdate();
+			
 //			//stop
 //			scheduleOnce((t)->{
 //				System.out.println("stop");
@@ -135,19 +140,6 @@ public class ActionManagerTests extends TestSuite {
 					RotateBy.create(3, 2000)
 					));
 			
-			
-			
-//			//组合测试
-//			sprite2.runAction(
-//					Sequence.create(
-//					MoveBy.create(1.5f, -900, -100),
-//					Repeat.create(Sequence.create(
-//							MoveBy.create(0.2f, 0, 100),
-//							MoveBy.create(0.2f, 50, -100)
-//							), 5),
-//					MoveBy.create(1, 600, 100)
-//					));
-//			
 			Sprite sprite3 = (Sprite) Sprite.create("powered.png").addTo(this);
 			sprite3.setRect(0, 0, 100, 120);
 			sprite3.setPosition(500, 100);
@@ -161,11 +153,7 @@ public class ActionManagerTests extends TestSuite {
 								MoveBy.create(1, -100, -100),
 								MoveBy.create(2, 100, -100)
 						)
-//						Repeat.create(Sequence.create(
-//								RotateBy.create(0.5f, 120),
-//								RotateBy.create(0.5f, -120)
-//						), 10)
-					), 1
+					), 2
 			));
 			sprite3.runAction(RepeatForever.create(
 					Sequence.create(
@@ -173,11 +161,11 @@ public class ActionManagerTests extends TestSuite {
 							RotateBy.create(0.5f, -120)
 						)
 					));
-//			sprite3.scheduleUpdate();
-//			sprite3.scheduleOnce((dt)->{
-//				sprite3.stopAllActions();
-//				return false;
-//			}, 5f);
+			sprite3.scheduleUpdate();
+			sprite3.scheduleOnce((dt)->{
+				sprite3.stopAllActions();
+				return false;
+			}, 5f);
 		}
 	}	
 }
