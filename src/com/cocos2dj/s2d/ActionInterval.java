@@ -97,8 +97,8 @@ public class ActionInterval extends FiniteTimeAction {
 	    return true;
    }
 
-   protected float 		_elapsed;
-   protected boolean   	_firstTick;
+//   protected float 		_elapsed;
+//   protected boolean   	_firstTick;
 
    protected boolean sendUpdateEventToScript(float dt, Action actionObject) {
 	   return false;
@@ -144,10 +144,6 @@ public class ActionInterval extends FiniteTimeAction {
 	            CCLog.error("Sequence", "Sequence::startWithTarget error: target is nullptr!");
 	            return;
 	        }
-	        if (_actions[0] == null || _actions[1] == null) {
-	        	CCLog.error("Sequence", "Sequence::startWithTarget error: _actions[0] or _actions[1] is nullptr!");
-	            return;
-	        }
 //	        if (_duration > CCMacros.FLT_EPSILON) {
 ////	            _split = _actions[0].getDuration() / _duration;
 //	        }
@@ -169,33 +165,36 @@ public class ActionInterval extends FiniteTimeAction {
 	    	super.stop();
 	    }
 	    
-	    float modifer = 0;
 	    /**
 	     * @param t In seconds.
 	     */
-	    public void step(float dt) {
-//	 	   if(_firstTick) {
-//	 		   _firstTick = false;
-//	 		   _elapsed = 0;
-//	 	   } else {
-//	 		   _elapsed += dt;
-//	 	   }
-	    
-	    	//时间略有偏差，但基本正确
+	    public void update(float t) {
 	 	   if(_currAction >= _actions.length) {
-	 		    _elapsed = _duration;	//stop 
 	    		return;
 	 	   }
 	 	   
 			FiniteTimeAction currAction = _actions[_currAction];
+			float currActionElapsed = _elapsed - _totalTime;
+			currAction._firstTick = false;
+			currAction._elapsed = currActionElapsed;
 			
-			if(currAction.isDone()) {
+//			System.out.println("totalDuration = " + _duration);
+//			System.out.println("_elapsed" + _elapsed);
+//			System.out.println("actionDuration = " + currAction._duration);
+			
+			if(currActionElapsed >= currAction._duration) {
+				_totalTime += currAction._duration;
+				
+				_elapsed = _totalTime;		//防止精度问题，重置为标准时间
+				
 				++_currAction;
 				if(_currAction < _actions.length) {
 					_actions[_currAction].startWithTarget(_target);
 				}
 			} else {
-				currAction.step(dt);
+				float updateDt = currActionElapsed / currAction._duration;
+				updateDt = Math.max(0, Math.min(1, updateDt));
+				currAction.update(updateDt);
 			}
 	    }
 	    
@@ -211,7 +210,7 @@ public class ActionInterval extends FiniteTimeAction {
 	    	if(count == 0) {
 	    		return false;
 	    	}
-	    	int totalD = 0;
+	    	float totalD = 0;
 	    	for(int i = 0; i < count; ++i) {
 	    		totalD += actions[i].getDuration();
 	    	}
@@ -238,7 +237,9 @@ public class ActionInterval extends FiniteTimeAction {
 	     * @return An autoreleased Repeat object.
 	     */
 	    public static Repeat create(FiniteTimeAction action, int times) {
-	    	
+	    	Repeat ret = new Repeat();
+	    	ret.initWithAction(action, times);
+	    	return ret;
 	    }
 
 	    /** Sets the inner action.
@@ -263,27 +264,47 @@ public class ActionInterval extends FiniteTimeAction {
 	    // Overrides
 	    //
 	    public Repeat copy() {
-	    	
+	    	return Repeat.create(_innerAction, _times);
 	    }
 	    public Repeat reverse() {
-	    	
+	    	return Repeat.create(_innerAction.reverse(), _times);
 	    }
 	    public void startWithTarget(INode target) {
-	    	
+	    	super.startWithTarget(target);
+	    	_innerAction.startWithTarget(target);
 	    }
 	    public void stop() {
-	    	
+	    	_innerAction.stop();
+	    	super.stop();
 	    }
 	    
 	    /**
 	     * @param t In seconds.
 	     */
 	    public void update(float t) {
+	    	if(isDone()) {return;}
 	    	
+	    	final float totalTime = _innerAction._duration * _total;
+			float currActionElapsed = _elapsed - totalTime;
+			_innerAction._firstTick = false;
+			_innerAction._elapsed = currActionElapsed;
+			
+			if(currActionElapsed >= _innerAction._duration) {
+				_elapsed = totalTime + _innerAction._duration;		//防止精度问题，重置为标准时间
+				
+				++_total;
+				if(_total < _times) {
+					_innerAction.startWithTarget(_target);
+				}
+			} else {
+				float updateDt = currActionElapsed / _innerAction._duration;
+				updateDt = Math.max(0, Math.min(1, updateDt));
+				_innerAction.update(updateDt);
+			}
 	    }
 	    
 	    public boolean isDone() {
-	    	
+	    	return _total >= _times;
 	    }
 	    
 	    public Repeat() {
@@ -291,14 +312,24 @@ public class ActionInterval extends FiniteTimeAction {
 	    }
 
 	    /** initializes a Repeat action. Times is an unsigned integer between 1 and pow(2,30) */
-	    public boolean initWithAction(FiniteTimeAction pAction, int times) {
+	    public boolean initWithAction(FiniteTimeAction action, int times) {
+	    	float d = action.getDuration() * times;
 	    	
+	    	if(action != null && super.initWithDuration(d)) {
+	    		_times = times;
+	    		_innerAction = action;
+//	    		_actionInstant = action instanceof ActionInstant ? true : false;
+	    		_total = 0;
+	    		return true;
+	    	}
+	    	
+	    	return false;
 	    }
 
 	    protected int _times;
 	    protected int _total;
 	    protected float _nextDt;
-	    protected boolean _actionInstant;
+//	    protected boolean _actionInstant;
 	    /** Inner action */
 	    protected FiniteTimeAction _innerAction;
    }
@@ -312,7 +343,9 @@ public class ActionInterval extends FiniteTimeAction {
         * @return An autoreleased RepeatForever object.
         */
        public static RepeatForever create(ActionInterval action) {
-    	   
+    	   RepeatForever ret = new RepeatForever();
+    	   ret.initWithAction(action);
+    	   return ret;
        }
 
        /** Sets the inner action.
@@ -337,23 +370,34 @@ public class ActionInterval extends FiniteTimeAction {
        // Overrides
        //
        public RepeatForever copy() {
-	    	
+	    	return RepeatForever.create(_innerAction.copy());
 	   }
 	   public RepeatForever reverse() {
-	    	
+	    	return RepeatForever.create(_innerAction.reverse());
 	   }
 	   public void startWithTarget(INode target) {
-	    	
+	    	super.startWithTarget(target);
+	    	_innerAction.startWithTarget(target);
 	   }
+	   
 	   /**
 	    * @param t In seconds.
 	    */
-	   public void step(float t) {
-	    	
+	   public void step(float dt) {
+	    	_innerAction.step(dt);
+	    	if(_innerAction.isDone()) {
+	    		float diff = _innerAction._elapsed - _innerAction._duration;
+	            if (diff > _innerAction._duration) {
+	                diff = diff % _innerAction._duration;	//fmodf
+	            }
+	            _innerAction.startWithTarget(_target);
+	            _innerAction.step(0.0f);
+	            _innerAction.step(diff);
+	    	}
 	   }
-	    
+	   
 	   public boolean isDone() {
-	    	
+	    	return false;
 	   }
 	    
        
@@ -363,53 +407,104 @@ public class ActionInterval extends FiniteTimeAction {
 
        /** initializes the action */
        public boolean initWithAction(ActionInterval action) {
-    	   
+    	   assert action != null: "action can't be nullptr!";
+    	    if (action == null) {
+    	        CCLog.error("RepeatForever", "RepeatForever::initWithAction error:action is nullptr!");
+    	        return false;
+    	    }
+    	    _innerAction = action;
+    	    return true;
        }
 
        /** Inner action */
        protected ActionInterval _innerAction;
    }
    
+   
    //////////////////////////////////////
    //TODO Spawn
-   public class Spawn extends ActionInterval {
+   public static class Spawn extends ActionInterval {
+	   
        public static Spawn create(FiniteTimeAction...actions) {
-    	   
+    	   Spawn ret = new Spawn();
+    	   ret.init(actions);
+    	   return ret;
        }
 
        //
        // Overrides
        //
         public Spawn clone() {
-        	
+        	FiniteTimeAction[] newActions = new FiniteTimeAction[_actions.length];
+	    	final int n = _actions.length - 1;
+	    	for(int i = 0; i <= n; ++i) {
+	    		newActions[i] = _actions[i].copy();
+	    	}
+        	return Spawn.create(newActions);
         }
+        
         public Spawn reverse() {
-        	
+        	FiniteTimeAction[] newActions = new FiniteTimeAction[_actions.length];
+	    	final int n = _actions.length - 1;
+	    	for(int i = 0; i <= n; ++i) {
+	    		newActions[i] = _actions[i].reverse();
+	    	}
+        	return Spawn.create(newActions);
         }
         public void startWithTarget(INode target) {
-        	
+        	if (target == null) {
+                CCLog.error("Spawn", "Spawn::startWithTarget error: target is nullptr!");
+                return;
+            }
+        	for(FiniteTimeAction action : _actions) {
+        		action.startWithTarget(target);
+        	}
+        	super.startWithTarget(target);
         }
         public void stop() {
-        	
+        	for(FiniteTimeAction action : _actions) {
+        		action.stop();
+        	}
+        	super.stop();
         }
        /**
         * @param time In seconds.
         */
         public void update(float time) {
+        	if(isDone()) {return;}
         	
+        	for(FiniteTimeAction action : _actions) {
+        		if(action._elapsed < 0) {
+        			continue;
+        		}
+        		
+        		action._elapsed = _elapsed;
+        		float updateDt = _elapsed / action._duration;
+				updateDt = Math.max(0, Math.min(1, updateDt));
+				
+				action.update(updateDt);
+				if(updateDt >= 1) {
+					action._elapsed = -1;	//stop Flag
+				}
+        	}
         }
        
        public Spawn() {
     	   
        }
 
-       public boolean initWithTwoActions(FiniteTimeAction...actions) {
-    	   
+       public boolean init(FiniteTimeAction...actions) {
+    	   _actions = actions;
+    	   float d = 0;
+    	   for(int i = 0; i < actions.length; ++i) {
+    		   float currD = actions[i]._duration;
+    		   d = currD > d ? currD : d;
+    	   }
+    	   initWithDuration(d);
+    	   return true;
        }
        
        protected FiniteTimeAction[] _actions;
-//	   protected FiniteTimeAction _one;
-//       protected FiniteTimeAction _two;
    }
    
    
@@ -480,9 +575,6 @@ public class ActionInterval extends FiniteTimeAction {
 			}
 			return false;
 		}
-//		public boolean initWithDuration(float duration,  Vec3& deltaPosition) {
-//			
-//		}
 	
 		protected float _positionDeltaX;
 		protected float _positionDeltaY;
@@ -491,4 +583,59 @@ public class ActionInterval extends FiniteTimeAction {
 		protected float _previousPositionX;
 		protected float _previousPositionY;
 	}
+   
+   
+   ////////////////////////////
+   //TODO RotateBy
+   public static class RotateBy extends ActionInterval {
+       /** 
+        * Creates the action.
+        *
+        * @param duration Duration time, in seconds.
+        * @param deltaAngle In degreesCW.
+        * @return An autoreleased RotateBy object.
+        */
+       public static RotateBy create(float duration, float deltaAngle) {
+    	   RotateBy ret = new RotateBy();
+    	   ret.initWithDuration(duration, deltaAngle);
+    	   return ret;
+       }
+
+       //
+       // Override
+       //
+       public RotateBy copy() {
+    	   return RotateBy.create(_duration, _deltaAngle);
+       }
+       public RotateBy reverse() {
+    	   return RotateBy.create(_duration, -_deltaAngle);
+       }
+       public void startWithTarget(INode target) {
+    	   super.startWithTarget(target);
+    	   _startAngle = ((Node)target).getRotation();
+       }
+       /**
+        * @param time In seconds.
+        */
+       public void update(float time) {
+    	   if(_target != null) {
+    		   float ret = _startAngle + _deltaAngle * time;
+    		   _target.setRotation(ret);
+    	   }
+       }
+       
+       public RotateBy() {}
+
+       /** initializes the action */
+       public boolean initWithDuration(float duration, float deltaAngle) {
+    	   if(super.initWithDuration(duration)) {
+    		   _deltaAngle = deltaAngle;
+    		   return true;
+    	   }
+    	   return false;
+       }
+       
+       protected float _deltaAngle;
+       protected float _startAngle;
+   }
 }

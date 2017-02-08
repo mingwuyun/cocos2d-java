@@ -137,7 +137,9 @@ public class Action implements IAction {
 			return null;
 		}
 		
-		protected float 	_duration;
+		protected float 		_duration;
+		protected float 		_elapsed;
+		protected boolean   	_firstTick;
 	}
 	
 	/** @class Speed
