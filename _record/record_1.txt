@@ -10,6 +10,8 @@
 # TypeFactory
 # renderCall统计
 # ActionManager
-	runAction的逻辑现在是顺序执行？如果不是：修改为并行执行——无论何时runAction立刻执行
-	spawn有时长限制，难以实现复杂并行效果——sequence则可以完全实现顺序执行效果。
-	因此，修正runAction直接支持并行；
+	+ runAction的逻辑修改为并行执行
+
+# color相关
+
+
