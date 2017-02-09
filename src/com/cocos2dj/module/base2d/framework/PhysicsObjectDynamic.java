@@ -1,6 +1,7 @@
 package com.cocos2dj.module.base2d.framework;
 
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.framework.common.V2;
 /**
@@ -91,6 +92,14 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 	 * @see com.card2dphysics.module.IPhysicsObject#modifierPosition(com.card2dphysics.system.Vector2)*/
 	public final void modifierPosition(final Vector2 MTD) {
 		position.add(MTD);
+		
+		//摩擦位置修正
+//		if(MathUtils.abs(MTD.y) > 0.001f) {
+//			float mtdx = -MTD.x;
+//			float mtdy = MTD.x * MTD.x / MTD.y;
+//			position.add(mtdx, mtdy);
+//		}
+		
 //		if(keepSpeed){
 //			return;
 //		}
@@ -105,6 +114,9 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 		
 		final float f = V2.dot(velocity, pool);
 		velocity.set(pool.scl(f));
+		
+		//摩擦速度修正
+//		velocity.set(pool.scl(0));
 	}
 
 	public final void setVelocity(final Vector2 velocity) {

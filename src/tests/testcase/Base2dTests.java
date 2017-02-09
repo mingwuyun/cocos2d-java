@@ -182,6 +182,7 @@ public class Base2dTests extends TestSuite {
 		private OnContactCallback contactHandle = new OnContactCallback() {
 			@Override
 			public boolean onContact(Contact c) {
+//				System.out.println("c.MTD = " + c.MTD);
 				if(MathUtils.abs(c.MTD.y) > 0.1f) {
 					structFlags.canJump = true;
 					return true;
@@ -200,20 +201,25 @@ public class Base2dTests extends TestSuite {
 			
 			if(lastJump != structFlags.canJump) {
 				System.out.println("jump ok" + structFlags.canJump);
+				
 			}
+			
+//			System.out.println("velocity = " + body.getVelocity());
 			
 			if(structFlags.canJump) {
 //				body.setAccelerateY(0f);	//ground set accele rate is 0
 			} else {
-				body.setAccelerateY(-3f);
+//				body.setAccelerateY(-3f);
 			}
 			
 			if(leftFlag) {
 				body.setVelocityX(-SPEED);
-				body.setAccelerateY(-3f);
+//				body.setVelocityY(-2f);		//添加一个初始速度，确保贴在斜面上
+//				body.setAccelerateY(-3f);
 			} else if(rightFlag) {
 				body.setVelocityX(SPEED);
-				body.setAccelerateY(-3f);
+//				body.setVelocityY(-2f);
+//				body.setAccelerateY(-3f);
 			} else {
 				body.setVelocityX(0f);
 			}
@@ -293,7 +299,7 @@ public class Base2dTests extends TestSuite {
 			float[] points = new float[]{
 				-400, -10,
 				400, -10,
-				400, 100
+				400, 200
 			};
 			groundPolygon.drawPolygon(points, null);
 			groundPolygon.setPosition(500, 100);
