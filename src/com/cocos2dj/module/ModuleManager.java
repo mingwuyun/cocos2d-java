@@ -93,6 +93,12 @@ public class ModuleManager {
 		}
 	}
 	
+	public final void onSceneEnterAfter() {
+		for(int i = 0; i < modules.size; ++i) {
+			modules.get(i).onAfterEnter(_scene);
+		}
+	}
+	
 	public final void onSceneExit() {
 		running = false;
 		for(int i = 0; i < modules.size; ++i) {

@@ -234,6 +234,7 @@ public class NodeFactory {
 		return null;
 	}
 	
+	/**清除factory中所有被管理对象 不要手动调用 */
 	public final void clear() {
 		for(Node o : singletonInstances) {
 			o.removeFromParent();

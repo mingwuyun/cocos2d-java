@@ -22,6 +22,10 @@ public class BaseTask extends BaseUpdater {
 	private Runnable 	runnable;
 	private int 		frameDelay = -1;
 	
+	public static BaseTask create(Runnable runnable) {
+		return new BaseTask(runnable);
+	}
+	
 	public BaseTask(Runnable runnable) {
 		this(runnable, -1);
 	}

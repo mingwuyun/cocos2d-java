@@ -136,6 +136,7 @@ public class Scene extends Node implements IScene {
 		_moduleManager.setRunning(true);	//必须这个顺序！
 		_moduleManager.onSceneEnter();
 		super.onEnter();
+		_moduleManager.onSceneEnterAfter();
 	}
 	
 	@Override

@@ -10,13 +10,23 @@ import com.cocos2dj.s2d.Node;
  * NodeType.java
  * <p>
  * 
- * 一个NodeType对象管理一类node<pre>
+ * 一个NodeType对象管理一类node 有两种用法：<pre>
+ * //use node class
+ * public TargetNode extends Node {
+ * 	...
+ * }
+ * NodeType type = NodeType.create("testName").setParent(scene).setClass(TargetNode.class);
  * 
+ * //use node proxy (good way)
+ * public TargetNodeProxy implements NodeProxy {
+ * 	...
+ * }
+ * NodeType type = NodeType.create("testName").setParent(scene).setNodeProxy(TargetNodeProxy.class);
  * 
  * Node node = type.getInstance();	//获取实例
- * node.pushBack();					//归还实例
+ * node.pushBack();			//归还实例
  * </pre>
- * @author Copyright (c) 2014. xu jun 
+ * @author Copyright (c) 2014-2017. xu jun 
  * */
 public class NodeType implements INodeType {
 	
@@ -29,6 +39,16 @@ public class NodeType implements INodeType {
 		NORMAL_POOL
 	}
 	
+	
+	public static NodeType create() {
+		return new NodeType();
+	}
+	
+	public static NodeType create(String name) {
+		NodeType type = new NodeType();
+		type.setName(name);
+		return type;
+	}
 	
 	public String getTypeName() {return typeName;}
 	
@@ -64,7 +84,7 @@ public class NodeType implements INodeType {
 		return this;
 	}
 	
-	public final NodeType setPoolNodeCallback(Class<? extends NodeProxy> proxyClazz) {
+	public final NodeType setNodeProxy(Class<? extends NodeProxy> proxyClazz) {
 		this.proxyClazz = proxyClazz;
 		return this;
 	}

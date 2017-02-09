@@ -7,6 +7,7 @@ import com.cocos2dj.module.base2d.ModuleBase2d;
 import com.cocos2dj.module.gdxui.GdxUIConsole;
 import com.cocos2dj.module.gdxui.GdxUIConsole.ConsoleHandle;
 import com.cocos2dj.module.gdxui.GdxUIDebugInfo;
+import com.cocos2dj.module.typefactory.ModuleTypeFactory;
 import com.cocos2dj.module.typefactory.NodeFactory;
 import com.cocos2dj.module.typefactory.NodePools;
 import com.cocos2dj.module.typefactory.NodeType;
@@ -30,11 +31,9 @@ public class TypeFactoryTests extends TestSuite {
 	}
 	
 	static class TypeTestDemo extends TestCase {
-		protected NodeFactory factory;
 		
 		public void onEnter() {
 			super.onEnter();
-			factory = new NodeFactory();
 			GdxUIDebugInfo debug = (GdxUIDebugInfo) _gdxui.getUIStage(GdxUIDebugInfo.class);
 			debug.addDebugListener(()->{
 				return NodePools.getPoolsState();
@@ -43,7 +42,6 @@ public class TypeFactoryTests extends TestSuite {
 		
 		public void onExit() {
 			super.onExit();
-			factory.clear();
 		}
 	}
 	
@@ -90,11 +88,14 @@ public class TypeFactoryTests extends TestSuite {
 		
 		Array<Node> 	nodes = new Array<>();
 		static ModuleBase2d	base2d;
+		ModuleTypeFactory	typeFactory;
 		
 		public void onEnter() {
 			super.onEnter();
 			
 			base2d = createModule(ModuleBase2d.class);
+			typeFactory = createModule(ModuleTypeFactory.class);
+			
 			GdxUIConsole console = _gdxui.createConsole();
 			console.addConsoleHandle(new ConsoleHandle("typeFactoryTest") {
 				@Override
@@ -106,16 +107,13 @@ public class TypeFactoryTests extends TestSuite {
 				}
 			});
 			
-			NodeType nodeType = new NodeType();
-			
-			nodeType.setName("testNodeType1").
+			NodeType nodeType = NodeType.create("testNodeType1").
 			setInstanceType(InstanceType.ADDING_POOL).
 			setParent(this).
-			setPoolNodeCallback(TestPoolNode.class);
+			setNodeProxy(TestPoolNode.class);
 			
-			factory.putActorType(nodeType);
+			typeFactory.addNodeType(nodeType);
 			//end
-			factory.end_createInstance(this);
 			
 			base2d.createStaticObjectWithAABBWorld(0, 0, 1200, 100);
 			DrawNode ground = (DrawNode) DrawNode.create().addTo(this);

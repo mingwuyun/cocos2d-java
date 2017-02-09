@@ -66,6 +66,9 @@ public abstract class Module {
 		this._currentScene = null;
 	}
 	
+	/**场景enter调用完毕后执行 */
+	public void onAfterEnter(IScene scene) {} 
+	
 	public abstract void onEnter(IScene scene, Object config);
 	
 	public abstract void onExit(IScene scene);
