@@ -280,7 +280,7 @@ public class TileShape extends Shape {
 		this.computeShapeAABB();
 	}
 
-	public void resetShapeAsPolygon(Vector2... points) {
+	public void resetShapeAsPolygon(Vector2[] points) {
 		
 	}
 

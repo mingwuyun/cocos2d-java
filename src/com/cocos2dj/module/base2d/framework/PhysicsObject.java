@@ -7,11 +7,13 @@ import com.cocos2dj.module.base2d.framework.common.AABB;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.module.base2d.framework.callback.OnContactCallback;
 import com.cocos2dj.module.base2d.framework.callback.UpdateListener;
 import com.cocos2dj.module.base2d.framework.collision.Shape;
 import com.cocos2dj.module.base2d.framework.collision.AABBShape;
 import com.cocos2dj.module.base2d.framework.collision.Polygon;
 import com.cocos2dj.module.base2d.framework.collision.Circle;
+import com.cocos2dj.module.base2d.framework.collision.Contact;
 import com.cocos2dj.module.base2d.framework.collision.TileShape;
 import com.cocos2dj.module.base2d.framework.collision.ContactAttach;
 import com.cocos2dj.module.base2d.framework.collision.ContactFilter;
@@ -1218,6 +1220,51 @@ public class PhysicsObject {
 	 * @param o2
 	 * @param MTD 碰撞面的法向量 */
 	public void contactDestroyed(PhysicsObject o, Vector2 MTD, ContactCollisionData data) {}
+	
+	
+	
+	/*
+	 * contact遍历
+	 */
+	/**
+	 * 遍历所有有效的接触（已经碰撞）
+	 * @param callback 返回true结束遍历
+	 * @return 返回false 没有符合条件的contact
+	 */
+	public boolean forContactList(OnContactCallback callback) {
+		ContactAttach ca = contactList;
+		boolean ret = false;
+		while(ca != null) {
+			ret = true;
+			Contact c = ca.contact;
+			if(c.isContacted()) {
+				if(callback.onContact(c)) {
+					break;
+				}
+			}
+			ca = ca.next;
+		}
+		return ret;
+	}
+	
+	/**
+	 * 遍历所有接触（可能没有碰撞）
+	 * @param callback 返回true结束遍历
+	 * @return 返回false 表示当前对象没有contact
+	 */
+	public boolean forAllContactList(OnContactCallback callback) {
+		ContactAttach ca = contactList;
+		boolean ret = false;
+		while(ca != null) {
+			ret = true;
+			if(callback.onContact(ca.contact)) {
+				break;
+			}
+			ca = ca.next;
+		}
+		return ret;
+	}
+	
 	
 	
 	

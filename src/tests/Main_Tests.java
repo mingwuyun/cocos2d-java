@@ -14,6 +14,8 @@ public class Main_Tests {
 		
 		LwjglApplicationConfiguration conf = ApplicationStartup.getConfiguration();
 		conf.width = 	600;  	conf.height = 	338; 
+//		conf.width = 320;
+//		conf.height = 240;
 		ApplicationStartup.start(new TestAppDelegate_Tests());
 	}
 	

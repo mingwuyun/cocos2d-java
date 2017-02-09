@@ -8,8 +8,11 @@ import com.cocos2dj.basic.BaseInput;
 import com.cocos2dj.module.base2d.ComponentPhysics;
 import com.cocos2dj.module.base2d.ComponentPhysics.ContactCallback;
 import com.cocos2dj.module.base2d.ModuleBase2d;
+import com.cocos2dj.module.base2d.framework.callback.OnContactCallback;
+import com.cocos2dj.module.base2d.framework.collision.Contact;
 import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.module.base2d.framework.collision.Polygon;
+import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
@@ -176,20 +179,57 @@ public class Base2dTests extends TestSuite {
 			
 		}
 
+		private OnContactCallback contactHandle = new OnContactCallback() {
+			@Override
+			public boolean onContact(Contact c) {
+				if(MathUtils.abs(c.MTD.y) > 0.1f) {
+					structFlags.canJump = true;
+					return true;
+				}
+				return false;
+			}
+		};
+		
+		boolean lastJump;
+		
 		@Override
 		public void onUpdate(INode n, float dt) {
+			lastJump = structFlags.canJump;
+			structFlags.canJump = false;
+			body.forContactList(contactHandle);
+			
+			if(lastJump != structFlags.canJump) {
+				System.out.println("jump ok" + structFlags.canJump);
+			}
+			
+			if(structFlags.canJump) {
+//				body.setAccelerateY(0f);	//ground set accele rate is 0
+			} else {
+				body.setAccelerateY(-3f);
+			}
+			
 			if(leftFlag) {
 				body.setVelocityX(-SPEED);
+				body.setAccelerateY(-3f);
 			} else if(rightFlag) {
 				body.setVelocityX(SPEED);
+				body.setAccelerateY(-3f);
 			} else {
 				body.setVelocityX(0f);
 			}
 			
 			if(jumpFlag) {
-				body.setVelocityY(JUMP);
+				if(structFlags.canJump) {
+					body.setVelocityY(JUMP);
+				}
 			}
 		}
+		
+		static class StructFlags {
+			boolean canJump = false;
+		}
+		StructFlags structFlags = new StructFlags();
+		
 		
 		public boolean keyDown(int keycode) {
 			switch(keycode) {
