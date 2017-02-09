@@ -50,7 +50,7 @@ public class TypeFactoryTests extends TestSuite {
 	static class NodeTest2 extends TypeTestDemo {
 		
 		//测试node池对象
-		public static class TestPoolNode implements PoolNodeCallback {
+		public static class TestPoolNode implements NodeProxy {
 			Node root;
 			@Override
 			public void onSleep(INode n) {

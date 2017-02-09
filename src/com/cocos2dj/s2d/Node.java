@@ -2339,6 +2339,7 @@ public class Node implements INode, IUpdater {
 	protected boolean			_inPool;
 	protected OnSleepCallback	_onSleepCallback;
 	protected OnAwakeCallback	_onAwakeCallback;
+	protected NodeProxy			_nodeProxy;
 	
 	public void setOnSleepCallback(OnSleepCallback onSleepCallback) {
 		_onSleepCallback = onSleepCallback;
@@ -2353,10 +2354,15 @@ public class Node implements INode, IUpdater {
 		_onAwakeCallback = callback;
 	}
 	
-	public void setPoolNodeCallback(PoolNodeCallback callback) {
-		setPoolCallback(callback);
-		setNodeCallback(callback);
+	public final void setNodeProxy(NodeProxy proxy) {
+		setPoolCallback(proxy);
+		setNodeCallback(proxy);
+		_nodeProxy = proxy;
 	}
+	public final NodeProxy getNodeProxy() { 
+		return _nodeProxy;
+	}
+	
 	
 	@Override
 	public void pushBack() {

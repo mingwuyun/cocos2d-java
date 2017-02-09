@@ -177,9 +177,9 @@ public class NodeFactory {
 				type.initClasses,
 				type.initArgs) {
 			public void onCreate(Node o) {
-				if(type.callbackClazz != null) {
+				if(type.proxyClazz != null) {
 					try {
-						o.setPoolNodeCallback(type.callbackClazz.newInstance());
+						o.setNodeProxy(type.proxyClazz.newInstance());
 					} catch (InstantiationException | IllegalAccessException e) {
 						e.printStackTrace();
 					}

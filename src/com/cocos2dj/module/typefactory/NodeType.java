@@ -2,7 +2,7 @@ package com.cocos2dj.module.typefactory;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.cocos2dj.protocol.INode;
-import com.cocos2dj.protocol.INode.PoolNodeCallback;
+import com.cocos2dj.protocol.INode.NodeProxy;
 import com.cocos2dj.protocol.INodeType;
 import com.cocos2dj.s2d.Node;
 
@@ -64,8 +64,8 @@ public class NodeType implements INodeType {
 		return this;
 	}
 	
-	public final NodeType setPoolNodeCallback(Class<? extends PoolNodeCallback> callbackClazz) {
-		this.callbackClazz = callbackClazz;
+	public final NodeType setPoolNodeCallback(Class<? extends NodeProxy> proxyClazz) {
+		this.proxyClazz = proxyClazz;
 		return this;
 	}
 	
@@ -122,5 +122,5 @@ public class NodeType implements INodeType {
 	int 					poolAddCount = 2;
 	Node 					parent;
 	
-	Class<? extends PoolNodeCallback>		callbackClazz;
+	Class<? extends NodeProxy>		proxyClazz;
 }

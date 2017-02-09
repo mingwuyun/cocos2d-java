@@ -76,7 +76,7 @@ public interface INode {
 	public static interface OnSleepCallback {public void onSleep(INode n);}
 	public static interface OnAwakeCallback {public void onAwake(INode n);}
 	public static interface PoolCallback extends OnSleepCallback, OnAwakeCallback {}
-	public static interface PoolNodeCallback extends PoolCallback, NodeCallback {}
+	public static interface NodeProxy extends PoolCallback, NodeCallback {}
 	
 	
 	////////////////////////////////////////////
