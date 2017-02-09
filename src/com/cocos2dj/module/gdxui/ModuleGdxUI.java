@@ -131,6 +131,10 @@ public class ModuleGdxUI extends Module {
 		return _manager.getStage(index);
 	}
 	
+	public final GdxUIStage getUIStage(Class<? extends GdxUIStage> clazz) {
+		return _manager.getUIStage(clazz);
+	}
+	
 	public final GdxUIStage getUIStage(String key) {
 		return _manager.getUIStage(key);
 	}

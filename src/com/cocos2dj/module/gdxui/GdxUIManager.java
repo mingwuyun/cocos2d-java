@@ -79,6 +79,16 @@ public final class GdxUIManager {
 		return stages.get(index);
 	}
 	
+	public final GdxUIStage getUIStage(Class<? extends GdxUIStage> clazz) {
+		for(int i = 0; i < stages.size; ++i) {
+			GdxUIStage stage = stages.get(i);
+			if(stage.getClass() == clazz) {
+				return stage;
+			}
+		}
+		return null;
+	}
+	
 	public final GdxUIStage getUIStage(String key) {
 		for(int i = 0; i < stages.size; ++i) {
 			GdxUIStage stage = stages.get(i);

@@ -74,8 +74,6 @@ public class Node implements INode, IUpdater {
     /// @name Constructor, Destructor and Initializers
 	//ctor>>
 	public Node() {
-//    	setNormalizedPosition
-//		System.out.println("caonima  " + _director);
 		// 保证init执行，不要添加其他的ctor
 		init();
     }
@@ -1883,11 +1881,7 @@ public class Node implements INode, IUpdater {
     
 
     ////////////////////////////////////////////////////////////////
-
-
-    /// @{
-    /// @name Coordinate Converters
-
+    //TODO Coordinate Converters
     /**
      * Converts a Vector2 to node (local) space coordinates. The result is in Points.
      * <br>返回栈对象
@@ -1910,23 +1904,7 @@ public class Node implements INode, IUpdater {
     	poolVector3_1.mul(tmp);
     	return poolVector2_1.set(ret.x, ret.y);
     }
-
-    /**
-     * Converts a Vector2 to node (local) space coordinates. The result is in Points.
-     * treating the returned/received node point as anchor relative.
-     */
-//    public Vector2 convertToNodeSpaceAR( Vector2 worldPoint) {
-//    	return null;
-//    }
-
-    /**
-     * Converts a local Vector2 to world space coordinates.The result is in Points.
-     * treating the returned/received node point as anchor relative.
-     */
-//    public Vector2 convertToWorldSpaceAR( Vector2 nodePoint) {
-//    	return null;
-//    }
-
+    
     /**
      * convenience methods which take a Touch instead of Vector2
      * <br>返回栈对象
@@ -1935,14 +1913,7 @@ public class Node implements INode, IUpdater {
     public Vector2 convertTouchToNodeSpace(Touch  touch) {
     	return convertToNodeSpace(touch.getLocation());
     }
-
-    /**
-     * converts a Touch (world coordinates) into a local coordinate. This method is AR (Anchor Relative).
-     */
-//    public Vector2 convertTouchToNodeSpaceAR(Touch  touch) {
-//    	return null;
-//    }
-
+    
 	/**
      *  Sets an additional transform matrix to the node.
      *
@@ -2363,58 +2334,110 @@ public class Node implements INode, IUpdater {
 
 	/////////////////////////////////////////////////////
 	//TODO pools about
+	protected INodePool 		_nodePool;
+	protected INodeType			_nodeType; 
+	protected boolean			_inPool;
+	protected OnSleepCallback	_onSleepCallback;
+	protected OnAwakeCallback	_onAwakeCallback;
+	
+	public void setOnSleepCallback(OnSleepCallback onSleepCallback) {
+		_onSleepCallback = onSleepCallback;
+	}
+	
+	public void setOnAwakeCallback(OnAwakeCallback callback) {
+		_onAwakeCallback = callback;
+	}
+	
+	public void setPoolCallback(PoolCallback callback) {
+		_onSleepCallback = callback;
+		_onAwakeCallback = callback;
+	}
+	
+	public void setPoolNodeCallback(PoolNodeCallback callback) {
+		setPoolCallback(callback);
+		setNodeCallback(callback);
+	}
+	
 	@Override
 	public void pushBack() {
-		
+		if(_nodePool != null && !_inPool) {
+			_nodePool.pushPoolNode(this);
+		} else {
+			if(_nodeType != null) {
+				_nodeType.pushSingletonNode(this);
+			} else {
+				CCLog.error("Node", "pushBack fail pool is nill obj = " + this);
+			}
+		}
 	}
 
 	@Override
 	public void onSleep() {
-		
+		if(_onSleepCallback != null) {
+    		_onSleepCallback.onSleep(this);
+    	}	
+    	
+    	if (_componentContainer != null && !_componentContainer.isEmpty()) {
+            _componentContainer.onSleep();
+        }
+    	
+    	_isTransitionFinished = false;
+    	
+    	for(int i = 0; i < _children.size; ++i) {
+    		_children.get(i).onSleep();
+    	}
+    	pause();
+    	setVisible(false);
 	}
 
 	@Override
 	public void onAwake() {
-		
+		if(_onAwakeCallback != null) {
+			_onAwakeCallback.onAwake(this);
+    	}	
+    	
+    	if (_componentContainer != null && !_componentContainer.isEmpty()) {
+            _componentContainer.onAwake();
+        }
+    	
+    	_isTransitionFinished = false;
+    	
+    	for(int i = 0; i < _children.size; ++i) {
+    		_children.get(i).onAwake();
+    	}
+    	resume();
+    	setVisible(true);
 	}
 
 	@Override
 	public void _setNodePool(INodePool pool) {
-		
+		_nodePool = pool;
 	}
 
 	@Override
 	public INodePool getNodePool() {
-		return null;
+		return _nodePool;
 	}
 
 	@Override
 	public void _setInPool(boolean inPool) {
-		
+		_inPool = inPool;
 	}
 
 	@Override
 	public boolean isInPool() {
-		return false;
+		return _inPool;
 	}
 
 	@Override
 	public void _setNodeType(INodeType nodeType) {
-		
+		_nodeType = nodeType;
 	}
 
 	@Override
 	public INodeType getNodeType() {
-		return null;
+		return _nodeType;
 	}
-    
-//	@Override
-//	public int getCameraMask() {
-//		return 0;
-//	}
-
-//    protected Quaternion _rotationQuat = new Quaternion();
-
 }
 
 // NodeRGBA

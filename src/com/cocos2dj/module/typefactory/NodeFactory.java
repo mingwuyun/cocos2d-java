@@ -177,6 +177,13 @@ public class NodeFactory {
 				type.initClasses,
 				type.initArgs) {
 			public void onCreate(Node o) {
+				if(type.callbackClazz != null) {
+					try {
+						o.setPoolNodeCallback(type.callbackClazz.newInstance());
+					} catch (InstantiationException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
 				o._setNodeType(type);
 			}
 		};
@@ -227,7 +234,7 @@ public class NodeFactory {
 		return null;
 	}
 	
-	final void clear() {
+	public final void clear() {
 		for(Node o : singletonInstances) {
 			o.removeFromParent();
 		}

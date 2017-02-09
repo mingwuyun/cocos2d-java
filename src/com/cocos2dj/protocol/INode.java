@@ -60,7 +60,8 @@ public interface INode {
 	//camera
 	public int getCameraMask();
 	
-	////////////////////////////////////////////
+	
+	/////////////////////////////////////////////
 	// pool 系统支持
 	public void pushBack();
 	public void onSleep();
@@ -71,6 +72,12 @@ public interface INode {
 	public INodeType getNodeType();
 	public void _setInPool(boolean inPool);
 	public boolean isInPool();
+	
+	public static interface OnSleepCallback {public void onSleep(INode n);}
+	public static interface OnAwakeCallback {public void onAwake(INode n);}
+	public static interface PoolCallback extends OnSleepCallback, OnAwakeCallback {}
+	public static interface PoolNodeCallback extends PoolCallback, NodeCallback {}
+	
 	
 	////////////////////////////////////////////
 	// callback

@@ -165,7 +165,7 @@ public class TestCase extends Scene {
     	
     }
 
-    ModuleGdxUI _gdxui;
+    protected ModuleGdxUI _gdxui;
     
     private TestSuite _testSuite;
     private float _runTime;

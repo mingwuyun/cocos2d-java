@@ -12,6 +12,7 @@ import tests.testcase.DrawNodeTests;
 import tests.testcase.NodeTests;
 import tests.testcase.ShaderTests;
 import tests.testcase.SpriteTests;
+import tests.testcase.TypeFactoryTests;
 
 /**
  * 测试
@@ -117,6 +118,7 @@ public class TestController {
     		addTest("ShaderTests", ()->{return new ShaderTests();});
     		addTest("Base2DPhysicsTests", ()->{return new Base2dTests();});
     		addTest("DrawNodeTests", ()->{return new DrawNodeTests();});
+    		addTest("TypeFactoryTests", ()->{return new TypeFactoryTests();});
     		addTest("test_test7", ()->{return new TestCaseSimple();});
     	}
     	

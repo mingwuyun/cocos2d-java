@@ -1,6 +1,6 @@
 package com.cocos2dj.module.typefactory;
 
-import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.protocol.INode;
 import com.cocos2dj.protocol.INodePool;
 import com.cocos2dj.s2d.Node;
 import com.cocos2dj.utils.IObjectPool;
@@ -128,13 +128,18 @@ public class NodePool<T extends Node> implements INodePool {
 	public NodePool(Node argparent, int poolType, Class<T> clazz, int argInitSize, int argAddCount,
 			Class<?>[] argParam, final Object[] argArgs) {
 		this.parent = argparent;
+		if(parent == null) {
+			throw new IllegalArgumentException("parent argment is null! ");
+		}
 		switch(poolType) {
 		case NORMAL_POOL:
 			pool = new ObjectPool<T>(clazz, argInitSize, argParam, argArgs) {
 				public void onCreated(T t){
 					t._setNodePool(NodePool.this);	//先设置为pool对象
-					parent.addChild(t);
+					
 					onCreate(t);
+					
+					parent.addChild(t);
 					t.onSleep();
 				}
 				public void onPop(T t){
@@ -151,8 +156,10 @@ public class NodePool<T extends Node> implements INodePool {
 			pool = new ObjectPoolLinear<T>(clazz, argInitSize, argAddCount, argParam, argArgs){
 				public void onCreated(T t){
 					t._setNodePool(NodePool.this);
-					parent.addChild(t);
+					
 					onCreate(t);
+					
+					parent.addChild(t);
 					t.onSleep();
 				}
 				
@@ -242,5 +249,11 @@ public class NodePool<T extends Node> implements INodePool {
 		sb.append(pool);
 		return sb.toString();
 	}
+
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public final void pushPoolNode(INode node) {
+		push((T) node);
+	}
 }
