@@ -2,6 +2,7 @@ package com.cocos2dj.module.base2d.framework;
 
 import com.cocos2dj.module.base2d.framework.callback.MyTreeCallback;
 import com.cocos2dj.module.base2d.framework.callback.MyTreeRayCastCallback;
+import com.cocos2dj.module.base2d.framework.callback.VelocityLimitListener;
 import com.cocos2dj.module.base2d.framework.collision.FloatPair;
 import com.cocos2dj.module.base2d.framework.common.AABB;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
@@ -46,6 +47,14 @@ public class Base2D {
 	/**时间信息*/
 	private final TimeInfo time = new TimeInfo();
 	private static PhysicsConfig config = new PhysicsConfig();
+	
+	private static VelocityLimitListener limitListener = VelocityLimitListener.NULL;
+	public static final void setDefaultVelocityLimitListener(VelocityLimitListener listener) {
+		limitListener = (listener == null) ? VelocityLimitListener.NULL : listener;
+	}
+	public static final VelocityLimitListener getDefaultVelocityLimitListener() {
+		return limitListener;
+	}
 	
 	/**载入配置 */
 	public static void loadConfig(PhysicsConfig argconfig) {

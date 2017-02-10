@@ -4,6 +4,7 @@ import com.cocos2dj.base.Director;
 import com.cocos2dj.basic.BaseUpdater;
 import com.cocos2dj.module.Module;
 import com.cocos2dj.module.base2d.framework.Base2D;
+import com.cocos2dj.module.base2d.framework.PhysicsConfig;
 import com.cocos2dj.module.base2d.framework.PhysicsObjectType;
 import com.cocos2dj.module.base2d.framework.PhysicsScene;
 import com.cocos2dj.module.base2d.framework.collision.AABBShape;
@@ -35,6 +36,11 @@ public class ModuleBase2d extends Module implements IUpdater {
 	
 	@Override
 	public void onEnter(IScene scene, Object config) {
+		PhysicsConfig _config = null;
+		if(config instanceof PhysicsConfig) {
+			_config = (PhysicsConfig) config;
+			Base2D.loadConfig(_config);
+		}
 		physicsScene = new PhysicsScene();
 		base2d.loadScene(physicsScene);
 		if(updater != null) {
@@ -66,6 +72,10 @@ public class ModuleBase2d extends Module implements IUpdater {
 	
 	
 	//create>>
+	public static PhysicsConfig createConfig() {
+		return new PhysicsConfig();
+	}
+	
 	/*
 	 * 推荐使用下面的方法创建对象，避免初始化顺序错误
 	 */

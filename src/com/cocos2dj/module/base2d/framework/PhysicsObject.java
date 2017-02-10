@@ -1,14 +1,12 @@
 package com.cocos2dj.module.base2d.framework;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import com.cocos2dj.module.base2d.framework.common.AABB;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.module.base2d.framework.callback.OnContactCallback;
 import com.cocos2dj.module.base2d.framework.callback.UpdateListener;
+import com.cocos2dj.module.base2d.framework.callback.VelocityLimitListener;
 import com.cocos2dj.module.base2d.framework.collision.Shape;
 import com.cocos2dj.module.base2d.framework.collision.AABBShape;
 import com.cocos2dj.module.base2d.framework.collision.Polygon;
@@ -81,12 +79,16 @@ public class PhysicsObject {
 //	private float clipZ = 0;
 	
 	/**更新监听器*/
-	public UpdateListener listener;
-
-	/**与该对象绑定的物理对象如果不进行任何绑定该对象不会实例化 */
-	private LinkedList<PhysicsObject> bindPhysicsObjects;
-	/**依附对象的列表*/
-	private LinkedList<PhysicsObject> attachPhysicsObjects;
+	public UpdateListener 			listener;
+	private VelocityLimitListener 	customListener;
+	
+	public float 					friction = 0f;		
+	public float 					staticFriction = 0f;
+//	/**与该对象绑定的物理对象如果不进行任何绑定该对象不会实例化 */
+//	private LinkedList<PhysicsObject> bindPhysicsObjects;
+//	/**依附对象的列表*/
+//	private LinkedList<PhysicsObject> attachPhysicsObjects;
+	
 	
 	
 	/**默认构造器创建动力物理对象
@@ -139,23 +141,19 @@ public class PhysicsObject {
 	}
 	
 	
-	public boolean isSleep() {
-		return sleep;
-	}
-	
+	public final boolean isSleep() {return sleep;}
 	/**
 	 * 设置物体休眠状态 休眠状态的物体会取消所有接触
 	 * 不会继续模拟 直到将sleep设置为false
 	 * @param sleep
 	 */
-	public void setSleep(boolean sleep) {
-		this.sleep = sleep;
-	}
-	
-	public boolean isRemoved() {
-		return scene == null;
-	}
-	
+	public void setSleep(boolean sleep) {this.sleep = sleep;}
+	/**
+	 * 设置自定义速度限制 
+	 * @param listener (nullable)
+	 */
+	public final void setCustomVelocityLimitListener(VelocityLimitListener listener) {customListener = listener;}
+	public boolean isRemoved() {return scene == null;}
 	/**
 	 * 从对应的scene中删除该对象
 	 */
@@ -165,31 +163,38 @@ public class PhysicsObject {
 		}
 	}
 	
-//	public final void setGroupDetectData(final int groupID, final int...targetGroupID) {
-//		this.groupID = groupID;
-//		this.targetGroupID = targetGroupID;
-//	}
-	public final void setGroupID(final int id) {
-		this.groupID = id;
+	/**
+	 * 设置滑动摩擦系数 <br>
+	 * 0 不受摩擦修正 1 完全摩擦修正
+	 * @param friction [0, 1] 
+	 */
+	public final void setFriction(float friction) {
+		if(friction > 1f) friction = 1f; else if(friction < 0) friction = 0f;
+		this.friction = friction;
 	}
 	
-	public final void setTargetGroupID(final int...ids) {
-		this.targetGroupID = ids;
+	/**
+	 * 设置静态摩擦系数 <br>
+	 * 0 不会静态修正 1 完全静态修正
+	 * @param staticFriction [0, 1]
+	 */
+	public final void setStaticFriction(float staticFriction) {
+		if(staticFriction > 1f) staticFriction = 1f; else if(staticFriction < 0) staticFriction = 0f;
+		this.staticFriction = staticFriction;
 	}
 	
+	public final void setGroupID(final int id) {this.groupID = id;}
+	public final void setTargetGroupID(final int...ids) {this.targetGroupID = ids;}
 	public final void clearGroupDetectData() {
 		this.groupID = -1;
 		this.targetGroupID = null;
 	}
-	
 	public final boolean isGroupObject() {
 		return this.groupID != -1;
 	}
-	
 	public final boolean isCollideToGroupObject() {
 		return this.targetGroupID != null;
 	}
-	
 	/**@return 返回用户信息 */
 	public Object getUserData(){
 		return userData;
@@ -259,61 +264,61 @@ public class PhysicsObject {
 	
 	
 	
-	/**绑定物理对象<br>
-	 * <b>注意 绑定过程不会检查是否重复绑定，需要自行维护。
-	 * 两个物体只需绑定一次就可以了 </b>
-	 * @param obj */
-	public void bindPhysicsObject(PhysicsObject obj){
-		if(bindPhysicsObjects==null){
-			bindPhysicsObjects=new LinkedList<PhysicsObject>();
-		}
-		bindPhysicsObjects.add(obj);
-		if(obj.bindPhysicsObjects==null){
-			obj.bindPhysicsObjects=new LinkedList<PhysicsObject>();
-		}
-		obj.bindPhysicsObjects.add(this);
-	}
-	
-	/**解除所有绑定对象 */
-	public void unbindPhysicsObject(){
-		if(bindPhysicsObjects==null)return;
-		
-	}
-	
-	/**接触对指定物体的绑定
-	 * @param obj 指定的物体*/
-	public void unbindPhysicsObject(PhysicsObject obj){
-		if(bindPhysicsObjects==null)return;
-		
-	}
-	
-	/**依附于指定物理对象 <p>
-	 * 依附是指该物体将单方面受被依附物体的影响而不对被依附物体产生影响
-	 * <br>引擎允许重复添加同一物体 需自行维护是否
-	 * <br>相互依附即为bind
-	 * <br>可用于模拟在移动物体上的情况  本引擎没有摩擦力所以只能靠attach来模拟 
-	 * @param obj 被依附物体 */
-	public final void attachPhysicsObject(final PhysicsObject obj){
-		if(obj.attachPhysicsObjects==null){
-			obj.attachPhysicsObjects=new LinkedList<PhysicsObject>();
-		}
-		obj.attachPhysicsObjects.add(this);
-	}
-	
-	/**解除对指定物体的依附 
-	 * <br>依附对象需要自行保留
-	 * @param obj 需要解除依附的被依附物体 
-	 * @return <code>true 解除成功 false 接触失败 */
-	public final boolean unattachPhysicsObject(final PhysicsObject obj){
-		if(obj.attachPhysicsObjects == null) return false;
-		return obj.attachPhysicsObjects.remove(this);
-	}
-	
-	/**解除所有依附于该物体的对象 */
-	public final void unattachAllPhysicsObject(){
-		if(attachPhysicsObjects==null)return;
-		attachPhysicsObjects.clear();
-	}
+//	/**绑定物理对象<br>
+//	 * <b>注意 绑定过程不会检查是否重复绑定，需要自行维护。
+//	 * 两个物体只需绑定一次就可以了 </b>
+//	 * @param obj */
+//	public void bindPhysicsObject(PhysicsObject obj){
+//		if(bindPhysicsObjects==null){
+//			bindPhysicsObjects=new LinkedList<PhysicsObject>();
+//		}
+//		bindPhysicsObjects.add(obj);
+//		if(obj.bindPhysicsObjects==null){
+//			obj.bindPhysicsObjects=new LinkedList<PhysicsObject>();
+//		}
+//		obj.bindPhysicsObjects.add(this);
+//	}
+//	
+//	/**解除所有绑定对象 */
+//	public void unbindPhysicsObject(){
+//		if(bindPhysicsObjects==null)return;
+//		
+//	}
+//	
+//	/**接触对指定物体的绑定
+//	 * @param obj 指定的物体*/
+//	public void unbindPhysicsObject(PhysicsObject obj){
+//		if(bindPhysicsObjects==null)return;
+//		
+//	}
+//	
+//	/**依附于指定物理对象 <p>
+//	 * 依附是指该物体将单方面受被依附物体的影响而不对被依附物体产生影响
+//	 * <br>引擎允许重复添加同一物体 需自行维护是否
+//	 * <br>相互依附即为bind
+//	 * <br>可用于模拟在移动物体上的情况  本引擎没有摩擦力所以只能靠attach来模拟 
+//	 * @param obj 被依附物体 */
+//	public final void attachPhysicsObject(final PhysicsObject obj){
+//		if(obj.attachPhysicsObjects==null){
+//			obj.attachPhysicsObjects=new LinkedList<PhysicsObject>();
+//		}
+//		obj.attachPhysicsObjects.add(this);
+//	}
+//	
+//	/**解除对指定物体的依附 
+//	 * <br>依附对象需要自行保留
+//	 * @param obj 需要解除依附的被依附物体 
+//	 * @return <code>true 解除成功 false 接触失败 */
+//	public final boolean unattachPhysicsObject(final PhysicsObject obj){
+//		if(obj.attachPhysicsObjects == null) return false;
+//		return obj.attachPhysicsObjects.remove(this);
+//	}
+//	
+//	/**解除所有依附于该物体的对象 */
+//	public final void unattachAllPhysicsObject(){
+//		if(attachPhysicsObjects==null)return;
+//		attachPhysicsObjects.clear();
+//	}
 	/**设置位置 <br><br>
 	 * @param positionX
 	 * @param positionY */
@@ -398,14 +403,6 @@ public class PhysicsObject {
 		clipPosition.scl(time.inv_iteration);
 		/*计算AABB的扫掠AABB*/
 		sweepAABB.combine(poolAABB);
-//		sweepAABB.lowerBound.x = 
-//				poolAABB.lowerBound.x < sweepAABB.lowerBound.x ? poolAABB.lowerBound.x : sweepAABB.lowerBound.x;
-//		sweepAABB.lowerBound.y = 
-//				poolAABB.lowerBound.y < sweepAABB.lowerBound.y ? poolAABB.lowerBound.y : sweepAABB.lowerBound.y;
-//		sweepAABB.upperBound.x = 
-//				poolAABB.upperBound.x > sweepAABB.upperBound.x ? poolAABB.upperBound.x : sweepAABB.upperBound.x;
-//		sweepAABB.upperBound.y = 
-//				poolAABB.upperBound.y > sweepAABB.upperBound.y ? poolAABB.upperBound.y : sweepAABB.upperBound.y;
 		
 		shape = shape.next;
 		while(shape!=null){
@@ -424,20 +421,12 @@ public class PhysicsObject {
 		
 		
 		//TODO 这里添加临时的依附物体处理代码
-		if(attachPhysicsObjects != null) {
-			final Iterator<PhysicsObject> it=attachPhysicsObjects.iterator();
-			while(it.hasNext()){
-				it.next().getPosition().add(poolVector2);
-			}
-		}
-		
-		/*if(bindPhysicsObjects!=null){
-			final Iterator<C2PhysicsObject> it=bindPhysicsObjects.iterator();
-			while(it.hasNext()){
-				it.next().getPosition().addLocal(poolVector2);
-			}
-		}*/
-		
+//		if(attachPhysicsObjects != null) {
+//			final Iterator<PhysicsObject> it=attachPhysicsObjects.iterator();
+//			while(it.hasNext()){
+//				it.next().getPosition().add(poolVector2);
+//			}
+//		}
 		
 		return poolVector2;
 	}
@@ -882,14 +871,19 @@ public class PhysicsObject {
 	/**更新速度*/
 	public final void updateVelocity(final TimeInfo time){
 		this.physicsImpl.updateVelocity(time);
+		if(customListener != null) {
+			customListener.onVelocity(physicsImpl.getVelocity());
+		} else {
+			Base2D.getDefaultVelocityLimitListener().onVelocity(physicsImpl.getVelocity());
+		}
 	}
 	
 	/**按MTD修正移动*/
-	public final void modifierPosition(final Vector2 MTD){
+	public final void modifierPosition(final Vector2 MTD, final ContactCollisionData data){
 //		if(bindModifierFlag)return;
 //		bindModifierFlag=true;
 		
-		physicsImpl.modifierPosition(MTD);
+		physicsImpl.modifierPosition(MTD, data);
 		
 		//TODO MTD修正绑定对象的代码
 		/*if(bindPhysicsObjects!=null){
@@ -1223,9 +1217,8 @@ public class PhysicsObject {
 	
 	
 	
-	/*
-	 * contact遍历
-	 */
+	//////////////////////////////////////
+	//TODO contact遍历
 	/**
 	 * 遍历所有有效的接触（已经碰撞）
 	 * @param callback 返回true结束遍历
@@ -1265,6 +1258,8 @@ public class PhysicsObject {
 		return ret;
 	}
 	
+	////////////////////////////////
+	//TODO generator
 	
 	
 	

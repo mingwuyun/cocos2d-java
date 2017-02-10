@@ -1,7 +1,7 @@
 package com.cocos2dj.module.base2d.framework;
 
 import com.badlogic.gdx.math.Vector2;
-import com.cocos2dj.module.base2d.framework.common.MathUtils;
+import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.framework.common.V2;
 /**
@@ -90,7 +90,7 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 	
 	/*(non-Javadoc)
 	 * @see com.card2dphysics.module.IPhysicsObject#modifierPosition(com.card2dphysics.system.Vector2)*/
-	public final void modifierPosition(final Vector2 MTD) {
+	public final void modifierPosition(final Vector2 MTD, ContactCollisionData data) {
 		position.add(MTD);
 		
 		//摩擦位置修正
@@ -107,16 +107,16 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 			return;
 		}
 		
-		pool.set(MTD.y, -MTD.x);
-		
+		final Vector2 tangent = pool.set(MTD.y, -MTD.x);
 		//如果修正方向与速度方向相同则不修正速度
-		if(V2.cross(velocity, pool)<0) return;
+		if(V2.cross(velocity, tangent) < 0) return;
 		
-		final float f = V2.dot(velocity, pool);
+		float f = V2.dot(velocity, tangent);	
+		//检测加速度(有加速度才会触发摩擦修正)
+		if(V2.dot(accelerate, tangent) < 0) {
+			f *= (1 - data.retFriction);
+		}
 		velocity.set(pool.scl(f));
-		
-		//摩擦速度修正
-//		velocity.set(pool.scl(0));
 	}
 
 	public final void setVelocity(final Vector2 velocity) {

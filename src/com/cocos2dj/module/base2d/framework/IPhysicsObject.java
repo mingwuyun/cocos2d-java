@@ -1,6 +1,7 @@
 package com.cocos2dj.module.base2d.framework;
 
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 
 /**
@@ -54,8 +55,9 @@ public interface IPhysicsObject {
 //	public void 
 	/**按照MTD修正物理对象位置(xy平面)
 	 * {@link #modifierPositionXZ(Vector2)}
-	 * @param MTD */
-	public void modifierPosition(Vector2 MTD);
+	 * @param MTD 
+	 * @param data 碰撞信息 */
+	public void modifierPosition(Vector2 MTD, ContactCollisionData data);
 	
 	/**更新速度
 	 * @param time */

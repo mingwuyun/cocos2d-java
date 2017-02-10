@@ -1,6 +1,7 @@
 package com.cocos2dj.module.base2d.framework;
 
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.module.base2d.framework.collision.Shape;
 import com.cocos2dj.module.base2d.framework.common.AABB;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
@@ -97,7 +98,7 @@ public final class PhysicsObjectStatic implements IPhysicsObject {
 		
 	}
 
-	public void modifierPosition(Vector2 MTD) {
+	public void modifierPosition(Vector2 MTD, ContactCollisionData data) {
 		
 	}
 

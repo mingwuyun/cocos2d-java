@@ -1,9 +1,11 @@
 package tests.testcase;
 
 import com.cocos2dj.s2d.ActionInterval.MoveBy;
+import com.cocos2dj.s2d.ActionInterval.MoveTo;
 import com.cocos2dj.s2d.ActionInterval.Repeat;
 import com.cocos2dj.s2d.ActionInterval.RepeatForever;
 import com.cocos2dj.s2d.ActionInterval.RotateBy;
+import com.cocos2dj.s2d.ActionInterval.RotateTo;
 import com.cocos2dj.s2d.ActionInterval.Sequence;
 import com.cocos2dj.s2d.ActionInterval.Spawn;
 import com.cocos2dj.s2d.Sprite;
@@ -50,6 +52,8 @@ public class ActionManagerTests extends TestSuite {
 					RotateBy.create(3, 900),
 					RotateBy.create(3, -900)
 					));
+			
+			
 //			//check count			
 //			sprite1.setOnUpdateCallback((n, dt)->{
 //				System.out.println("actionCount = " + 
@@ -63,6 +67,17 @@ public class ActionManagerTests extends TestSuite {
 //				sprite1.stopAllActions();
 //				return false;
 //			}, 1.5f);
+			
+			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite2.setRect(0, 0, 100, 120);
+			sprite2.runAction(
+			Sequence.create(
+					MoveTo.create(1f, 600, 200),
+					MoveTo.create(1f, 700, 300),
+					MoveTo.create(1f, 500, 300),
+					MoveTo.create(1f, 600, 200)
+					)
+			);
 		}
 	}
 	
@@ -166,6 +181,12 @@ public class ActionManagerTests extends TestSuite {
 				sprite3.stopAllActions();
 				return false;
 			}, 5f);
+			
+			
+			Sprite sprite4 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite4.setContentSize(200, 200);
+			sprite4.setPosition(900, 400);
+			sprite4.runAction(RotateTo.create(2, 120));
 		}
 	}	
 }

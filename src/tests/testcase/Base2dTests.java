@@ -151,6 +151,7 @@ public class Base2dTests extends TestSuite {
 			debugDraw.setPosition(0, 0);
 			body = base2d.createDynamicObjectWithAABB(-WIDTH/2, 0, WIDTH/2, HEIGHT).bindNode(aim);
 			body.setAccelerateY(-3f);
+			body.setFriction(1.0f);
 			
 			BaseInput.instance().addInputProcessor(this);
 			
@@ -308,7 +309,7 @@ public class Base2dTests extends TestSuite {
 			
 //			AABBShape shape = new AABBShape();
 //			shape.setAABBShape(100, 50);
-			moduleBase2d.createStaticObject(shape, 500, 100);
+			moduleBase2d.createStaticObject(shape, 500, 100).setFriction(1.0f);
 		}
 		
 		public boolean update(float dt) {

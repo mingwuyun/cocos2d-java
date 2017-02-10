@@ -6,6 +6,8 @@ package com.cocos2dj.module.base2d.framework;
  * 
  * @author copyright(c) 2017 xujun
  */
-public class PhysicsGenerator {
+public interface PhysicsGenerator {
 
+//	public void 
+	
 }

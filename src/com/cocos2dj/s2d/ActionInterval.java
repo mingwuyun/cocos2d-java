@@ -567,7 +567,7 @@ public class ActionInterval extends FiniteTimeAction {
 		public final boolean initWithDuration(float duration, Vector2 deltaPosition) {
 			return initWithDuration(duration, deltaPosition.x, deltaPosition.y);
 		}
-		public final boolean initWithDuration(float duration, float deltaPositionX, float deltaPositionY) {
+		public boolean initWithDuration(float duration, float deltaPositionX, float deltaPositionY) {
 			if(super.initWithDuration(duration)) {
 				_positionDeltaX = deltaPositionX;
 				_positionDeltaY = deltaPositionY;
@@ -584,6 +584,136 @@ public class ActionInterval extends FiniteTimeAction {
 		protected float _previousPositionY;
 	}
    
+	////////////////////////////
+	//TODO MoveTo
+   public static class MoveTo extends MoveBy {
+	    /** 
+	     * Creates the action.
+	     * @param duration Duration time, in seconds.
+	     * @param position The destination position in 2d.
+	     * @return An autoreleased MoveTo object.
+	     */
+	    public static MoveTo create(float duration, Vector2 position) {
+	    	return create(duration, position.x, position.y);
+	    }
+	    
+	    public static MoveTo create(float duration, float x, float y) {
+	    	MoveTo ret = new MoveTo();
+	    	ret.initWithDuration(duration, x, y);
+	    	return ret;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public MoveTo copy() {
+	    	return MoveTo.create(_duration, _endX, _endY);
+	    }
+	    public MoveTo reverse() {
+	    	throw new RuntimeException("reverse() not supported in MoveTo");
+	    }
+	    public void startWithTarget(INode arg_target) {
+	    	super.startWithTarget(arg_target);
+	    	Node target = (Node) arg_target;
+	    	_positionDeltaX = _endX - target.getPositionX();
+	    	_positionDeltaY = _endY - target.getPositionY(); 
+	    }
+	    
+	    public MoveTo() {}
+	    /** 
+	     * initializes the action
+	     * @param duration in seconds
+	     */
+	    public boolean initWithDuration(float duration,  float x, float y) {
+	    	if(super.initWithDuration(duration)) {
+	    		_endX = x;
+	    		_endY = y;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+
+	    protected float 	_endX;
+	    protected float 	_endY;
+   }
+   
+   ////////////////////////////
+   //TODO RotateTo
+   public static class RotateTo extends ActionInterval {
+
+	    /** 
+	     * Creates the action.
+	     *
+	     * @param duration Duration time, in seconds.
+	     * @param dstAngle In degreesCW.
+	     * @return An autoreleased RotateTo object.
+	     */
+	    public static RotateTo create(float duration, float dstAngle) {
+	    	RotateTo ret = new RotateTo();
+	    	ret.initWithDuration(duration, dstAngle);
+	    	return ret;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public RotateTo copy() {
+	    	return RotateTo.create(_duration, _dstAngle);
+	    }
+	    public RotateTo reverse() {
+	    	throw new RuntimeException("RotateTo doesn't support the 'reverse' method");
+	    }
+	    public void startWithTarget(INode target) {
+	    	super.startWithTarget(target);
+	    	calculateAngles();
+	    }
+	    /**
+	     * @param time In seconds.
+	     */
+	    public void update(float t) {
+	    	if(_target != null) {
+	    		_target.setRotation(_startAngle + _diffAngle * t);
+	    	}
+	    }
+	    
+	    public RotateTo() {}
+
+	    /** 
+	     * initializes the action
+	     * @param duration in seconds
+	     * @param dstAngle in degrees
+	     */
+	    public boolean initWithDuration(float duration, float dstAngle) {
+	    	if(super.initWithDuration(duration)) {
+	    		_dstAngle = dstAngle;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+
+	    /** 
+	     * calculates the start and diff angles
+	     * @param dstAngle in degreesCW
+	     */
+	    final void calculateAngles() {
+	    	if (_startAngle > 0) {
+	            _startAngle = _startAngle % 360.0f;
+	        } else {
+	            _startAngle = _startAngle % -360.0f;
+	        }
+	        _diffAngle = _dstAngle - _startAngle;
+	        if (_diffAngle > 180) {
+	            _diffAngle -= 360;
+	        }
+	        if (_diffAngle < -180) {
+	            _diffAngle += 360;
+	        }
+	    }
+	    
+	    protected float		_dstAngle;
+	    protected float		_startAngle;
+	    protected float 	_diffAngle;
+   }
    
    ////////////////////////////
    //TODO RotateBy

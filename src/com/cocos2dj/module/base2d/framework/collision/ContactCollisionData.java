@@ -1,24 +1,23 @@
 package com.cocos2dj.module.base2d.framework.collision;
 
-/**Åö×²Êı¾İ<p>
+/**
+ * ç¢°æ’æ•°æ®<p>
  * 
- * @author xujun
- * Copyright (c) 2015-2016. All rights reserved. */
+ * @author Copyright (c) 2015-2017. xujun 
+ */
 public class ContactCollisionData {
-	
-//	/**Åö×²µã */
 //	public V2 point;
-//	
-//	/**Ïà½»Éî¶È */
 //	public float depth;
-
-	public boolean isXZ = false;
+//	public boolean isXZ = false;
 	
-	/**Ó¦¸ÃÌá¹©Åö×²µÄÁ½¸öshape */
-	public Shape shape1;
+	public Shape 	shape1;
 	
-	public Shape shape2;
-
+	public Shape 	shape2;
+	/**åŠ¨æ‘©æ“¦ç³»æ•°ï¼ˆè¡°å‡è®¡ç®—ï¼‰ */
+	public float 	retFriction = 0f;
+	/**é™æ‘©æ“¦ç³»æ•°ï¼ˆä¿®æ­£è®¡ç®—ï¼‰ */
+	public float 	retStaticFriction = 0f;
+	
 	public void clear() {
 		shape1 = null;
 		shape2 = null;

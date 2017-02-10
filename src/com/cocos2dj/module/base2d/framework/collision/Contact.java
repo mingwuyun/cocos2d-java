@@ -302,6 +302,9 @@ public final class Contact {
 			o2.setAdvanceFlag();
 		}
 		
+		contactData.retFriction = o1.friction * o2.friction;
+		contactData.retStaticFriction = o1.staticFriction * o2.staticFriction;
+		
 		//随时取消碰撞
 		if(listener.cancelContact(o1, o2)) {
 			return;
@@ -393,8 +396,8 @@ public final class Contact {
 //		System.out.println("handleResult:: MTD = " + MTD);
 		if(o1.isStaticObject()||o2.isStaticObject()){
 //			System.out.println("handleResult:: MTD = " + MTD);
-			o1.modifierPosition(pool1.set(MTD.x, MTD.y));
-			o2.modifierPosition(pool1.set(-MTD.x, -MTD.y));
+			o1.modifierPosition(pool1.set(MTD.x, MTD.y), contactData);
+			o2.modifierPosition(pool1.set(-MTD.x, -MTD.y), contactData);
 //			System.out.println("o1 = " + o1.getPosition());
 //			System.out.println("o2 = " + o2.getPosition());
 		}
@@ -402,39 +405,39 @@ public final class Contact {
 			final int l1 = o1.getContactLevel();
 			final int l2 = o2.getContactLevel();
 			if(l1 == l2) {
-				o1.modifierPosition(pool1.set(.5f*MTD.x, .5f*MTD.y));
-				o2.modifierPosition(pool1.set(.5f*-MTD.x, .5f*-MTD.y));
+				o1.modifierPosition(pool1.set(.5f*MTD.x, .5f*MTD.y), contactData);
+				o2.modifierPosition(pool1.set(.5f*-MTD.x, .5f*-MTD.y), contactData);
 			}
 			else if(l1 < l2) {
-				o1.modifierPosition(pool1.set(MTD.x, MTD.y));
-				o2.modifierPosition(pool1.set(0,0));
+				o1.modifierPosition(pool1.set(MTD.x, MTD.y), contactData);
+				o2.modifierPosition(pool1.set(0,0), contactData);
 			}
 			else {
-				o1.modifierPosition(pool1.set(0,0));
-				o2.modifierPosition(pool1.set(-MTD.x, -MTD.y));
+				o1.modifierPosition(pool1.set(0,0), contactData);
+				o2.modifierPosition(pool1.set(-MTD.x, -MTD.y), contactData);
 			}
 		}	
 	}
 	
 	private final void handleResultInv() {
 		if(o1.isStaticObject()||o2.isStaticObject()){
-			o1.modifierPosition(pool1.set(-MTD.x, -MTD.y));
-			o2.modifierPosition(pool1.set(MTD.x, MTD.y));
+			o1.modifierPosition(pool1.set(-MTD.x, -MTD.y), contactData);
+			o2.modifierPosition(pool1.set(MTD.x, MTD.y), contactData);
 		}
 		else {
 			final int l1=o1.getContactLevel();
 			final int l2=o2.getContactLevel();
 			if(l1 == l2){
-				o1.modifierPosition(pool1.set(.5f*-MTD.x, .5f*-MTD.y));
-				o2.modifierPosition(pool1.set(.5f*MTD.x, .5f*MTD.y));
+				o1.modifierPosition(pool1.set(.5f*-MTD.x, .5f*-MTD.y), contactData);
+				o2.modifierPosition(pool1.set(.5f*MTD.x, .5f*MTD.y), contactData);
 			}
 			else if(l1 < l2){
-				o1.modifierPosition(pool1.set(-MTD.x, -MTD.y));
-				o2.modifierPosition(pool1.set(0,0));
+				o1.modifierPosition(pool1.set(-MTD.x, -MTD.y), contactData);
+				o2.modifierPosition(pool1.set(0,0), contactData);
 			}
 			else{
-				o1.modifierPosition(pool1.set(0,0));
-				o2.modifierPosition(pool1.set(MTD.x, MTD.y));
+				o1.modifierPosition(pool1.set(0,0), contactData);
+				o2.modifierPosition(pool1.set(MTD.x, MTD.y), contactData);
 			}
 		}	
 	}

@@ -1,6 +1,7 @@
 package com.cocos2dj.module.base2d.framework;
 
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 
 /**MovePhsicsyObject<p>
@@ -88,7 +89,7 @@ public final class PhysicsObjectMove implements IPhysicsObject {
 //		velocity.mulLocal(damping);
 	}
 	
-	public final void modifierPosition(final Vector2 MTD) {
+	public final void modifierPosition(final Vector2 MTD,  final ContactCollisionData data) {
 		
 	}
 

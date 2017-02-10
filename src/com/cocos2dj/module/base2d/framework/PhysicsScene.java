@@ -299,10 +299,9 @@ public class PhysicsScene implements PairCallback, TreeCallback {
 	 * <b>该方法值为关联contact设置“清除标记” 实际清除工作在管线中遍历时进行</b>
 	 * @param o */
 	final void destroyPhysObject(final PhysicsObject obj) {
-		obj.unattachAllPhysicsObject();
+//		obj.unattachAllPhysicsObject();
 		obj.clearRemoveFlag();
 		
-//		System.out.println("dfhadsfhdsiufydsunfdshfidshfladhflashflashflaf");
 		if(obj.getProxy() != PhysicsObject.NULL_PROXY) {
 			broadPhase.destroyProxy(obj.getProxy());
 		}
@@ -320,7 +319,6 @@ public class PhysicsScene implements PairCallback, TreeCallback {
 	public final void updateSceneObjects() {
 		//delete objects
 //		System.out.println("states = " + moveObjectsNeedRemove + " " + detectObjectNeedRemove);
-		
 		if(detectObjectNeedRemove) {
 			updateObjectsArray(false, detectObjects);
 			detectObjectNeedRemove = false;
