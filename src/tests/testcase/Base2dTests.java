@@ -8,6 +8,7 @@ import com.cocos2dj.basic.BaseInput;
 import com.cocos2dj.module.base2d.ComponentPhysics;
 import com.cocos2dj.module.base2d.ComponentPhysics.ContactCallback;
 import com.cocos2dj.module.base2d.ModuleBase2d;
+import com.cocos2dj.module.base2d.framework.PhysicsObject;
 import com.cocos2dj.module.base2d.framework.callback.OnContactCallback;
 import com.cocos2dj.module.base2d.framework.collision.Contact;
 import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
@@ -152,6 +153,7 @@ public class Base2dTests extends TestSuite {
 			body = base2d.createDynamicObjectWithAABB(-WIDTH/2, 0, WIDTH/2, HEIGHT).bindNode(aim);
 			body.setAccelerateY(-3f);
 			body.setFriction(1.0f);
+			body.setStaticFriction(1.0f);
 			
 			BaseInput.instance().addInputProcessor(this);
 			
@@ -182,11 +184,13 @@ public class Base2dTests extends TestSuite {
 
 		private OnContactCallback contactHandle = new OnContactCallback() {
 			@Override
-			public boolean onContact(Contact c) {
+			public boolean onContact(Contact c, PhysicsObject other) {
 //				System.out.println("c.MTD = " + c.MTD);
-				if(MathUtils.abs(c.MTD.y) > 0.1f) {
-					structFlags.canJump = true;
-					return true;
+				if(other.getPosition().y < body.getPosition().y) {
+					if(MathUtils.abs(c.MTD.y) > 0.01f) {
+						structFlags.canJump = true;
+						return true;
+					}
 				}
 				return false;
 			}
@@ -309,7 +313,14 @@ public class Base2dTests extends TestSuite {
 			
 //			AABBShape shape = new AABBShape();
 //			shape.setAABBShape(100, 50);
-			moduleBase2d.createStaticObject(shape, 500, 100).setFriction(1.0f);
+			PhysicsObject groundBody = moduleBase2d.createStaticObject(shape, 500, 100);
+			groundBody.setStaticFriction(1.0f);
+			groundBody.setFriction(1.0f);
+			
+			DrawNode ground2 = (DrawNode) DrawNode.create().addTo(this);
+			ground2.drawSolidRect(1000, 180, 1500, 280, null);
+//			ground2.setposit
+			moduleBase2d.createStaticObjectWithAABBWorld(1000, 180, 1500, 280);
 		}
 		
 		public boolean update(float dt) {

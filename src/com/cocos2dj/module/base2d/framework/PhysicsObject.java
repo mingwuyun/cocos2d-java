@@ -1231,7 +1231,7 @@ public class PhysicsObject {
 			ret = true;
 			Contact c = ca.contact;
 			if(c.isContacted()) {
-				if(callback.onContact(c)) {
+				if(callback.onContact(c, ca.other)) {
 					break;
 				}
 			}
@@ -1250,7 +1250,7 @@ public class PhysicsObject {
 		boolean ret = false;
 		while(ca != null) {
 			ret = true;
-			if(callback.onContact(ca.contact)) {
+			if(callback.onContact(ca.contact, ca.other)) {
 				break;
 			}
 			ca = ca.next;

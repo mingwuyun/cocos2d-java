@@ -2,6 +2,7 @@ package com.cocos2dj.module.base2d.framework;
 
 import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
+import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.framework.common.V2;
 /**
@@ -93,16 +94,26 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 	public final void modifierPosition(final Vector2 MTD, ContactCollisionData data) {
 		position.add(MTD);
 		
-		//摩擦位置修正
-//		if(MathUtils.abs(MTD.y) > 0.001f) {
-//			float mtdx = -MTD.x;
-//			float mtdy = MTD.x * MTD.x / MTD.y;
-//			position.add(mtdx, mtdy);
-//		}
+		final float sf = data.retStaticFriction;
+		if(sf > 0f) {
+			//检测加速度与法线的关系
+			if(V2.dot(MTD, accelerate) < 0) {
+				if (V2.cross(MTD, accelerate) > 0f) {
+					if(MathUtils.abs(MTD.y) > 0.001f) {
+						float mtdx = -MTD.x * sf;
+						float mtdy = MTD.x * MTD.x * sf / MTD.y;
+						position.add(mtdx, mtdy);
+					}
+				} else {
+					if(MathUtils.abs(MTD.x) > 0.001f) {
+						float mtdx = -MTD.y * sf;
+						float mtdy = MTD.y * MTD.y * sf / MTD.x;
+						position.add(mtdx, mtdy);
+					}
+				}	
+			}
+		}
 		
-//		if(keepSpeed){
-//			return;
-//		}
 		if(V2.normalize(MTD) == 0){
 			return;
 		}

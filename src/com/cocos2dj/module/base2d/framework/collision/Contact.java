@@ -106,17 +106,6 @@ public final class Contact {
 	}
 	
 	
-//	/**
-//	 * 设置碰撞处理类型<p>
-//	 * 
-//	 * {@link #TYPE_2D} {@link #TYPE_3D}
-//	 * @param contactType
-//	 */
-//	public final void setContactType(int contactType) {
-//		this.contactType = contactType;
-//	}
-	
-	
 	/**设置contact的contacted状态
 	 * @param contacted <code>true</code> 前一step已发生碰撞
 	 * <code>false</code> 前一step未发生碰撞*/
@@ -452,23 +441,6 @@ public final class Contact {
 		if(Intersect((Polygon)s1, (Polygon)s2, positionA, positionB)){
 			contacting = true;
 		}
-		/*if(!handled){
-				listener.contactCreated(o1, o2, MTD);
-				handled=true;
-			}else{
-				if(!isPersisted()){
-					listener.contactPersisted(o1, o2 ,MTD);
-					this.setPersisted();	
-				}
-				handled=true;
-			}
-		}else{
-			if(handled){
-				clearContactDestroy();
-				listener.contactDestroyed(o1, o2);
-				handled=false;
-			}
-		}*/
 	}
 	
 	/**检测两个多边形相交并计算MTD
@@ -476,45 +448,8 @@ public final class Contact {
 	 * @param o2 */
 	private final void PlaygonTestPolygonMTD(final Shape s1,final Shape s2, 
 			final Vector2 positionA, final Vector2 positionB){
-		//先判断包围的AABB是否相交
-//		final AABB a=s1.aabb;
-//		final AABB b=s2.aabb;
-//		final float dx=positionA.x-positionB.x;
-//		final float dy=positionA.y-positionB.y;
-//		if (b.lowerBound.x - a.upperBound.x > dx
-//				|| b.lowerBound.y - a.upperBound.y > dy) {
-//			return;
-//		}
-
-//		if (a.lowerBound.x - b.upperBound.x > -dx
-//				|| a.lowerBound.y - b.upperBound.y > -dy) {
-//			return;
-//		}
-
 		if(Intersect((Polygon)s1, (Polygon)s2, positionA, positionB, MTD)){
-			//设置该向量有效
-			/*setContactDestroy();
-			if(!handled){
-				listener.contactCreated(o1, o2, MTD);
-				handled=true;
-			}else{
-				if(!isPersisted()){
-					listener.contactPersisted(o1, o2 ,MTD);
-					this.setPersisted();	
-				}
-				handled=true;
-			}*/
-			
 			contacting = true;
-			
-//			if(o1.getc)
-//			if(o1.isStaticObject()||o2.isStaticObject())
-//				rate=1.0f;
-//			else
-//				rate=0.5f;
-//			
-//			o1.modifierPosition(MTD.mulLocal(rate));
-//			o2.modifierPosition(MTD.mulLocal(-rate));	
 			handleResult();
 		}
 	}
