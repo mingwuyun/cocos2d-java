@@ -47,7 +47,7 @@ public interface IPhysicsObject {
 	 * @param argVector2
 	 * @return zClip 
 	 */
-	public float move(final TimeInfo time,final Vector2 argVector2);
+	public float move(final TimeInfo time,final Vector2 argVector2, PhysicsObject obj);
 	
 	/**修正物理对象的位置 */
 	public void modifierPosition();

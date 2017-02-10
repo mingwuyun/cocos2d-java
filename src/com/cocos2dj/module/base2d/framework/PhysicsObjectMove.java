@@ -66,11 +66,12 @@ public final class PhysicsObjectMove implements IPhysicsObject {
 
 	/**移动物理对象
 	 * 这个方法会设置prePosition<br>*/
-	public final float move(final TimeInfo time, final Vector2 argVector2) {
-		final Vector2 Vector2 = velocity.scl(time.ratio);
+	public final float move(final TimeInfo time, final Vector2 argVector2, PhysicsObject obj) {
+		final Vector2 vector2 = velocity.scl(time.ratio);
 //		argVector2.set(Vector2);
-		position.add(Vector2);
 		prevPosition.set(position);
+		obj.updatePositionGenerators(time, vector2);
+		position.add(vector2);
 		return 0f;
 	}
 	

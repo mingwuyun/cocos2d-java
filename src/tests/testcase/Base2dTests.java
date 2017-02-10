@@ -8,6 +8,7 @@ import com.cocos2dj.basic.BaseInput;
 import com.cocos2dj.module.base2d.ComponentPhysics;
 import com.cocos2dj.module.base2d.ComponentPhysics.ContactCallback;
 import com.cocos2dj.module.base2d.ModuleBase2d;
+import com.cocos2dj.module.base2d.framework.PhysicsGenerator;
 import com.cocos2dj.module.base2d.framework.PhysicsObject;
 import com.cocos2dj.module.base2d.framework.callback.OnContactCallback;
 import com.cocos2dj.module.base2d.framework.collision.Contact;
@@ -31,6 +32,7 @@ import tests.TestSuite;
 public class Base2dTests extends TestSuite {
 	
 	public Base2dTests() {
+		addTestCase("GeneratorTest", ()->{return new Base2DGeneratorTest();});
 		addTestCase("Base2DTest2", ()->{return new Base2DTest2();});
 		addTestCase("Base2DTest1", ()->{return new Base2DTest1();});
 	}
@@ -151,7 +153,7 @@ public class Base2dTests extends TestSuite {
 			debugDraw.drawSolidRect(-WIDTH/2, 0, WIDTH/2, HEIGHT, Color.GREEN);
 			debugDraw.setPosition(0, 0);
 			body = base2d.createDynamicObjectWithAABB(-WIDTH/2, 0, WIDTH/2, HEIGHT).bindNode(aim);
-			body.setAccelerateY(-3f);
+			body.setAccelerateY(-2f);
 			body.setFriction(1.0f);
 			body.setStaticFriction(1.0f);
 			
@@ -179,16 +181,15 @@ public class Base2dTests extends TestSuite {
 
 		@Override
 		public void onExit(INode n) {
-			
+			BaseInput.instance().removeInputProcessor(this);
 		}
 
 		private OnContactCallback contactHandle = new OnContactCallback() {
 			@Override
 			public boolean onContact(Contact c, PhysicsObject other) {
-//				System.out.println("c.MTD = " + c.MTD);
 				if(other.getPosition().y < body.getPosition().y) {
 					if(MathUtils.abs(c.MTD.y) > 0.01f) {
-						structFlags.canJump = true;
+						canJump = true;
 						return true;
 					}
 				}
@@ -196,87 +197,59 @@ public class Base2dTests extends TestSuite {
 			}
 		};
 		
+		boolean canJump = false;
 		boolean lastJump;
 		
 		@Override
 		public void onUpdate(INode n, float dt) {
-			lastJump = structFlags.canJump;
-			structFlags.canJump = false;
+			lastJump = canJump;
+			canJump = false;
 			body.forContactList(contactHandle);
 			
-			if(lastJump != structFlags.canJump) {
-				System.out.println("jump ok" + structFlags.canJump);
-				
-			}
-			
-//			System.out.println("velocity = " + body.getVelocity());
-			
-			if(structFlags.canJump) {
-//				body.setAccelerateY(0f);	//ground set accele rate is 0
-			} else {
-//				body.setAccelerateY(-3f);
+			if(lastJump != canJump) {
+				System.out.println("jump ok" + canJump);
 			}
 			
 			if(leftFlag) {
 				body.setVelocityX(-SPEED);
-//				body.setVelocityY(-2f);		//添加一个初始速度，确保贴在斜面上
-//				body.setAccelerateY(-3f);
+				if(body.getVelocity().y <= 0 && body.getVelocity().y > -1f) {
+					body.setVelocityY(-2f);		//添加一个初始速度，确保贴在斜面上
+				}
 			} else if(rightFlag) {
 				body.setVelocityX(SPEED);
-//				body.setVelocityY(-2f);
-//				body.setAccelerateY(-3f);
+				if(body.getVelocity().y <= 0 && body.getVelocity().y > -1f) {
+					body.setVelocityY(-2f);		//添加一个初始速度，确保贴在斜面上
+				}
 			} else {
 				body.setVelocityX(0f);
 			}
 			
 			if(jumpFlag) {
-				if(structFlags.canJump) {
+				if(canJump) {
 					body.setVelocityY(JUMP);
 				}
 			}
 		}
 		
-		static class StructFlags {
-			boolean canJump = false;
-		}
-		StructFlags structFlags = new StructFlags();
-		
-		
 		public boolean keyDown(int keycode) {
 			switch(keycode) {
-			case Keys.A:
-			case Keys.LEFT:
-				leftFlag = true;
-				break;
-			case Keys.D:
-			case Keys.RIGHT:
-				rightFlag = true;
-				break;
-			case Keys.SPACE:
-				jumpFlag = true;
-				break;
+			case Keys.A:case Keys.LEFT: leftFlag = true; break;
+			case Keys.D:case Keys.RIGHT:rightFlag = true;break;
+			case Keys.SPACE:jumpFlag = true;break;
 			}
 			return false;
 		}
 		
 		public boolean keyUp(int keycode) {
-			switch(keycode) {
-			case Keys.A:
-			case Keys.LEFT:
-				leftFlag = false;
-				break;
-			case Keys.D:
-			case Keys.RIGHT:
-				rightFlag = false;
-				break;
-			case Keys.SPACE:
-				jumpFlag = false;
-				break;
+			switch(keycode) {case Keys.A:case Keys.LEFT:leftFlag = false;break;
+			case Keys.D:case Keys.RIGHT:rightFlag = false;break;
+			case Keys.SPACE:jumpFlag = false;break;
 			}
 			return false;
 		}
 	}
 
+	/////////////////////////////////////////////
 	//Base2D运行测试 测试 多边形和地面检测
 	// test polygon and ground check
 	static class Base2DTest2 extends Base2DDemo {
@@ -311,16 +284,76 @@ public class Base2dTests extends TestSuite {
 			Polygon shape = new Polygon();
 			shape.setPoints(points);
 			
-//			AABBShape shape = new AABBShape();
-//			shape.setAABBShape(100, 50);
 			PhysicsObject groundBody = moduleBase2d.createStaticObject(shape, 500, 100);
 			groundBody.setStaticFriction(1.0f);
 			groundBody.setFriction(1.0f);
 			
 			DrawNode ground2 = (DrawNode) DrawNode.create().addTo(this);
 			ground2.drawSolidRect(1000, 180, 1500, 280, null);
-//			ground2.setposit
 			moduleBase2d.createStaticObjectWithAABBWorld(1000, 180, 1500, 280);
+		}
+		
+		public boolean update(float dt) {
+			super.update(dt);
+			return false;
+		}
+		
+		public String subtitle() {
+			return "contactListener and sleep/awake";
+		}
+	}
+	
+	
+	
+	/////////////////////////////////////////////
+	//Base2D运行测试 测试 Generator
+	// test generator check
+	static class Base2DGeneratorTest extends Base2DDemo {
+		
+		ModuleBase2d 	moduleBase2d;
+		Mario 			mario;
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			// 添加moduleBase2d插件
+			moduleBase2d = createModule(ModuleBase2d.class);	
+			
+			DrawNode ground = (DrawNode) DrawNode.create().addTo(this);
+			ground.drawRect(0, 0, 1500, 100, null);
+			moduleBase2d.createStaticObjectWithAABBWorld(0, 0, 1500, 100);
+			
+			mario = new Mario();
+			mario.init(this);
+			
+			mario.aim.setPosition(50, 300);
+			
+			
+			PhysicsGenerator testG = mario.body.addGenerator(PhysicsGenerator.TEST, true);
+			scheduleOnce((t)->{
+				testG.stop();
+				return false;
+			}, 2);
+			
+//			DrawNode groundPolygon = (DrawNode) DrawNode.create().addTo(this);
+//			
+//			float[] points = new float[]{
+//				-400, -10,
+//				400, -10,
+//				400, 200
+//			};
+//			groundPolygon.drawPolygon(points, null);
+//			groundPolygon.setPosition(500, 100);
+//			Polygon shape = new Polygon();
+//			shape.setPoints(points);
+//			
+//			PhysicsObject groundBody = moduleBase2d.createStaticObject(shape, 500, 100);
+//			groundBody.setStaticFriction(1.0f);
+//			groundBody.setFriction(1.0f);
+//			
+//			DrawNode ground2 = (DrawNode) DrawNode.create().addTo(this);
+//			ground2.drawSolidRect(1000, 180, 1500, 280, null);
+//			moduleBase2d.createStaticObjectWithAABBWorld(1000, 180, 1500, 280);
 		}
 		
 		public boolean update(float dt) {

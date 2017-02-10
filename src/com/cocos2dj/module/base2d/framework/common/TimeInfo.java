@@ -8,6 +8,9 @@ public class TimeInfo {
 	/**模拟时间间隔单位为ms 建议选择32ms（对应1/30）或16ms（对应1/60）*/
 	public float dt = 32f;			
 	
+	/**引擎输入的模拟时长 */
+	public float realDt;
+	
 	/**时间执行比率(实际时间/模拟时间间隔)*/
 	public float ratio = 1;
 	
@@ -28,6 +31,7 @@ public class TimeInfo {
 	/**更新时间信息的ratio信息
 	 * @param timeDelay 距离上一次执行的时间间隔(ms)*/
 	public final void update(final float timeDelay){
+		realDt = timeDelay;
 		ratio = timeDelay/dt;
 	}
 }

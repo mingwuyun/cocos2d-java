@@ -4,6 +4,8 @@ import com.cocos2dj.module.base2d.framework.common.AABB;
 import com.cocos2dj.module.base2d.framework.common.TimeInfo;
 import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.module.base2d.framework.callback.OnContactCallback;
 import com.cocos2dj.module.base2d.framework.callback.UpdateListener;
 import com.cocos2dj.module.base2d.framework.callback.VelocityLimitListener;
@@ -383,7 +385,7 @@ public class PhysicsObject {
 	}
 	
 	public final void move(final TimeInfo time) {
-		physicsImpl.move(time, null);
+		physicsImpl.move(time, null, this); //generator 位移修正
 	}
 	
 	/**更新AABB以及返回时间步内移动的距离，调用updateListener接口方法
@@ -396,7 +398,8 @@ public class PhysicsObject {
 		poolV1.set(getPosition());
 		shape.computeAABB(sweepAABB, poolV1);
 		//update position
-		physicsImpl.move(time, poolVector2);
+		physicsImpl.move(time, poolVector2, this);	//generator 位移修正
+		
 		shape.computeAABB(poolAABB, getPosition());
 		//记录迭代位移
 		clipPosition.set(poolVector2);
@@ -870,7 +873,12 @@ public class PhysicsObject {
 	
 	/**更新速度*/
 	public final void updateVelocity(final TimeInfo time){
+		updateGenerators(time);	//generator 常规更新
+		
 		this.physicsImpl.updateVelocity(time);
+		
+		updateVelocityGenerators(time, physicsImpl.getVelocity());	//generator 速度修正
+		
 		if(customListener != null) {
 			customListener.onVelocity(physicsImpl.getVelocity());
 		} else {
@@ -1260,23 +1268,80 @@ public class PhysicsObject {
 	
 	////////////////////////////////
 	//TODO generator
+	Array<PhysicsGenerator>			generatorList;
 	
-	
-	
-	/**
-	 *	//TODO 伪3D扩展
-	 */
-	/**
-	 * 是否是3D对象<p>
-	 * 
-	 * @return
-	 */
-	public boolean is3DObject() {return false;}
-	public void addShapeXZ(Shape shape) {}
-	public void setPositionZ(float z) {}
-	public Vector2 getPositionXZ() {
-		return null;
+	public void clearGenerator() {
+		if(generatorList != null) {
+			generatorList.clear();
+		}
 	}
-	public Shape getShapeListXZ() {return null;}
-	public void modifierPositionXZ(Vector2 MTD) {}
+	
+	public boolean findGenerator(PhysicsGenerator generator) {
+		if(generatorList != null) {
+			return generatorList.contains(generator, true);
+		}
+		return false;
+	}
+	
+	public PhysicsGenerator addGenerator(PhysicsGenerator generator, boolean checkContains) {
+		if(generatorList == null) {
+			generatorList = new Array<PhysicsGenerator>(2);
+		}
+		checkGeneratorCount();
+		if(checkContains) {
+			if(findGenerator(generator)) {
+				CCLog.engine("PhysicsObject", "generator already exist! ");
+				return generator;
+			}
+		} 
+		generatorList.add(generator);
+		return generator;
+	}
+	
+	private void checkGeneratorCount() {
+		if(getGeneratorCount() > Base2D.MAX_GENERATOR) {
+			CCLog.error("PhysicsObject", "generator too much ! count = " + getGeneratorCount());
+			assert false : "generator too much ! count = " + getGeneratorCount();
+		}
+	}
+	
+	private int getGeneratorCount() {
+		return generatorList == null ? 0 : generatorList.size;
+	}
+	
+	final void updateGenerators(final TimeInfo time) {
+		for(int i = getGeneratorCount() - 1; i >= 0; --i) {
+			PhysicsGenerator curr = generatorList.get(i);
+			if(curr.endFlag) {
+				generatorList.removeIndex(i);
+				curr.endFlag = false;
+			} else if(curr.onUpdate(this, time)) {
+				generatorList.removeIndex(i);
+			}
+		}
+	}
+	
+	final void updateVelocityGenerators(final TimeInfo time, final Vector2 targetVelocity) {
+		for(int i = getGeneratorCount() - 1; i >= 0; --i) {
+			PhysicsGenerator curr = generatorList.get(i);
+			if(curr.endFlag) {
+				generatorList.removeIndex(i);
+				curr.endFlag = false;
+			} else {
+				curr.onUpdateVelocity(this, time, targetVelocity);
+			}
+		}
+	}
+	
+	final void updatePositionGenerators(final TimeInfo time, final Vector2 posDelta) {
+		for(int i = getGeneratorCount() - 1; i >= 0; --i) {
+			PhysicsGenerator curr = generatorList.get(i);
+			if(curr.endFlag) {
+				generatorList.removeIndex(i);
+				curr.endFlag = false;
+			} else {
+				curr.onUpdatePosition(this, time, posDelta);
+			}
+		}
+	}
 }

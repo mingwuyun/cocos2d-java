@@ -68,9 +68,10 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 	/**移动物理对象
 	 * 这个方法会设置prePosition<br>
 	 * @return */
-	public final float move(final TimeInfo time, final Vector2 argVector2) {
+	public final float move(final TimeInfo time, final Vector2 argVector2, PhysicsObject obj) {
 		argVector2.set(velocity.x * time.ratio, velocity.y * time.ratio);
 		prevPosition.set(position);
+		obj.updatePositionGenerators(time, argVector2);
 		position.add(argVector2);
 		return 0f;
 		

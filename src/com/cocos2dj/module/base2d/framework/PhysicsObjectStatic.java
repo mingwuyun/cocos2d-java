@@ -56,7 +56,7 @@ public final class PhysicsObjectStatic implements IPhysicsObject {
 		return position;
 	}
 
-	public float move(TimeInfo time, Vector2 argVector2) {
+	public float move(TimeInfo time, Vector2 argVector2, PhysicsObject obj) {
 		return 0f;
 	}
 

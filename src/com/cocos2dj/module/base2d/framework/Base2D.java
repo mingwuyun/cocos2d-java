@@ -37,6 +37,8 @@ import com.cocos2dj.module.base2d.jbox2d.RayCastInput;
 public class Base2D {
 	/**支持的最大多边形数*/
 	public static final int MAX_POINT = 8;	
+	/**单个物理对象最大支持的generator数量 */
+	public static final int MAX_GENERATOR = 12;
 	/**system*/
 	private static Base2D instance;
 	
