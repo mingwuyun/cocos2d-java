@@ -1,6 +1,7 @@
 package tests.testcase;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.renderer.GLProgramCache;
 import com.cocos2dj.s2d.Sprite;
 
@@ -29,6 +30,14 @@ public class ShaderTests extends TestSuite {
 		
 		public void onEnter() {
 			super.onEnter();
+			
+//			for(int i = 0; i < 2000; ++i) {
+//				spriteNormal = Sprite.create("powered.png");
+//				spriteNormal.setContentSize(20, 20);
+//				spriteNormal.setPosition(MathUtils.randomFloat(0, 1200), MathUtils.randomFloat(0, 650));
+//				addChild(spriteNormal);
+//			}
+			
 			spriteShader = Sprite.create("powered.png");
 			spriteShader.setPosition(300, 320);
 			addChild(spriteShader);
@@ -41,6 +50,15 @@ public class ShaderTests extends TestSuite {
 					GLProgramCache.getInstance().getSpriteBatchDefaultProgram().getVertexShaderSource(), 
 					"shader/ice.fragment.glsl");
 			spriteShader.setShaderProgram(shader);
+			
+			scheduleUpdate();
+		}
+		
+		public boolean update(float dt) {
+//			for(int i = 0; i < 1000000; ++i) {
+//				Math.sqrt(Math.random());
+//			}
+			return false;
 		}
 		
 		public String subtitle() {

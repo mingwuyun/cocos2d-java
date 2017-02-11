@@ -2,6 +2,7 @@ package tests;
 
 import com.badlogic.gdx.Files.FileType;
 import com.cocos2dj.base.Director;
+import com.cocos2dj.basic.Engine;
 import com.cocos2dj.platform.AppDelegate;
 import com.cocos2dj.platform.FileUtils;
 import com.cocos2dj.platform.ResolutionPolicy;
@@ -16,7 +17,8 @@ public class TestAppDelegate_Tests implements AppDelegate {
 	
 	@Override
 	public void initConfiguration() {
-		
+//		Engine.setSingleThreadMode();
+		Engine.setDoubleThreadMode();
 	}
 
 	@Override

@@ -12,9 +12,10 @@ public class Main_Tests {
 	
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration conf = ApplicationStartup.getConfiguration();
-		conf.width = 	600;  	conf.height = 	338; 
-//		conf.width = 320;
-//		conf.height = 240;
+//		conf.width = 	600;  	conf.height = 	338; 
+		conf.width = 	800;  	conf.height = 	450; 
+		// cancel fps limit
+//		conf.vSyncEnabled = false;conf.backgroundFPS = 0;conf.foregroundFPS = 0;
 		ApplicationStartup.start(new TestAppDelegate_Tests());
 	}
 	

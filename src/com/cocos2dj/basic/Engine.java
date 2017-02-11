@@ -1,7 +1,10 @@
 package com.cocos2dj.basic;
 
+import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.cocos2dj.base.Director;
+import com.cocos2dj.macros.CCLog;
 
 /** 
  * Engine.java 
@@ -9,7 +12,32 @@ import com.cocos2dj.base.Director;
  * 
  * @author Copyright (c) 2012-2017 xu jun
  */
-public class Engine {
+public final class Engine {
+	
+	public static enum EngineMode {
+		/**单线程模式 */ 
+		SingleThread,
+		/**双线程模式 逻辑线程-gl线程 （测试后，好像并没有变快?）*/ 
+		DoubleThread,
+	}
+	private static EngineMode _engineMode = null; //EngineMode.DoubleThread;
+	public static EngineMode getEngineMode() {
+		return _engineMode;
+	}
+	public static void setEngineMode(EngineMode engineMode) {
+		if(_engineMode == null) {
+			_engineMode = engineMode;
+		} else {
+			throw new IllegalStateException("engineMode cannot change ! now is :" + _engineMode);
+		}
+	}
+	
+	public static void setSingleThreadMode() {
+		setEngineMode(EngineMode.SingleThread);
+	}
+	public static void setDoubleThreadMode() {
+		setEngineMode(EngineMode.DoubleThread);
+	}
 	
 	final SConfig config = new SConfig();
 	
@@ -22,6 +50,16 @@ public class Engine {
 	/**创建一个Card2DEngine实例 */
 	public static final Engine newEngine(BaseGame card2dAppListener) {
 		if(_instance == null){
+			if(_engineMode == null) {
+				if(Gdx.app.getType() == ApplicationType.Desktop) {
+					_engineMode = EngineMode.SingleThread;		//桌面版本经过测试，backend已经实现了渲染线程分离，因此默认使用single模式
+				} else {
+					_engineMode = EngineMode.DoubleThread;		
+				}
+			}
+			
+			CCLog.engine("Engine", ">>>>>>>>>>>>>>>>>> engine run mode : " + _engineMode);
+			
 			_instance = new Engine();
 			_instance.game = card2dAppListener;
 			_instance.director = Director.getInstance();
@@ -60,6 +98,9 @@ public class Engine {
 	
 	/**查询当前线程是否是渲染线程 */
 	public final boolean isGLThread() {
+		if(_engineMode == EngineMode.SingleThread) {
+			return true;
+		}
 		return renderThreadFlag;
 	}
 	
@@ -108,6 +149,25 @@ public class Engine {
 //		loadScene = true;
 	}
 	
+	private void _update(int delta) {
+		// 更新 本地计时器时间
+		BaseTimer.updateEngineTime(delta);
+		
+		//主循环交给director完成
+		//调用在逻辑线程，不要进行图像操作
+		director.mainLoop(delta);
+		baseInput.update();
+		baseScheduler.updateMain(delta);
+	}
+	
+	private void _render() {
+		director.clearRendererState();
+		//在图像进程处理绘制相关，由engine主动调用drawScene
+		baseScheduler.updateRenderBefore((int)BaseCoreTimer.delta);
+		director.drawScene();
+		baseScheduler.updateRenderAfter((int)BaseCoreTimer.delta);
+	}
+	
 	/**更新逻辑 */
 	final void update(final int delta) {
 		
@@ -115,22 +175,15 @@ public class Engine {
 		try {
 			renderThreadFlag = false;
 			
-			// 更新 本地计时器时间
-			BaseTimer.updateEngineTime(delta);
-			
-//			BaseScheduler.instance().updateFirst(delta);
-			
-//			final IScene scene = SceneManager.getCurrentScene();
-//			scene.update(delta);
-//			System.out.println("update >>>>>>>>>>>");
-//			BaseScheduler.instance().updateMain(delta);
-//			this.moudleManager.updateModuleMainThread(delta);
-			
-			//主循环交给director完成
-			//调用在逻辑线程，不要进行图像操作
-			director.mainLoop(delta);
-			baseInput.update();
-			baseScheduler.updateMain(delta);
+			_update(delta);
+//			// 更新 本地计时器时间
+//			BaseTimer.updateEngineTime(delta);
+//			
+//			//主循环交给director完成
+//			//调用在逻辑线程，不要进行图像操作
+//			director.mainLoop(delta);
+//			baseInput.update();
+//			baseScheduler.updateMain(delta);
 			
 			
 			engineLock.notifyCanDraw();
@@ -146,38 +199,36 @@ public class Engine {
 	
 	/**更新图像 */
 	final void render() {
-		engineLock.lock();
-		try {
-			renderThreadFlag = true;
-			
-			director.clearRendererState();
-			//在图像进程处理绘制相关，由engine主动调用drawScene
-			baseScheduler.updateRenderBefore((int)BaseCoreTimer.delta);
-			director.drawScene();
-			baseScheduler.updateRenderAfter((int)BaseCoreTimer.delta);
-			
-//			if(loadScene){
-//				loadScene = false;
-//				SceneManager.getSceneManager()._changeScene();
-//				return;
-//			}
-//			
-//			this.moudleManager.updateModuleRenderThread(BaseCoreTimer.delta);
-//			
-//			final IScene scene = SceneManager.getCurrentScene();
-//			scene.render();
-//			
-//			BaseScheduler.instance().updateRender(BaseCoreTimer.delta);
-			
-			engineLock.notifyCanUpdate();
+		switch(_engineMode) {
+		case DoubleThread:
+			engineLock.lock();
 			try {
-				engineLock.waitUntilCanDraw();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				renderThreadFlag = true;
+				
+				_render();
+//				director.clearRendererState();
+//				//在图像进程处理绘制相关，由engine主动调用drawScene
+//				baseScheduler.updateRenderBefore((int)BaseCoreTimer.delta);
+//				director.drawScene();
+//				baseScheduler.updateRenderAfter((int)BaseCoreTimer.delta);
+
+				engineLock.notifyCanUpdate();
+				try {
+					engineLock.waitUntilCanDraw();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} finally {
+				engineLock.unlock();
 			}
-		} finally {
-			engineLock.unlock();
+			break;
+			
+		case SingleThread:
+			_update((int)BaseCoreTimer.delta);
+			_render();
+			break;
 		}
+		
 	}
 	
 	
@@ -201,8 +252,12 @@ public class Engine {
 	public void startEngine() {
 		updateLastTime();
 		appState = AppState.RUNNING;
-		if(!thread.isAlive())
-			thread.start();
+		
+		if(_engineMode == EngineMode.DoubleThread) {
+			if(!thread.isAlive()) {
+				thread.start();
+			}
+		}
 	}
 	
 	/**暂停引擎*/
@@ -227,10 +282,13 @@ public class Engine {
 		disposableList.clear();
 		
 		endFlag = true;
-		thread.interrupt();
 		
-		//释放引擎
-		thread = null;
+		if(_engineMode == EngineMode.DoubleThread) {
+			thread.interrupt();
+			//释放引擎
+			thread = null;
+		}
+		
 		_instance = null;
 	}
 }
