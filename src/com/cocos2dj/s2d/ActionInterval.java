@@ -97,6 +97,12 @@ public class ActionInterval extends FiniteTimeAction {
 	    return true;
    }
 
+   protected boolean CC_ENABLE_STACKABLE_ACTIONS = true;
+   /**是否开启动作叠加模式 默认开启(true) */
+   public void DEFINE_CC_ENABLE_STACKABLE_ACTIONS(boolean enableStackable) {
+	   CC_ENABLE_STACKABLE_ACTIONS = enableStackable;
+   }
+   
 //   protected float 		_elapsed;
 //   protected boolean   	_firstTick;
 
@@ -558,8 +564,24 @@ public class ActionInterval extends FiniteTimeAction {
 	     */
 	    public void update(float t) {
 	    	if(_target != null) {
+if (CC_ENABLE_STACKABLE_ACTIONS) {
+				float currX = _target.getPositionX();
+				float currY = _target.getPositionY();
+				float diffX = currX - _previousPositionX;
+				float diffY = currY - _previousPositionY;
+				
+				_startPositionX = _startPositionX + diffX;
+				_startPositionY = _startPositionY + diffY;
+				
+				float newPosX = _startPositionX + _positionDeltaX * t;
+				float newPosY = _startPositionY + _positionDeltaY * t;
+				_target.setPosition(newPosX, newPosY);
+				_previousPositionX = newPosX;
+				_previousPositionY = newPosY;
+} else {
 	    		_target.setPosition(_startPositionX + _positionDeltaX * t, 
 	    				_startPositionY + _positionDeltaY * t);
+} //CC_ENABLE_STACKABLE_ACTIONS
 	    	}
 	    }
 	    
@@ -768,4 +790,134 @@ public class ActionInterval extends FiniteTimeAction {
        protected float _deltaAngle;
        protected float _startAngle;
    }
+   
+	// Bezier cubic formula:
+	// ((1 - t) + t)3 = 1 
+	//Expands to ...
+	//(1 - t)3 + 3t(1-t)2 + 3t2(1 - t) + t3 = 1 
+	public static float bezierat( float a, float b, float c, float d, float t ) {
+		float tt = 1 - t;
+		return ((float)Math.pow(tt, 3) * a 
+				+ 3 * t * (float)Math.pow(tt, 2) * b
+				+ 3 * (float)Math.pow(t, 2) * tt * c 
+				+ (float)Math.pow(t, 3) * d);
+//	 return (powf(1-t,3) * a + 
+//	         3*t*(powf(1-t,2))*b + 
+//	         3*powf(t,2)*(1-t)*c +
+//	         powf(t,3)*d );
+	}
+	
+   //////////////////////////////////
+   //TODO BezierBy
+   public static class BezierBy extends ActionInterval {
+	   
+	    public static BezierBy create(float t, Vector2 end, Vector2 control) {
+	    	return create(t, end, control, control);
+	    }
+	    /** Creates the action with a duration and a bezier configuration.
+	     * @param t Duration time, in seconds.
+	     * @param end
+	     * @param control1
+	     * @param control2
+	     * @return An autoreleased BezierBy object.
+	     * @code
+	     * When this function bound to js or lua,the input params are changed.
+	     * in js: var create(var t,var table)
+	     * in lua: local create(local t, local table)
+	     * @endcode
+	     */
+	    public static BezierBy create(float t, Vector2 end, Vector2 control1, Vector2 control2) {
+	    	return create(t, end.x, end.y, control1.x, control1.y, control2.x, control2.y);
+	    }
+	    
+	    public static BezierBy create(float t, float endX, float endY, float cX, float cY) {
+	    	return create(t, endX, endY, cX, cY, cX, cY);
+	    }
+	    
+	    public static BezierBy create(float t, float endX, float endY, float c1X, float c1Y, float c2X, float c2Y) {
+	    	BezierBy ret = new BezierBy();
+	    	ret.initWithDuration(t, endX, endY, c1X, c1Y, c2X, c2Y);
+	    	return ret;
+	    }
+	    
+	    //
+	    // Overrides
+	    //
+	    public BezierBy copy() {
+	    	return create(_duration, _endPositionX, _endPositionY, _control1X, _control1Y, _control2X, _control2Y);
+	    }
+	    public BezierBy reverse() {
+	    	return create(_duration, -_endPositionX, -_endPositionX, 
+	    			_control2X - _endPositionX, _control2Y - _endPositionY, 
+	    			_control1X - _endPositionX, _control1Y - _endPositionY);
+	    }
+	    public void startWithTarget(INode target) {
+	    	super.startWithTarget(target);
+	    	Node node = (Node) target;
+	    	_prevPositionX = _startPositionX = node.getPositionX();
+	    	_prevPositionY = _startPositionY = node.getPositionY();
+	    }
+	    
+	    /**
+	     * @param time In seconds.
+	     */
+	    public void update(float time) {
+	    	if(_target != null) {
+	    		float x = bezierat(0, _control1X, _control2X, _endPositionX, time);
+	    		float y = bezierat(0, _control1Y, _control2Y, _endPositionY, time);
+	    		
+if(CC_ENABLE_STACKABLE_ACTIONS) {
+				float currPosX = _target.getPositionX();
+				float currPosY = _target.getPositionY();
+				float diffX = currPosX - _prevPositionX;
+				float diffY = currPosY - _prevPositionY;
+				
+				_startPositionX += diffX;
+				_startPositionY += diffY;
+				
+				float newPosX = _startPositionX + x;
+				float newPosY = _startPositionY + y;
+				_target.setPosition(newPosX, newPosY);
+				_prevPositionX = newPosX;
+				_prevPositionY = newPosY;
+} else {
+	    		_target.setPosition(_startPositionX + x,  _startPositionY + y);
+}//CC_ENABLE_STACKABLE_ACTIONS
+	    	}
+	    }
+	    
+	    public BezierBy() {}
+
+	    /** 
+	     * initializes the action with a duration and a bezier configuration
+	     * @param t in seconds
+	     */
+	    public boolean initWithDuration(float t, float endX, float endY, float c1X, float c1Y, float c2X, float c2Y) {
+	    	if(super.initWithDuration(t)) {
+	    		_endPositionX = endX;
+	    		_endPositionY = endY;
+	    		_control1X = c1X;
+	    		_control1Y = c1Y;
+	    		_control2X = c2X;
+	    		_control2Y = c2Y;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+
+	    protected float 		_startPositionX;
+	    protected float 		_startPositionY;
+	    protected float			_prevPositionX;
+	    protected float			_prevPositionY;
+	    protected float 		_endPositionX;
+	    protected float			_endPositionY;
+	    protected float 		_control1X;
+	    protected float			_control1Y;
+	    protected float			_control2X;
+	    protected float 		_control2Y;
+//	    Vec2 _startPosition;
+//	    Vec2 _previousPosition;
+   }
+   
+   
 }
