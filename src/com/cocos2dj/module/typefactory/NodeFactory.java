@@ -188,6 +188,9 @@ public class NodeFactory {
 			}
 		};
 		
+		if(type.poolListener != null) {
+			pool.addPoolListener(type.poolListener);
+		}
 		return pool;
 	}
 	

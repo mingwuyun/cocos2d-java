@@ -1,5 +1,7 @@
 package com.cocos2dj.module.typefactory;
 
+import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.module.typefactory.PoolListener.PoolEvent;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.protocol.INodePool;
 import com.cocos2dj.s2d.Node;
@@ -24,39 +26,39 @@ public class NodePool<T extends Node> implements INodePool {
 	private String 			name;
 	private IObjectPool<T> 	pool;
 	private final Node 		parent;
-//	private final Array<SObjectObserver>	observers = new Array<>();	//观察者
+	private final Array<PoolListener>	observers = new Array<>();	//观察者
 	
 	
-//	public void addObserver(SObjectObserver observer) {
-//		observers.add(observer);
-//	}
-//	
-//	public void removeObserver(SObjectObserver observer) {
-//		observers.removeValue(observer, true);
-//	}
+	public void addPoolListener(PoolListener observer) {
+		observers.add(observer);
+	}
+	
+	public void removePoolListener(PoolListener observer) {
+		observers.removeValue(observer, true);
+	}
 //	
 	public void clearObserver() {
-//		observers.clear();
+		observers.clear();
 	}
 	
 	final void observers_onPop(T t) {
-//		for(int i = observers.size - 1; i >= 0; --i) {
-//			final SObjectObserver obv = observers.get(i);
-//			final boolean ret = obv.onObjectEvent(SObjectEvent.event_pop, t);
-//			if(ret) {
-//				observers.removeIndex(i);
-//			}
-//		}
+		for(int i = observers.size - 1; i >= 0; --i) {
+			final PoolListener obv = observers.get(i);
+			final boolean ret = obv.onObjectEvent(PoolEvent.Pop, t);
+			if(ret) {
+				observers.removeIndex(i);
+			}
+		}
 	}
 	
 	final void observers_onPush(T t) {
-//		for(int i = observers.size - 1; i >= 0; --i) {
-//			final SObjectObserver obv = observers.get(i);
-//			final boolean ret = obv.onObjectEvent(SObjectEvent.event_push, t);
-//			if(ret) {
-//				observers.removeIndex(i);
-//			}
-//		}
+		for(int i = observers.size - 1; i >= 0; --i) {
+			final PoolListener obv = observers.get(i);
+			final boolean ret = obv.onObjectEvent(PoolEvent.Push, t);
+			if(ret) {
+				observers.removeIndex(i);
+			}
+		}
 	}
 	
 	public void setName(String name) {this.name = name;}

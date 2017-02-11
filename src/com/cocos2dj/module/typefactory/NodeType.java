@@ -89,6 +89,11 @@ public class NodeType implements INodeType {
 		return this;
 	}
 	
+	public final NodeType setPoolListener(PoolListener listener) {
+		this.poolListener = listener;
+		return this;
+	}
+	
 	
 	
 	/**
@@ -104,18 +109,20 @@ public class NodeType implements INodeType {
 		return a;
 	}
 	
-//	/**为对象池中的所有对象添加监听 */
-//	public final void addObserver(SObjectObserver obv) {
-//		factory.getPool(this).addObserver(obv);
-//	}
-//	
-//	public final void removeObserver(SObjectObserver observer) {
-//		factory.getPool(this).removeObserver(observer);
-//	}
-//	
-//	public final void clearObserver() {
-//		factory.getPool(this).clearObserver();
-//	}
+	/**为对象池中的所有对象添加监听 */
+	public final PoolListener addPoolListener(PoolListener obv) {
+		factory.getPool(this).addPoolListener(obv);
+		return obv;
+	}
+	
+	public final void removePoolListener(PoolListener observer) {
+		factory.getPool(this).removePoolListener(observer);
+	}
+	
+	public final void clearPoolListener() {
+		factory.getPool(this).clearObserver();
+	}
+	
 	
 	@Override
 	public void pushSingletonNode(INode node) {
@@ -140,6 +147,7 @@ public class NodeType implements INodeType {
 	Object[] 				initArgs;
 	int 					poolInitCount = 2;
 	int 					poolAddCount = 2;
+	PoolListener			poolListener;
 	Node 					parent;
 	
 	Class<? extends NodeProxy>		proxyClazz;

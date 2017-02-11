@@ -12,6 +12,7 @@ import com.cocos2dj.module.typefactory.NodeFactory;
 import com.cocos2dj.module.typefactory.NodePools;
 import com.cocos2dj.module.typefactory.NodeType;
 import com.cocos2dj.module.typefactory.NodeType.InstanceType;
+import com.cocos2dj.module.typefactory.PoolListener;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
@@ -90,6 +91,14 @@ public class TypeFactoryTests extends TestSuite {
 		static ModuleBase2d	base2d;
 		ModuleTypeFactory	typeFactory;
 		
+		PoolListener poolListener = new PoolListener() {
+			@Override
+			public boolean onObjectEvent(PoolEvent eventType, Node obj) {
+				System.out.println("evnt trigger : "+ eventType);
+				return false;
+			}
+		};
+		
 		public void onEnter() {
 			super.onEnter();
 			
@@ -110,7 +119,9 @@ public class TypeFactoryTests extends TestSuite {
 			NodeType nodeType = NodeType.create("testNodeType1").
 			setInstanceType(InstanceType.ADDING_POOL).
 			setParent(this).
-			setNodeProxy(TestPoolNode.class);
+			setNodeProxy(TestPoolNode.class);//.addPoolListener(poolListener);
+			
+			nodeType.setPoolListener(poolListener);
 			
 			typeFactory.addNodeType(nodeType);
 			//end
@@ -119,8 +130,9 @@ public class TypeFactoryTests extends TestSuite {
 			DrawNode ground = (DrawNode) DrawNode.create().addTo(this);
 			ground.drawSolidRect(0, 0, 1200, 100, null);
 			
+			
 			schedule((t)->{
-				System.out.println("schedule 1");
+//				System.out.println("schedule 1");
 				Node root = nodeType.getInstance();
 				root.setPosition(600 + MathUtils.random(-500, 500), 320 + MathUtils.random(-200, 200));
 				nodes.add(root);
