@@ -9,6 +9,7 @@ import tests.testcase.ActionManagerTests;
 import tests.testcase.Base2dTests;
 import tests.testcase.CameraTests;
 import tests.testcase.DrawNodeTests;
+import tests.testcase.EventTests;
 import tests.testcase.NodeTests;
 import tests.testcase.ShaderTests;
 import tests.testcase.SpriteTests;
@@ -112,6 +113,7 @@ public class TestController {
     	public RootTests() {
 //    		System.out.println("d = " + this + "  " + _director);
     		addTest("NodeTests", ()->{return new NodeTests();});
+    		addTest("EventTests", ()->{return new EventTests();});
     		addTest("ActionTests", ()->{return new ActionManagerTests();});
     		addTest("SpriteTests", ()->{return new SpriteTests();});
     		addTest("CameraTests", ()->{return new CameraTests();});

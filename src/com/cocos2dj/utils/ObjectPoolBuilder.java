@@ -5,7 +5,8 @@ package com.cocos2dj.utils;
  * <p>
  * 包装对象池的创建
  * <pre>
- * ObjectPoolBuilder<Object> builder = new ObjectPoolBuilder<>();
+ * //ObjectPoolBuilder<Object> builder = new ObjectPoolBuilder<>();
+ * ObjectPoolBuilder<Object> builder = ObjectPoolBuilder.startBuilder();
  * builder.setClass(Object.class)
  * 			.setInitCount(3)
  * 			.setAddCount(2)
@@ -14,6 +15,11 @@ package com.cocos2dj.utils;
  * @author Copyright (c) 2016 xujun
  */
 public class ObjectPoolBuilder<T> {
+	
+	/**开始构建 */
+	public static <T> ObjectPoolBuilder<T> startBuilder() {
+		return new ObjectPoolBuilder<T>();
+	}
 	
 	//fields>>
 	private Class<T> 	sClass;

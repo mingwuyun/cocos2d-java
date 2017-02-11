@@ -17,8 +17,8 @@ public class TestAppDelegate_Tests implements AppDelegate {
 	
 	@Override
 	public void initConfiguration() {
-//		Engine.setSingleThreadMode();
-		Engine.setDoubleThreadMode();
+		Engine.setSingleThreadMode();
+//		Engine.setDoubleThreadMode();
 	}
 
 	@Override

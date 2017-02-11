@@ -152,9 +152,7 @@ public final class Engine {
 	private void _update(int delta) {
 		// 更新 本地计时器时间
 		BaseTimer.updateEngineTime(delta);
-		
 		//主循环交给director完成
-		//调用在逻辑线程，不要进行图像操作
 		director.mainLoop(delta);
 		baseInput.update();
 		baseScheduler.updateMain(delta);
@@ -176,15 +174,6 @@ public final class Engine {
 			renderThreadFlag = false;
 			
 			_update(delta);
-//			// 更新 本地计时器时间
-//			BaseTimer.updateEngineTime(delta);
-//			
-//			//主循环交给director完成
-//			//调用在逻辑线程，不要进行图像操作
-//			director.mainLoop(delta);
-//			baseInput.update();
-//			baseScheduler.updateMain(delta);
-			
 			
 			engineLock.notifyCanDraw();
 			try {
@@ -206,12 +195,7 @@ public final class Engine {
 				renderThreadFlag = true;
 				
 				_render();
-//				director.clearRendererState();
-//				//在图像进程处理绘制相关，由engine主动调用drawScene
-//				baseScheduler.updateRenderBefore((int)BaseCoreTimer.delta);
-//				director.drawScene();
-//				baseScheduler.updateRenderAfter((int)BaseCoreTimer.delta);
-
+				
 				engineLock.notifyCanUpdate();
 				try {
 					engineLock.waitUntilCanDraw();
@@ -224,7 +208,7 @@ public final class Engine {
 			break;
 			
 		case SingleThread:
-			_update((int)BaseCoreTimer.delta);
+			_update((int)BaseCoreTimer.update());
 			_render();
 			break;
 		}

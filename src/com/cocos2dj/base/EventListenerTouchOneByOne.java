@@ -1,6 +1,7 @@
 package com.cocos2dj.base;
 
 import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.macros.CCLog;
 
 public class EventListenerTouchOneByOne extends EventListener {
 
@@ -18,6 +19,12 @@ public class EventListenerTouchOneByOne extends EventListener {
 			public void onTouchEnded(Touch touch, Event event) {}
 			public void onTouchCancelled(Touch touch, Event event) {}
 		};
+	}
+	
+	public static EventListenerTouchOneByOne create() {
+		EventListenerTouchOneByOne ret = new EventListenerTouchOneByOne();
+		ret.init();
+		return ret;
 	}
     
     /** Whether or not to swall touches.
@@ -59,16 +66,29 @@ public class EventListenerTouchOneByOne extends EventListener {
     	_callback = callback == null ? TouchCallback.NULL : callback;
     }
 	
-	
+    @Override
+    public boolean checkAvailable() {
+        // EventDispatcher will use the return value of 'onTouchBegan' to determine whether to pass following 'move', 'end'
+        // message to 'EventListenerTouchOneByOne' or not. So 'onTouchBegan' needs to be set.
+        if (_callback == null) {
+            CCLog.error("EventListenerTouchOneByOne", "Invalid EventListenerTouchOneByOne!");
+            return false;
+        }
+        return true;
+    }
+    
 //CC_CONSTRUCTOR_ACCESS:
-    EventListenerTouchOneByOne() {
+    public EventListenerTouchOneByOne() {
     	
     }
     
     boolean init() {
-    	return true;	
+    	if(super.init(Type.TOUCH_ONE_BY_ONE, LISTENER_ID, null)) {
+    		return true;
+    	}
+    	return false;	
     }
     
-    Array<Touch> _claimedTouches;
+    Array<Touch> _claimedTouches = new Array<Touch>(2);
     boolean _needSwallow;
 }

@@ -10,11 +10,18 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.cocos2dj.base.Size;
+import com.cocos2dj.base.Touch;
+import com.cocos2dj.base.EventTouch.EventCode;
 import com.cocos2dj.basic.BaseInput;
 import com.cocos2dj.basic.Engine;
 import com.cocos2dj.macros.CCLog;
+import com.cocos2dj.macros.CCMacros;
 import com.cocos2dj.renderer.Viewport;
+import com.cocos2dj.utils.ObjectPoolBuilder;
+import com.cocos2dj.utils.ObjectPoolLinear;
 import com.cocos2dj.base.Director;
+import com.cocos2dj.base.EventListenerKeyboard;
+import com.cocos2dj.base.EventTouch;
 import com.cocos2dj.base.Rect;
 
 /**
@@ -33,8 +40,12 @@ public class GLView implements InputProcessor {
 		} else {
 			setFrameSize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 		}
-		
+
+if(CCMacros.USE_CC_TOUCH_LISTENER) {
 		BaseInput.instance().addInputProcessor(this);
+		createPools();
+}
+		
 		CCLog.engine(TAG, "glview init -> size = " + getFrameSize());
 	}
 
@@ -303,14 +314,20 @@ public class GLView implements InputProcessor {
 //  virtual void handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[]);
 //  virtual void handleTouchesEnd(int num, intptr_t ids[], float xs[], float ys[]);
 //  virtual void handleTouchesCancel(int num, intptr_t ids[], float xs[], float ys[]);
-
+    private ObjectPoolLinear<EventTouch> 				stackTouchEvent;
+    private ObjectPoolLinear<EventListenerKeyboard>		stackKeyboardEvent;
+    
     public void removeSelf() {
     	BaseInput.instance().removeInputProcessor(this);
     }
     
+    final void createPools() {
+    	stackTouchEvent = ObjectPoolBuilder.<EventTouch>startBuilder().setInitCount(8).setAddCount(2).setClass(EventTouch.class).create();
+    	stackKeyboardEvent = ObjectPoolBuilder.<EventListenerKeyboard>startBuilder().setInitCount(8).setAddCount(2).setClass(EventListenerKeyboard.class).create();
+    }
+    
 	@Override
 	public boolean keyDown(int keycode) {
-//		System.out.println("key down!!");
 		return false;
 	}
 
@@ -326,16 +343,31 @@ public class GLView implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+if(CCMacros.USE_CC_TOUCH_LISTENER) {
+		EventTouch evectTouch = stackTouchEvent.pop();
+		evectTouch._addTouch(new Touch());
+		evectTouch.setEventCode(EventCode.BEGAN);
+		Director.getInstance().getEventDispatcher().dispatchTouchEvent(evectTouch);
+		stackTouchEvent.push(evectTouch);
+}
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+if(CCMacros.USE_CC_TOUCH_LISTENER) {
+		EventTouch evectTouch = stackTouchEvent.pop();
+		stackTouchEvent.push(evectTouch);
+}
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+if(CCMacros.USE_CC_TOUCH_LISTENER) {
+			EventTouch evectTouch = stackTouchEvent.pop();
+			stackTouchEvent.push(evectTouch);
+}		
 		return false;
 	}
 

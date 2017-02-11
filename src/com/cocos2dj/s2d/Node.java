@@ -1190,6 +1190,8 @@ public class Node implements INode, IUpdater {
 	        _componentContainer.onExit();
 	    }
 	    
+	    
+	    
     	this.pause();
     	
     	 _running = false;
@@ -1198,7 +1200,7 @@ public class Node implements INode, IUpdater {
     		_children.get(i).onExit();
     	}
     	
-    	
+    	release();		//release    	
     }
 
     /**

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.badlogic.gdx.utils.Array;
+import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.protocol.ICamera;
 import com.cocos2dj.protocol.IFunctionOneArg;
 import com.cocos2dj.protocol.IFunctionOneArgRet;
@@ -37,6 +38,7 @@ public class EventDispatcher {
         assert !listener.isRegistered(): "The listener has been registered.";
         
         if (!listener.checkAvailable()) {
+        	CCLog.engine("EventDisptcher", "The listener not Available");
             return;
         }
         
@@ -59,6 +61,7 @@ public class EventDispatcher {
         assert fixedPriority != 0: "0 priority is forbidden for fixed priority since it's used for scene graph based priority.";
         
         if (!listener.checkAvailable()) {
+        	CCLog.engine("EventDisptcher", "The listener not Available");
             return;
         }
         
@@ -200,8 +203,11 @@ public class EventDispatcher {
     	ArrayList<EventListener> listeners = _nodeListenersMap.get(target);
     	if(listeners != null) {
 //    		for(EventListen)
-    		//TODO need copy ?
-    		for(EventListener l : listeners) {
+    		//TODO need copy !
+    		_poolArray.clear();
+    		_poolArray.addAll(listeners);		//copy to stack
+    		for(int i = 0; i < _poolArray.size(); ++i) {
+    			EventListener l = (EventListener) _poolArray.get(i);
     			removeEventListener(l);
     		}
     	}
@@ -1006,7 +1012,7 @@ public class EventDispatcher {
         	int mutableTouchesIter = 0;
         	int touchesIter = 0;
             
-            for (; touchesIter <= originalTouches.size; ++touchesIter)
+            for (; touchesIter < originalTouches.size; ++touchesIter)
             {
                 boolean isSwallowed = false;
                 Touch currTouch = originalTouches.get(touchesIter);
@@ -1245,7 +1251,12 @@ public class EventDispatcher {
             }
             
             if (_nodeListenersMap.containsKey(node)) {
-            	_globalZOrderNodeMap.get(node.getGlobalZOrder()).add(node);
+            	ArrayList<INode> ret = _globalZOrderNodeMap.get(node.getGlobalZOrder());
+        		if(ret == null) {
+        			ret = new ArrayList<>(2);
+        		}
+//                _globalZOrderNodeMap.get(node.getGlobalZOrder())
+                ret.add(node);
             }
             
             for( ; i < childrenCount; i++ ) {
@@ -1256,7 +1267,12 @@ public class EventDispatcher {
             }
         } else {
         	if (_nodeListenersMap.containsKey(node)) {
-                _globalZOrderNodeMap.get(node.getGlobalZOrder()).add(node);
+        		ArrayList<INode> ret = _globalZOrderNodeMap.get(node.getGlobalZOrder());
+        		if(ret == null) {
+        			ret = new ArrayList<>(2);
+        		}
+//                _globalZOrderNodeMap.get(node.getGlobalZOrder())
+                ret.add(node);
             }
         }
         

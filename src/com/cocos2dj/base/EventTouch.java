@@ -24,6 +24,10 @@ public class EventTouch extends Event {
     */
    public EventCode getEventCode() { return _eventCode; };
    
+   public void setEventCode(EventCode eventCode) {
+	   _eventCode = eventCode;
+   }
+   
    /** Get the touches.
     *
     * @return The touches of the event.
