@@ -1,9 +1,9 @@
 package com.cocos2dj.utils;
 
 /**
- * ����ع�������<p>
- * 
- * ʹ�÷�������:
+ * ObjectPoolBuilder.java
+ * <p>
+ * 包装对象池的创建
  * <pre>
  * ObjectPoolBuilder<Object> builder = new ObjectPoolBuilder<>();
  * builder.setClass(Object.class)
@@ -11,8 +11,7 @@ package com.cocos2dj.utils;
  * 			.setAddCount(2)
  * 			.createNormalPool();
  * </pre>
- * @author xu jun
- *			2016-8-2
+ * @author Copyright (c) 2016 xujun
  */
 public class ObjectPoolBuilder<T> {
 	
@@ -51,17 +50,24 @@ public class ObjectPoolBuilder<T> {
 		return this;
 	}
 	
-	/**�������Զ���أ�Ĭ���Ƽ��� */
+	/**
+	 * 默认创建方法 
+	 * @see #createAddingPool()
+	 * */
 	public ObjectPoolLinear<T> create() {
 		return createAddingPool();
 	}
 	
-	/**������ͨ����أ���������2����*/
+	/**
+	 * 创建指数增长对象池
+	 * <br> newCount = currCount * 2
+	 */
 	public ObjectPool<T> createNormalPool() {
 		return new ObjectPool<>(sClass, initCount, params, args);
 	}
 	
-	/**�������Զ���أ���������ָ��������*/
+	/**创建线性增长对象池<br>
+	 * newCount = currCount + addCount */
 	public ObjectPoolLinear<T> createAddingPool() {
 		return new ObjectPoolLinear<>(sClass, initCount, addCount, params, args);
 	}

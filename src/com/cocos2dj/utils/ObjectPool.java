@@ -4,7 +4,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Card2D Engine �����<p>
+ * ObjectPool.java
+ * <p>
  * 
  * ͨ������ {@link #onCreated(Object)},{@link #onPop(Object)},{@link #onPush(Object)}
  * ����������Ӧ�������

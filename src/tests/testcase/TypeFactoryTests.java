@@ -8,7 +8,6 @@ import com.cocos2dj.module.gdxui.GdxUIConsole;
 import com.cocos2dj.module.gdxui.GdxUIConsole.ConsoleHandle;
 import com.cocos2dj.module.gdxui.GdxUIDebugInfo;
 import com.cocos2dj.module.typefactory.ModuleTypeFactory;
-import com.cocos2dj.module.typefactory.NodeFactory;
 import com.cocos2dj.module.typefactory.NodePools;
 import com.cocos2dj.module.typefactory.NodeType;
 import com.cocos2dj.module.typefactory.NodeType.InstanceType;

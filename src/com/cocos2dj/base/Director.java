@@ -241,6 +241,10 @@ public class Director {
     public GLView getOpenGLView() { return _openGLView; }
     public void setOpenGLView(GLView openGLView) {
     	if(_openGLView != openGLView) {
+    		if(_openGLView != null) {
+    			_openGLView.removeSelf();	//clear input Listener
+    		}
+    		
     		_openGLView = openGLView;
     		
     		// set size
@@ -250,11 +254,9 @@ public class Director {
             if (_openGLView != null) {
                 setGLDefaultValues();
             }
-            
 //            _renderer.initGLView();
-
 //            CHECK_GL_ERROR_DEBUG();
-
+            
             if (_eventDispatcher != null) {
                 _eventDispatcher.setEnabled(true);
             }

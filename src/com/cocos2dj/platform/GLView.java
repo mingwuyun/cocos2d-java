@@ -4,11 +4,13 @@ import java.nio.FloatBuffer;
 
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.cocos2dj.base.Size;
+import com.cocos2dj.basic.BaseInput;
 import com.cocos2dj.basic.Engine;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.renderer.Viewport;
@@ -18,11 +20,12 @@ import com.cocos2dj.base.Rect;
 /**
  * Glview.java
  * <p>
- * 主要是屏幕适配相关功能
+ * <li>屏幕适配相关功能
+ * <li>触摸事件分发 (为了适配cocos2dx的架构放到这里)
  * 
  * @author Copyright (c) 2017 xu jun
  */
-public class GLView {
+public class GLView implements InputProcessor {
 	
 	public GLView() {
 		if(Gdx.app.getType() == ApplicationType.Desktop) {
@@ -30,6 +33,8 @@ public class GLView {
 		} else {
 			setFrameSize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 		}
+		
+		BaseInput.instance().addInputProcessor(this);
 		CCLog.engine(TAG, "glview init -> size = " + getFrameSize());
 	}
 
@@ -185,16 +190,7 @@ public class GLView {
         float h = params[3] / _scaleY;
         return (Rect) poolRect.set(x, y, w, h);
     }
-
-//    virtual void setViewName(const std::string& viewname);
-//    const std::string& getViewName() const;
-
-//    /** Touch events are handled by default; if you want to customize your handlers, please override these functions: */
-//    virtual void handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[]);
-//    virtual void handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[]);
-//    virtual void handleTouchesEnd(int num, intptr_t ids[], float xs[], float ys[]);
-//    virtual void handleTouchesCancel(int num, intptr_t ids[], float xs[], float ys[]);
-
+    
     /**
      * Get the opengl view port rectangle.
      */
@@ -295,4 +291,61 @@ public class GLView {
     float _scaleX = 1f;
     float _scaleY = 1f;
     ResolutionPolicy _resolutionPolicy;
+
+    
+    ///////////////////////////////////
+    //TODO touch events
+//  virtual void setViewName(const std::string& viewname);
+//  const std::string& getViewName() const;
+
+//  /** Touch events are handled by default; if you want to customize your handlers, please override these functions: */
+//  virtual void handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[]);
+//  virtual void handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[]);
+//  virtual void handleTouchesEnd(int num, intptr_t ids[], float xs[], float ys[]);
+//  virtual void handleTouchesCancel(int num, intptr_t ids[], float xs[], float ys[]);
+
+    public void removeSelf() {
+    	BaseInput.instance().removeInputProcessor(this);
+    }
+    
+	@Override
+	public boolean keyDown(int keycode) {
+//		System.out.println("key down!!");
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		return false;
+	}
 };

@@ -220,17 +220,6 @@ public class ActionManagerTests extends TestSuite {
 //					MoveBy.create(1, -900, -300)
 					), 1));
 			sprite2.runAction(MoveBy.create(4, 0, 300));
-			
-			//组合测试
-//			sprite2.runAction(
-//					Sequence.create(
-//					MoveBy.create(1.5f, -900, -100),
-//					Repeat.create(Sequence.create(
-//							MoveBy.create(0.2f, 0, 100),
-//							MoveBy.create(0.2f, 50, -100)
-//							), 5),
-//					MoveBy.create(1, 600, 100)
-//					));
 		}
 	}
 }
