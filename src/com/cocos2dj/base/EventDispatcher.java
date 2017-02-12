@@ -395,6 +395,7 @@ public class EventDispatcher {
     	
     	if(event.getType() == Event.Type.TOUCH) {
     		dispatchTouchEvent((EventTouch) event);
+    		_inDispatch -= 1;
     		return;
     	}
     	
@@ -959,16 +960,16 @@ public class EventDispatcher {
             switch (event.getEventCode())
             {
                 case BEGAN:
-                	listener.onTouchBegan(mutableTouches, event);
+                	listener.onTouchesBegan(mutableTouches, event);
                     break;
                 case MOVED:
-                	listener.onTouchMoved(mutableTouches, event);
+                	listener.onTouchesMoved(mutableTouches, event);
                     break;
                 case ENDED:
-                	listener.onTouchEnded(mutableTouches, event);
+                	listener.onTouchesEnded(mutableTouches, event);
                     break;
                 case CANCELLED:
-                	listener.onTouchCancelled(mutableTouches, event);
+                	listener.onTouchesCancelled(mutableTouches, event);
                     break;
                 default:
                     assert false: "The eventcode is invalid.";

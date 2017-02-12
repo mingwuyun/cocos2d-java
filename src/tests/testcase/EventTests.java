@@ -2,6 +2,7 @@ package tests.testcase;
 
 import com.cocos2dj.base.Event;
 import com.cocos2dj.base.EventDispatcher;
+import com.cocos2dj.base.EventListenerKeyboard;
 import com.cocos2dj.base.EventListenerTouchOneByOne;
 import com.cocos2dj.base.EventListenerTouchOneByOne.TouchCallback;
 import com.cocos2dj.base.Touch;
@@ -37,36 +38,26 @@ public class EventTests extends TestSuite {
 			
 			EventDispatcher ed = _director.getEventDispatcher();
 			
+			//add touch listener
 			EventListenerTouchOneByOne l = EventListenerTouchOneByOne.create();
-			l.setTouchCallback(new TouchCallback() {
-
-				@Override
-				public boolean onTouchBegan(Touch touch, Event event) {
-					System.out.println("onTouchBegam!");
-					return true;
-				}
-
-				@Override
-				public void onTouchMoved(Touch touch, Event event) {
-					
-				}
-
-				@Override
-				public void onTouchEnded(Touch touch, Event event) {
-					
-				}
-
-				@Override
-				public void onTouchCancelled(Touch touch, Event event) {
-					
-				}
-				
+			l.setOnTouchBeganCallback((touch, event)->{
+				System.out.println("began" + touch.getLocation());
+				return true;
+			});
+			l.setOnTouchMovedCallback((touch, event)->{
+				System.out.println("moved > touch = " + touch);
+			});
+			l.setOnTouchEndedCallback((touch, event)->{
+				System.out.println("end > touch = " + touch.getLocation());
 			});
 			ed.addEventListenerWithSceneGraphPriority(l, this);
-//			_e
-//			node.setOnTransformCallback((n)->{
-//				System.out.println("updateTransform = " + node.getPosition());
-//			});
+			
+			//add keylistener
+			EventListenerKeyboard kl = EventListenerKeyboard.create();
+			kl.setOnKeyPressedCallback((key, e)->{
+				System.out.println("key is " + key);
+			});
+			ed.addEventListenerWithSceneGraphPriority(kl, this);
 			
 			DrawNode dn = new DrawNode();
 			addChild(dn);

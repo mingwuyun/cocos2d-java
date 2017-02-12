@@ -40,7 +40,7 @@ public class EventTouch extends Event {
    
    
    /**不要调用 */
-   public void _clearTouch() {
+   public final void _clearTouch() {
 	   _touches.clear();
    }
    

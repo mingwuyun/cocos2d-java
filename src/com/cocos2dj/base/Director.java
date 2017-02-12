@@ -395,13 +395,32 @@ public class Director {
         }
     }
 
+    
     /** converts a UIKit coordinate to an OpenGL coordinate
      Useful to convert (multi) touch coordinates to the current layout (portrait or landscape)
      @return <b>pool object</b>
      */
     public Vector2 convertToGL(Vector2 point) {
+    	Size fSize = _openGLView.getFrameSize();
+    	Size glSize = _openGLView.getDesignResolutionSize();
+    	float x = point.x * glSize.width / fSize.width;
+    	float y = (fSize.height - point.y) * glSize.height / fSize.height;
+    	return stackVec2_1.set(x, y);
     	
-    	return null;
+//    	Matrix4 transform = stackM4_1;
+//    	GLToClipTransform(transform);
+////    	float zClip = transform.val[Matrix4.M32] / transform.val[Matrix4.M33];
+//    	Matrix4 transformInv = transform.inv();
+//
+//    	System.out.println("point = " + point);
+//    	Size glSize = _openGLView.getDesignResolutionSize();
+//    	
+////    	System.out.println(glSize);
+//    	
+//    	Vector3 clipCoord = stackVec3_1.set(2f * point.x/glSize.width - 1f, 1f - 2f * point.y/glSize.height, 1);
+//    	Vector3 glCoord = clipCoord.mul(transformInv);
+//    	System.out.println(transformInv);
+//    	return stackVec2_1.set(glCoord.x, glCoord.y);
     }
 
     /** converts an OpenGL coordinate to a UIKit coordinate
@@ -409,8 +428,18 @@ public class Director {
      @return <b>pool object</b>
      */
     public Vector2 convertToUI(Vector2 point) {
-    	
-    	return null;
+    	Size fSize = _openGLView.getFrameSize();
+    	Size glSize = _openGLView.getDesignResolutionSize();
+    	float x = point.x * glSize.width / fSize.width;
+    	float y = point.y * glSize.height / fSize.height;
+    	return stackVec2_1.set(x, y);
+//    	GLToClipTransform(transform);
+//    	float zClip = transform.val[Matrix4.M32] / transform.val[Matrix4.M33];
+//    	Matrix4 transformInv = transform.inv();
+//
+//    	Size glSize = _openGLView.getDesignResolutionSize();
+//    	Vector3 clipCoord = stackVec3_1.set(0, 0, zClip);
+//    	return null;
     }
    
     /// XXX: missing description 
@@ -902,6 +931,27 @@ public class Director {
     Renderer _renderer;
 
     public boolean _isStatusLabelUpdated;
+    
+    private static final Vector2 stackVec2_1 = new Vector2();
+//    private static final Matrix4 stackM4_1 = new Matrix4();
+//    private static final Vector3 stackVec3_1 = new Vector3();
+    public static void GLToClipTransform(Matrix4 transformOut) {
+        if(null == transformOut) return;
+        
+        Director director = Director.getInstance();
+
+        Matrix4 projection = director.getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION);
+        Matrix4 modelview = director.getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_MODELVIEW);
+        
+//        System.out.println(projection);
+//        System.out.println(modelview);
+        
+        //?
+        transformOut.set(projection);
+        transformOut.mul(modelview);
+//        *transformOut = projection * modelview;
+    }
+    
 //#if  (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
 //    /* Console for the director */
 //    Console *_console;

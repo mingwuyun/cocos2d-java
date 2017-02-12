@@ -27,12 +27,16 @@ public class BaseInput {
 	
 	InputEventQueue 	_inputQueue;
 	InputMultiplexer 	_multiplexer;
+	InputMultiplexer	_rootMultiPlexer;
 	
 	
 	final void init() {
+		_rootMultiPlexer = new InputMultiplexer();
 		_multiplexer = new InputMultiplexer();
 		_inputQueue = new InputEventQueue(_multiplexer);
-		Gdx.input.setInputProcessor(_inputQueue);
+		
+		_rootMultiPlexer.addProcessor(_inputQueue);
+		Gdx.input.setInputProcessor(_rootMultiPlexer);
 	}
 	
 	final void update() {

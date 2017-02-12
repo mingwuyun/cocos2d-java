@@ -153,4 +153,12 @@ public final class Touch {
     private float _maxForce;
     
     static Vector2 stackVec2 = new Vector2();
+    
+    
+    public String toString() {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("id = ").append(_id);
+    	sb.append(" point = ").append(_point).append(' ');
+    	return sb.toString();
+    }
 }

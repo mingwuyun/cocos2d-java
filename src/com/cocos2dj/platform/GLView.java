@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.BufferUtils;
+
 import com.cocos2dj.base.Size;
 import com.cocos2dj.base.Touch;
 import com.cocos2dj.base.EventTouch.EventCode;
@@ -20,7 +21,8 @@ import com.cocos2dj.renderer.Viewport;
 import com.cocos2dj.utils.ObjectPoolBuilder;
 import com.cocos2dj.utils.ObjectPoolLinear;
 import com.cocos2dj.base.Director;
-import com.cocos2dj.base.EventListenerKeyboard;
+import com.cocos2dj.base.EventDispatcher;
+import com.cocos2dj.base.EventKeyboard;
 import com.cocos2dj.base.EventTouch;
 import com.cocos2dj.base.Rect;
 
@@ -42,6 +44,7 @@ public class GLView implements InputProcessor {
 		}
 
 if(CCMacros.USE_CC_TOUCH_LISTENER) {
+		_eventDispatcher = Director.justInstance().getEventDispatcher();
 		BaseInput.instance().addInputProcessor(this);
 		createPools();
 }
@@ -315,24 +318,40 @@ if(CCMacros.USE_CC_TOUCH_LISTENER) {
 //  virtual void handleTouchesEnd(int num, intptr_t ids[], float xs[], float ys[]);
 //  virtual void handleTouchesCancel(int num, intptr_t ids[], float xs[], float ys[]);
     private ObjectPoolLinear<EventTouch> 				stackTouchEvent;
-    private ObjectPoolLinear<EventListenerKeyboard>		stackKeyboardEvent;
+    private ObjectPoolLinear<EventKeyboard>				stackKeyboardEvent;
+    private ObjectPoolLinear<Touch>						stackTouch;
+    EventDispatcher	_eventDispatcher;
     
     public void removeSelf() {
     	BaseInput.instance().removeInputProcessor(this);
+    	_eventDispatcher = null;
     }
     
     final void createPools() {
     	stackTouchEvent = ObjectPoolBuilder.<EventTouch>startBuilder().setInitCount(8).setAddCount(2).setClass(EventTouch.class).create();
-    	stackKeyboardEvent = ObjectPoolBuilder.<EventListenerKeyboard>startBuilder().setInitCount(8).setAddCount(2).setClass(EventListenerKeyboard.class).create();
+    	stackKeyboardEvent = ObjectPoolBuilder.<EventKeyboard>startBuilder().setInitCount(8).setAddCount(2).setClass(EventKeyboard.class).create();
+    	stackTouch = ObjectPoolBuilder.<Touch>startBuilder().setInitCount(8).setAddCount(2).setClass(Touch.class).create();
     }
     
 	@Override
 	public boolean keyDown(int keycode) {
+if(CCMacros.USE_CC_TOUCH_LISTENER) {
+		EventKeyboard event = stackKeyboardEvent.pop();
+		event.init(keycode, true);
+		_eventDispatcher.dispatchEvent(event);
+		stackKeyboardEvent.push(event);
+}
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
+if(CCMacros.USE_CC_TOUCH_LISTENER) {
+		EventKeyboard event = stackKeyboardEvent.pop();
+		event.init(keycode, false);
+		_eventDispatcher.dispatchEvent(event);
+		stackKeyboardEvent.push(event);
+}
 		return false;
 	}
 
@@ -345,9 +364,15 @@ if(CCMacros.USE_CC_TOUCH_LISTENER) {
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 if(CCMacros.USE_CC_TOUCH_LISTENER) {
 		EventTouch evectTouch = stackTouchEvent.pop();
-		evectTouch._addTouch(new Touch());
+		Touch touch = stackTouch.pop();
+		
+		touch.setTouchInfo(button, screenX, screenY);
+		evectTouch._addTouch(touch);
 		evectTouch.setEventCode(EventCode.BEGAN);
-		Director.getInstance().getEventDispatcher().dispatchTouchEvent(evectTouch);
+		_eventDispatcher.dispatchEvent(evectTouch);
+		
+		stackTouch.push(touch);
+		evectTouch._clearTouch();
 		stackTouchEvent.push(evectTouch);
 }
 		return false;
@@ -357,6 +382,15 @@ if(CCMacros.USE_CC_TOUCH_LISTENER) {
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 if(CCMacros.USE_CC_TOUCH_LISTENER) {
 		EventTouch evectTouch = stackTouchEvent.pop();
+		Touch touch = stackTouch.pop();
+		
+		touch.setTouchInfo(button, screenX, screenY);
+		evectTouch._addTouch(touch);
+		evectTouch.setEventCode(EventCode.ENDED);
+		_eventDispatcher.dispatchEvent(evectTouch);
+		
+		stackTouch.push(touch);
+		evectTouch._clearTouch();
 		stackTouchEvent.push(evectTouch);
 }
 		return false;
@@ -366,6 +400,14 @@ if(CCMacros.USE_CC_TOUCH_LISTENER) {
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 if(CCMacros.USE_CC_TOUCH_LISTENER) {
 			EventTouch evectTouch = stackTouchEvent.pop();
+			Touch touch = stackTouch.pop();
+			
+			touch.setTouchInfo(pointer, screenX, screenY);
+			evectTouch._addTouch(touch);
+			evectTouch.setEventCode(EventCode.MOVED);
+			_eventDispatcher.dispatchEvent(evectTouch);
+			
+			stackTouch.push(touch);
 			stackTouchEvent.push(evectTouch);
 }		
 		return false;
