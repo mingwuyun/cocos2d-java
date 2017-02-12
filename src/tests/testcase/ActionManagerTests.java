@@ -1,6 +1,8 @@
 package tests.testcase;
 
 import com.cocos2dj.s2d.ActionInterval.BezierBy;
+import com.cocos2dj.s2d.ActionInterval.JumpBy;
+import com.cocos2dj.s2d.ActionInterval.JumpTo;
 import com.cocos2dj.s2d.ActionInterval.MoveBy;
 import com.cocos2dj.s2d.ActionInterval.MoveTo;
 import com.cocos2dj.s2d.ActionInterval.Repeat;
@@ -22,6 +24,7 @@ import tests.TestSuite;
 public class ActionManagerTests extends TestSuite {
 	
 	public ActionManagerTests() {
+		addTestCase("jumpTest", ()->{return new ActionJumpTest();});
 		addTestCase("BezierTest", ()->{return new ActionBezierTest();});
 		addTestCase("SpawnRotateTest", ()->{return new ActionSpawnTest();});
 		addTestCase("RepeatTest", ()->{return new ActionRepeatTest();});
@@ -191,6 +194,47 @@ public class ActionManagerTests extends TestSuite {
 			sprite4.runAction(RotateTo.create(2, 120));
 		}
 	}	
+	
+	//TODO JumpTest 跳跃测试
+	static class ActionJumpTest extends ActionManagerTest {
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			Sprite sprite1 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite1.setRect(0, 0, 100, 120);
+			sprite1.setPosition(100, 420);
+			
+			//JumpBy
+			sprite1.runAction(Repeat.create(Sequence.create(
+					JumpBy.create(2, 900, 0, 200, 2),
+					JumpBy.create(2, 0, 0, 450, 2)
+					), 1));
+			sprite1.runAction(MoveBy.create(4f, 0, -300));
+			
+			//JumpTo
+			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite2.setRect(0, 0, 100, 120);
+			sprite2.setPosition(100, 420);
+//			JumpTo.crate(2, 900, 500, 200, 2);
+			sprite2.runAction(Repeat.create(Sequence.create(
+					JumpTo.create(2, 900, 500, 200, 2),
+					JumpTo.create(2, 100, 100, 450, 2)
+					), 1));
+			
+//			//组合MoveBy + BezierBy
+//			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+//			sprite2.setRect(0, 0, 100, 120);
+//			sprite2.setPosition(100, 220);
+//			
+//			sprite2.runAction(Repeat.create(Sequence.create(
+//					BezierBy.create(2, 900, 0, 450, 300),
+//					BezierBy.create(2, -900, 0, -450, 300)
+////					MoveBy.create(1, -900, -300)
+//					), 1));
+//			sprite2.runAction(MoveBy.create(4, 0, 300));
+		}
+	}
 	
 	//TODO BezierTest 贝塞尔曲线
 	static class ActionBezierTest extends ActionManagerTest {

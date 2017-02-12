@@ -24,7 +24,7 @@ public class ModuleBase2d extends Module implements IUpdater {
 	
 	public static final String ModuleId = "Base2D";
 	public static final String ModuleType = "Physics2D";
-
+	public static final int ModulePriority = 1;	//模块更新优先级：设为1，在action之后调用；确保action生效
 	
 	public ModuleBase2d() {
 		super(ModuleId, ModuleType);
@@ -46,7 +46,7 @@ public class ModuleBase2d extends Module implements IUpdater {
 		if(updater != null) {
 			updater.kill();
 		}
-		updater =  Director.getInstance().getScheduler().mainSchedulePerFrame(this, physicsScene, 0, false);
+		updater =  Director.getInstance().getScheduler().mainSchedulePerFrame(this, physicsScene, ModulePriority, false);
 	}
 
 	@Override

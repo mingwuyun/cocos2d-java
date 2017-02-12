@@ -70,6 +70,16 @@ public class ModuleManager {
 	
 	/**检测模块是否可以安装 不能重复添加*/
 	private boolean checkModule(Module module) {
+		for(int i = 0; i < modules.size; ++i) {
+			Module temp = modules.get(i);
+			if(module.moduleType.equals(temp.moduleType)) {
+				//同样类型模块只能添加一个
+				CCLog.engine("ModuleManager", "module has same type : " + temp.moduleType);
+				return false;
+			}
+		}
+		
+		
 		if(modules.contains(module, true)) {
 			CCLog.engine("ModuleManager", "module already exists");
 			return false;

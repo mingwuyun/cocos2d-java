@@ -16,6 +16,7 @@ import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.module.base2d.framework.collision.Polygon;
 import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.protocol.INode;
+import com.cocos2dj.s2d.ActionInterval.JumpBy;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
 import com.cocos2dj.s2d.Scene;
@@ -335,6 +336,16 @@ public class Base2dTests extends TestSuite {
 				return false;
 			}, 2);
 			
+			
+			DrawNode test = (DrawNode) DrawNode.create().addTo(this);
+			test.drawSolidRect(0, 0, 100, 100, Color.GREEN);
+			moduleBase2d.createDynamicObjectWithAABB(0, 0, 100, 100).bindNode(test);
+			
+			//部分action对physics有效
+			test.setPosition(200, 200);
+			test.runAction(JumpBy.create(2f, 0, 0, 300, 1));
+			
+//			ComtestPhy 
 //			DrawNode groundPolygon = (DrawNode) DrawNode.create().addTo(this);
 //			
 //			float[] points = new float[]{

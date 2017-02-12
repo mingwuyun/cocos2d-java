@@ -919,5 +919,283 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 //	    Vec2 _previousPosition;
    }
    
+   ////////////////////////////////////////////////////
+   //TODO JumpBy
+   public static class JumpBy extends ActionInterval {
+	   /** 
+	     * Creates the action.
+	     * @param duration Duration time, in seconds.
+	     * @param position The jumping distance.
+	     * @param height The jumping height.
+	     * @param jumps The jumping times.
+	     * @return An autoreleased JumpBy object.
+	     */
+	    public static JumpBy create(float duration, Vector2 position, float height, int jumps) {
+	    	return create(duration, position.x, position.y, height, jumps);
+	    }
+	    
+	    /** 
+	     * Creates the action.
+	     * @param duration Duration time, in seconds.
+	     * @param posX The jumping distance X.
+	     * @param posY The jumping distance Y.
+	     * @param height The jumping height.
+	     * @param jumps The jumping times.
+	     * @return An autoreleased JumpBy object.
+	     */
+	    public static JumpBy create(float duration, float posX, float posY, float height, int jumps) {
+	    	JumpBy ret = new JumpBy();
+	    	if(ret.initWithDuration(duration, posX, posY, height, jumps)) {
+	    		return ret;
+	    	}
+	    	return null;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public JumpBy copy() {
+	    	return JumpBy.create(_duration, _deltaX, _deltaY, _height, _jumps);
+	    }
+	    public JumpBy reverse() {
+	    	return JumpBy.create(_duration, -_deltaX, -_deltaY, _height, _jumps);
+	    }
+	    public void startWithTarget(INode target) {
+	    	super.startWithTarget(target);
+	    	_prevPositionX = _startPositionX = _target.getPositionX();
+	    	_prevPositionY = _startPositionY = _target.getPositionY();
+	    }
+	    /**
+	     * @param time In seconds.
+	     */
+	    public void update(float t) {
+	        // parabolic jump (since v0.8.2)
+	        if (_target != null) {
+	            float frac = t * _jumps % 1.0f;
+	            float y = _height * 4 * frac * (1 - frac);
+	            y += _deltaY * t;
+	
+	            float x = _deltaX * t;
+if(CC_ENABLE_STACKABLE_ACTIONS) {
+	            float currentPosX = _target.getPositionX();
+	            float currentPosY = _target.getPositionY();
+	
+	            float diffX = currentPosX - _prevPositionX;
+	            float diffY = currentPosY - _prevPositionY;
+	            
+	            _startPositionX = diffX + _startPositionX;
+	            _startPositionY = diffY + _startPositionY;
+	
+	            float newPosX = _startPositionX + x;
+	            float newPosY = _startPositionY + y;
+
+//	            System.out.println("jump>>>");
+	            _target.setPosition(newPosX, newPosY);
+	            
+	            _prevPositionX = newPosX;
+	            _prevPositionY = newPosY;
+} else {
+	            _target.setPosition(_startPositionX + x, _startPositionY + y);
+ }// !CC_ENABLE_STACKABLE_ACTIONS	
+	        }
+	    }
+	    
+	    public JumpBy() {}
+
+	    /** 
+	     * initializes the action
+	     * @param duration in seconds
+	     */
+	    public boolean initWithDuration(float duration, float positionX, float positionY, float height, int jumps) {
+	    	if(jumps < 0) {
+	    		CCLog.error("JumpBy", "JumpBy::initWithDuration error: Number of jumps must be >= 0");
+	    		return false;
+	    	}
+	    	
+	    	if(super.initWithDuration(duration)) {
+	    		_deltaX = positionX;
+	    		_deltaY = positionY;
+	    		_height = height;
+	    		_jumps = jumps;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+
+	    protected float _startPositionX;
+	    protected float _startPositionY;
+	    protected float _deltaX;
+	    protected float _deltaY;
+	    protected float _prevPositionX;
+	    protected float _prevPositionY;
+	    float           _height;
+	    int             _jumps;
+   }
    
+   ///////////////////////////////////////////////////
+   //TODO JumpTo
+   public static class JumpTo extends JumpBy {
+	   /** 
+	     * Creates the action.
+	     * @param duration Duration time, in seconds.
+	     * @param position The jumping destination position.
+	     * @param height The jumping height.
+	     * @param jumps The jumping times.
+	     * @return An autoreleased JumpTo object.
+	     */
+	    public static JumpTo create(float duration, Vector2 position, float height, int jumps) {
+	    	return JumpTo.create(duration, position.x, position.y, height, jumps);
+	    }
+	    
+	    /** 
+	     * Creates the action.
+	     * @param duration Duration time, in seconds.
+	     * @param x The jumping destination position X.
+	     * @param y The jumping destination position Y.
+	     * @param height The jumping height.
+	     * @param jumps The jumping times.
+	     * @return An autoreleased JumpTo object.
+	     */
+	    public static JumpTo create(float duration, float x, float y, float height, int jumps) {
+	    	JumpTo ret = new JumpTo();
+	    	if(ret.initWithDuration(duration, x, y, height, jumps)) {
+	    		return ret;
+	    	}
+	    	return null;
+	    }
+
+	    //
+	    // Override
+	    //
+	     public void startWithTarget(INode target) {
+	    	 super.startWithTarget(target);
+	    	 _deltaX = _endPositionX - _startPositionX;
+	    	 _deltaY = _endPositionY - _startPositionY;
+	    	 System.out.println(" " + _deltaX + ", " + _deltaY);
+	     }
+	     
+	     public JumpTo copy() {
+	    	 JumpTo ret = JumpTo.create(_duration, _endPositionX, _endPositionY, _height, _jumps);
+	    	 return ret;
+	     }
+	     public JumpTo reverse() {
+	    	 throw new RuntimeException("JumpTo doesn't support the 'reverse' method");
+	     }
+
+	    public JumpTo() {}
+	    /** 
+	     * initializes the action
+	     * @param duration In seconds.
+	     */
+	    public boolean initWithDuration(float duration, float x, float y, float height, int jumps) {
+	    	if(_jumps < 0) {
+	    		CCLog.error("JumpTo", "JumpTo::initWithDuration error: Number of jumps must be >= 0");
+	    		return false;
+	    	}
+	    	
+	    	if(super.initWithDuration(duration)) {
+	    		_endPositionX = x;
+	    		_endPositionY = y;
+	    		_height = height;
+	    		_jumps = jumps;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+
+	    protected float _endPositionX;
+	    protected float _endPositionY;
+   }
+   
+   ////////////////////////////////////////////////////
+   //TODO ScaleTo
+   public static class ScaleTo extends ActionInterval {
+	   /** 
+	     * Creates the action with the same scale factor for X and Y.
+	     * @param duration Duration time, in seconds.
+	     * @param s Scale factor of x and y.
+	     * @return An autoreleased ScaleTo object.
+	     */
+	    public static ScaleTo create(float duration, float s) {
+	    	ScaleTo ret = new ScaleTo();
+	    	ret.initWithDuration(duration, s);
+	    	return ret;
+	    }
+	
+	    /** 
+	     * Creates the action with and X factor and a Y factor.
+	     * @param duration Duration time, in seconds.
+	     * @param sx Scale factor of x.
+	     * @param sy Scale factor of y.
+	     * @return An autoreleased ScaleTo object.
+	     */
+	    public static ScaleTo create(float duration, float sx, float sy) {
+	    	ScaleTo ret = new ScaleTo();
+	    	ret.initWithDuration(duration, sx, sy);
+	    	return ret;
+	    }
+	
+	    //
+	    // Overrides
+	    //
+	     public ScaleTo copy() {
+	    	 return ScaleTo.create(_duration, _endScaleX, _endScaleY);
+	     }
+	     public ScaleTo reverse() {
+	    	 throw new RuntimeException("JumpTo doesn't support the 'reverse' method");
+	     }
+	     
+	     public void startWithTarget(INode target) {
+	    	 super.startWithTarget(target);
+	    	 _startScaleX = _target.getScaleX();
+	    	 _startScaleY = _target.getScaleY();
+	    	 _deltaX = _endScaleX - _startScaleX;
+	    	 _deltaY = _endScaleY - _startScaleY;
+	     }
+	     
+	    /**
+	     * @param time In seconds.
+	     */
+	     public void update(float time) {
+	    	 _target.setScaleX(_startScaleX + _deltaX * time);
+	    	 _target.setScaleY(_startScaleY + _deltaY * time);
+	     }
+	     
+	    
+	    public ScaleTo() {}
+	
+	    /** 
+	     * initializes the action with the same scale factor for X and Y
+	     * @param duration in seconds
+	     */
+	    public boolean initWithDuration(float duration, float s) {
+	    	if(super.initWithDuration(duration)) {
+	    		_endScaleX = s;
+	    		_endScaleY = s;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+	    /** 
+	     * initializes the action with and X factor and a Y factor 
+	     * @param duration in seconds
+	     */
+	    public boolean initWithDuration(float duration, float sx, float sy) {
+	    	if(super.initWithDuration(duration)) {
+	    		_endScaleX = sx;
+	    		_endScaleY = sy;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+	
+	    protected float _scaleX;
+	    protected float _scaleY;
+	    protected float _startScaleX;
+	    protected float _startScaleY;
+	    protected float _endScaleX;
+	    protected float _endScaleY;
+	    protected float _deltaX;
+	    protected float _deltaY;
+   }
 }
