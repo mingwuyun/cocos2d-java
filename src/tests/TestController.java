@@ -7,6 +7,7 @@ import com.cocos2dj.base.Touch;
 
 import tests.testcase.ActionManagerTests;
 import tests.testcase.Base2dTests;
+import tests.testcase.BehaviorTreeTests;
 import tests.testcase.CameraTests;
 import tests.testcase.DrawNodeTests;
 import tests.testcase.EventTests;
@@ -123,6 +124,7 @@ public class TestController {
     		addTest("DrawNodeTests", ()->{return new DrawNodeTests();});
     		addTest("TypeFactoryTests", ()->{return new TypeFactoryTests();});
     		addTest("VisUITests", ()->{return new VisUITests();});
+    		addTest("BehaviorTreeTests", ()->{return new BehaviorTreeTests();});
     		addTest("test_test7", ()->{return new TestCaseSimple();});
     	}
     	

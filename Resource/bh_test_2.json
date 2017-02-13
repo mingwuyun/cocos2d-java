@@ -1,0 +1,14 @@
+{
+	"selector":{
+		"parallel":{
+			"leaf":{"key":"atk_checkPlayer"},
+			"leaf":{"key":"atk_move"},
+			"leaf":{"key":"atk_shot"},
+		},
+
+		"parallel":{
+			"leaf":{"key":"idle_checkPlayer"},
+			"leaf":{"key":"idle_move"},
+		},
+	}
+}
