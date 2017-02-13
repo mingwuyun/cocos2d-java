@@ -14,6 +14,7 @@ import tests.testcase.NodeTests;
 import tests.testcase.ShaderTests;
 import tests.testcase.SpriteTests;
 import tests.testcase.TypeFactoryTests;
+import tests.testcase.VisUITests;
 
 /**
  * 测试
@@ -121,6 +122,7 @@ public class TestController {
     		addTest("Base2DPhysicsTests", ()->{return new Base2dTests();});
     		addTest("DrawNodeTests", ()->{return new DrawNodeTests();});
     		addTest("TypeFactoryTests", ()->{return new TypeFactoryTests();});
+    		addTest("VisUITests", ()->{return new VisUITests();});
     		addTest("test_test7", ()->{return new TestCaseSimple();});
     	}
     	

@@ -4,6 +4,7 @@ import com.cocos2dj.module.Module;
 import com.cocos2dj.module.gdxui.ModuleGdxUI;
 import com.cocos2dj.protocol.IScene;
 import com.cocos2dj.s2d.Scene;
+import com.kotcrab.vis.ui.VisUI;
 
 /**
  * ModuleVisUI.java
@@ -33,9 +34,12 @@ public class ModuleVisUI extends Module {
 	@Override
 	public void onEnter(IScene iscene, Object config) {
 		Scene scene = (Scene) iscene;
-		ModuleGdxUI _gdxui = (ModuleGdxUI) scene.getModule(ModuleGdxUI.class);
+		_gdxui = (ModuleGdxUI) scene.getModule(ModuleGdxUI.class);
 		if(_gdxui == null) {
 			_gdxui = scene.createModule(ModuleGdxUI.class);
+		}
+		if(!VisUI.isLoaded()) {
+			VisUI.load();	
 		}
 	}
 	
@@ -44,6 +48,12 @@ public class ModuleVisUI extends Module {
 		
 	}
 	
+	
+	//methods>>
+//	public void 
+	//methods<<
+	
+	public final ModuleGdxUI getGdxUI() {return _gdxui;}
 	
 	//fields>>
 	ModuleGdxUI 	_gdxui;
