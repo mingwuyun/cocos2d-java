@@ -1210,4 +1210,51 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    protected float _deltaX;
 	    protected float _deltaY;
    }
+   
+   //////////////////////////////////////
+   //TODO ScaleBy
+   public static class ScaleBy extends ScaleTo {
+	    /** 
+	     * Creates the action with the same scale factor for X and Y.
+	     * @param duration Duration time, in seconds.
+	     * @param s Scale factor of x and y.
+	     * @return An autoreleased ScaleBy object.
+	     */
+	    public static ScaleBy create(float duration, float s) {
+	    	return ScaleBy.create(duration, s, s);
+	    }
+
+	    /** 
+	     * <b>scaleBy的运行逻辑 newScale = oldScale * deltaScale
+	     * 执行两次scaleBy 1.5f的结果等于执行一次scaleBy 2.25, 而不是3
+	     * </b>
+	     * Creates the action with and X factor and a Y factor.
+	     * @param duration Duration time, in seconds.
+	     * @param sx Scale factor of x.
+	     * @param sy Scale factor of y.
+	     * @return An autoreleased ScaleBy object.
+	     */
+	    public static ScaleBy create(float duration, float sx, float sy) {
+	    	ScaleBy ret = new ScaleBy();
+	    	if(ret.initWithDuration(duration, sx, sy)) {
+	    		return ret;
+	    	}
+	    	return null;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public void startWithTarget(INode target) {
+	    	super.startWithTarget(target);
+	    	_deltaX = _startScaleX * _endScaleX - _startScaleX;
+	    	_deltaY = _startScaleY * _endScaleY - _startScaleY;
+	    }
+	    public ScaleBy copy() {
+	    	return ScaleBy.create(_duration, _endScaleX, _endScaleY);
+	    }
+	    public ScaleBy reverse() {
+	    	return ScaleBy.create(_duration, 1f / _endScaleX, 1f / _endScaleY);
+	    }
+	}
 }

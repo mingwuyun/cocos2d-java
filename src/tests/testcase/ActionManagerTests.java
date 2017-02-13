@@ -10,6 +10,8 @@ import com.cocos2dj.s2d.ActionInterval.Repeat;
 import com.cocos2dj.s2d.ActionInterval.RepeatForever;
 import com.cocos2dj.s2d.ActionInterval.RotateBy;
 import com.cocos2dj.s2d.ActionInterval.RotateTo;
+import com.cocos2dj.s2d.ActionInterval.ScaleBy;
+import com.cocos2dj.s2d.ActionInterval.ScaleTo;
 import com.cocos2dj.s2d.ActionInterval.Sequence;
 import com.cocos2dj.s2d.ActionInterval.Spawn;
 import com.cocos2dj.s2d.Sprite;
@@ -25,6 +27,7 @@ import tests.TestSuite;
 public class ActionManagerTests extends TestSuite {
 	
 	public ActionManagerTests() {
+		addTestCase("ScaleTest", ()->{return new ActionScaleTest();});
 		addTestCase("jumpTest", ()->{return new ActionJumpTest();});
 		addTestCase("BezierTest", ()->{return new ActionBezierTest();});
 		addTestCase("SpawnRotateTest", ()->{return new ActionSpawnTest();});
@@ -260,6 +263,39 @@ public class ActionManagerTests extends TestSuite {
 //					MoveBy.create(1, -900, -300)
 					), 1));
 			sprite2.runAction(MoveBy.create(4, 0, 300));
+		}
+	}
+	
+	//TODO ScaleTest 放缩动作测试
+	static class ActionScaleTest extends ActionManagerTest {
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			Sprite sprite1 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite1.setRect(0, 0, 100, 120);
+			sprite1.setPosition(100, 220);
+			sprite1.setAnchorPoint(0, 0);
+			//单独运行ScaleBy
+			sprite1.runAction(Repeat.create(Sequence.create(
+					ScaleBy.create(0.25f, 2f, 2f),
+					ScaleBy.create(.25f, .5f, .5f)
+					), 5));
+			
+			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite2.setRect(0, 0, 100, 120);
+			sprite2.setPosition(100, 220);
+			
+			//单独运行ScaleTo + BezierBy
+			sprite2.runAction(Repeat.create(Sequence.create(
+					ScaleTo.create(.5f, 2f, 2f),
+					ScaleTo.create(.5f, 1f, 1f),
+					CallFunc.create(()->{System.out.println("scaleTo sequence end");})
+					), 5));
+			sprite2.runAction(Repeat.create(Sequence.create(
+					BezierBy.create(2, 900, 0, 450, 300),
+					BezierBy.create(2, -900, 0, -450, 300)
+					), 1));
 		}
 	}
 }
