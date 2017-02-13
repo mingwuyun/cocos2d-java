@@ -20,7 +20,7 @@ import com.kotcrab.vis.ui.VisUI;
  * </pre>
  * @author Copyright (c) 2017 xu jun
  */
-public class ModuleVisUI extends Module {
+public class ModuleVisUI extends Module implements VisUIHelper {
 
 	public ModuleVisUI() {
 		super(ModuleId, ModuleType);
@@ -36,11 +36,13 @@ public class ModuleVisUI extends Module {
 		Scene scene = (Scene) iscene;
 		_gdxui = (ModuleGdxUI) scene.getModule(ModuleGdxUI.class);
 		if(_gdxui == null) {
+			//gdx ui 不存在自动添加
 			_gdxui = scene.createModule(ModuleGdxUI.class);
 		}
 		if(!VisUI.isLoaded()) {
 			VisUI.load();	
 		}
+		VisUI.getSizes();
 	}
 	
 	@Override
@@ -50,7 +52,11 @@ public class ModuleVisUI extends Module {
 	
 	
 	//methods>>
-//	public void 
+	public static void disposeVisUI() {
+		VisUI.dispose();
+	}
+	
+	
 	//methods<<
 	
 	public final ModuleGdxUI getGdxUI() {return _gdxui;}

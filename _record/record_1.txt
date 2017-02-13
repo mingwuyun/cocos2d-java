@@ -4,13 +4,21 @@
 + Base2D
 + component系统测试
 
+
+
++ TypeFactory
++ ActionManager
+	+ runAction的逻辑修改为并行执行
+
 # FrameBuffer (推后)
 # Box2D (推后) 
 
-# TypeFactory
+# color相关, 透明度相关
 # renderCall统计
-# ActionManager
-	+ runAction的逻辑修改为并行执行
+# AI插件
+# Vis插件
+# UI系统
 
-# color相关
+
+
 

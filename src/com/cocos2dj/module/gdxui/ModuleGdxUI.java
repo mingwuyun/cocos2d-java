@@ -96,7 +96,6 @@ public class ModuleGdxUI extends Module {
 	public void addUIDefault(Actor actor) {
 		if(_defaultGroup == null) {
 			_defaultGroup = new Group();
-			
 			//stage 如果已创建就直接添加
 			if(_stage != null) {
 				_stage.addActor(_defaultGroup);
@@ -180,6 +179,7 @@ public class ModuleGdxUI extends Module {
 		}
 		
 		_stage = new Stage();
+//		_stage.s
 		
 		//default存在就添加
 		if(_defaultGroup != null) {
@@ -197,9 +197,12 @@ public class ModuleGdxUI extends Module {
 				_stage.getCamera().viewportWidth/2f, 
 				_stage.getCamera().viewportHeight/2f, 0);
 		
+		_stage.getViewport().setWorldWidth(_config.uiDefaultWidth);
+		_stage.getViewport().setWorldHeight(_config.uiDefaultHeight);
+		
 		BaseInput.instance().addInputProcessor(_stage);
 		Scheduler _scheduler = Director.getInstance().getScheduler();
-		//visit 渲染借时候再处理这个
+		//visit 渲染完再处理这个
 		renderFuncHandler = _scheduler.renderAfterSchedulePerFrame(renderFunc, 0, false);
 		
 		_stage.setDebugAll(false);
