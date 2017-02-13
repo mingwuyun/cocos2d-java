@@ -171,6 +171,10 @@ public class ActionInterval extends FiniteTimeAction {
 	    	super.stop();
 	    }
 	    
+	    public boolean isDone() {
+	    	return _currAction >= _actions.length;
+	    }
+	    
 	    /**
 	     * @param t In seconds.
 	     */
@@ -184,11 +188,18 @@ public class ActionInterval extends FiniteTimeAction {
 			currAction._firstTick = false;
 			currAction._elapsed = currActionElapsed;
 			
+//			System.out.println("currAction = " + _currAction
+//					+ " / maxAction = " + _actions.length);
+//			System.out.println(currActionElapsed + " / " + currAction._duration);
 //			System.out.println("totalDuration = " + _duration);
 //			System.out.println("_elapsed" + _elapsed);
-//			System.out.println("actionDuration = " + currAction._duration);
 			
 			if(currActionElapsed >= currAction._duration) {
+				
+				if(currAction._duration == 0) { //instant action.
+					currAction.update(1f);
+				}
+				
 				_totalTime += currAction._duration;
 				
 				_elapsed = _totalTime;		//防止精度问题，重置为标准时间
@@ -295,7 +306,8 @@ public class ActionInterval extends FiniteTimeAction {
 			_innerAction._firstTick = false;
 			_innerAction._elapsed = currActionElapsed;
 			
-			if(currActionElapsed >= _innerAction._duration) {
+			if(currActionElapsed >= _innerAction._duration 
+					&& _innerAction.isDone()) {	//FIX: 确保完成
 				_elapsed = totalTime + _innerAction._duration;		//防止精度问题，重置为标准时间
 				
 				++_total;
@@ -1071,7 +1083,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    	 super.startWithTarget(target);
 	    	 _deltaX = _endPositionX - _startPositionX;
 	    	 _deltaY = _endPositionY - _startPositionY;
-	    	 System.out.println(" " + _deltaX + ", " + _deltaY);
+//	    	 System.out.println(" " + _deltaX + ", " + _deltaY);
 	     }
 	     
 	     public JumpTo copy() {

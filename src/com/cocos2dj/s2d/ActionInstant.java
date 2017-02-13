@@ -47,72 +47,53 @@ public class ActionInstant extends FiniteTimeAction {
 	     * @return  An autoreleased CallFunc object.
 	     */
 	    public static CallFunc create(Runnable func) {
-	    	
+	    	CallFunc ret = new CallFunc();
+	    	if(ret.initWithFunction(func)) {
+	    		return ret;
+	    	}
+	    	return null;
 	    }
 
 	    /** Executes the callback.
 	     */
 	    public void execute() {
-	    	
+	    	if(_function != null) {
+	    		_function.run();
+	    	}
 	    }
 
-	    /** Get the selector target.
-	     *
-	     * @return The selector target.
-	     */
-	    inline Ref* getTargetCallback()
-	    {
-	        return _selectorTarget;
-	    }
-
-	    /** Set the selector target.
-	     *
-	     * @param sel The selector target.
-	     */
-	    inline void setTargetCallback(Ref* sel)
-	    {
-	        if (sel != _selectorTarget)
-	        {
-	            CC_SAFE_RETAIN(sel);
-	            CC_SAFE_RELEASE(_selectorTarget);
-	            _selectorTarget = sel;
-	        }
-	    }
 	    //
 	    // Overrides
 	    //
 	    /**
 	     * @param time In seconds.
 	     */
-	    virtual void update(float time) override;
-	    virtual CallFunc* reverse() const override;
-	    virtual CallFunc* clone() const override;
-	    
-	CC_CONSTRUCTOR_ACCESS:
-	    CallFunc()
-	    : _selectorTarget(nullptr)
-	    , _callFunc(nullptr)
-	    , _function(nullptr)
-	    {
+	    public void update(float time) {
+	    	execute();
 	    }
-	    virtual ~CallFunc();
+	    public CallFunc reverse() {
+	    	return CallFunc.create(_function);
+	    }
+	    public CallFunc copy() {
+	    	return CallFunc.create(_function);
+	    }
+	    
+//	CC_CONSTRUCTOR_ACCESS:
+	    public CallFunc() {
+	    	
+	    }
 	    
 	    /** initializes the action with the std::function<void()>
 	     * @lua NA
 	     */
-	    bool initWithFunction(const std::function<void()>& func);
+	    public boolean initWithFunction(Runnable func) {
+	    	this._function = func;
+	    	return true;
+	    }
 
-	protected:
-	    /** Target that will be called */
-	    Ref*   _selectorTarget;
-
-	    union
-	    {
-	        SEL_CallFunc    _callFunc;
-	        SEL_CallFuncN    _callFuncN;
-	    };
 	    
 	    /** function that will be called */
-	    std::function<void()> _function;
+	    Runnable	_function;
+//	    std::function<void()> _function;
 	}
 }

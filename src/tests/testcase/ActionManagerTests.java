@@ -1,5 +1,6 @@
 package tests.testcase;
 
+import com.cocos2dj.s2d.ActionInstant.CallFunc;
 import com.cocos2dj.s2d.ActionInterval.BezierBy;
 import com.cocos2dj.s2d.ActionInterval.JumpBy;
 import com.cocos2dj.s2d.ActionInterval.JumpTo;
@@ -206,9 +207,17 @@ public class ActionManagerTests extends TestSuite {
 			sprite1.setPosition(100, 420);
 			
 			//JumpBy
-			sprite1.runAction(Repeat.create(Sequence.create(
+			sprite1.runAction(Repeat.create(
+					Sequence.create(
 					JumpBy.create(2, 900, 0, 200, 2),
-					JumpBy.create(2, 0, 0, 450, 2)
+//					JumpBy.create(2, 0, 0, 450, 2),
+					CallFunc.create(new Runnable(){
+						@Override
+						public void run() {
+							sprite1.runAction(MoveBy.create(4f, -900, 0));
+							System.out.println("Call Func");
+						}
+					})
 					), 1));
 			sprite1.runAction(MoveBy.create(4f, 0, -300));
 			
@@ -216,23 +225,10 @@ public class ActionManagerTests extends TestSuite {
 			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
 			sprite2.setRect(0, 0, 100, 120);
 			sprite2.setPosition(100, 420);
-//			JumpTo.crate(2, 900, 500, 200, 2);
 			sprite2.runAction(Repeat.create(Sequence.create(
 					JumpTo.create(2, 900, 500, 200, 2),
 					JumpTo.create(2, 100, 100, 450, 2)
 					), 1));
-			
-//			//组合MoveBy + BezierBy
-//			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
-//			sprite2.setRect(0, 0, 100, 120);
-//			sprite2.setPosition(100, 220);
-//			
-//			sprite2.runAction(Repeat.create(Sequence.create(
-//					BezierBy.create(2, 900, 0, 450, 300),
-//					BezierBy.create(2, -900, 0, -450, 300)
-////					MoveBy.create(1, -900, -300)
-//					), 1));
-//			sprite2.runAction(MoveBy.create(4, 0, 300));
 		}
 	}
 	
