@@ -17,6 +17,7 @@ import com.cocos2dj.module.base2d.framework.collision.Polygon;
 import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.ActionInterval.JumpBy;
+import com.cocos2dj.s2d.Camera;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
 import com.cocos2dj.s2d.Scene;
@@ -290,12 +291,17 @@ public class Base2dTests extends TestSuite {
 			groundBody.setFriction(1.0f);
 			
 			DrawNode ground2 = (DrawNode) DrawNode.create().addTo(this);
-			ground2.drawSolidRect(1000, 180, 1500, 280, null);
+			ground2.drawSolidRect(0, 0, 500, 100, null);
+			ground2.setPosition(1000, 180);
 			moduleBase2d.createStaticObjectWithAABBWorld(1000, 180, 1500, 280);
+			
+			camera = getDefaultCamera();
+			scheduleUpdate();
 		}
-		
+		Camera camera;
 		public boolean update(float dt) {
 			super.update(dt);
+			camera.setPosition(mario.aim.getPositionX() - 500, mario.aim.getPositionY() - 220);
 			return false;
 		}
 		
