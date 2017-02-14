@@ -102,6 +102,7 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 		if(parent != null) {
 			Vector2 temp = parent.convertToWorldSpace(_owner.getPosition());
 			this.setPosition(temp.x, temp.y);
+//			System.out.println("update set node pos >>>" + temp);
 		} else {
 			Vector2 temp = _owner.getPosition();
 			this.setPosition(temp.x, temp.y);

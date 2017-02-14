@@ -1000,15 +1000,16 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	
 	            float newPosX = _startPositionX + x;
 	            float newPosY = _startPositionY + y;
-
-//	            System.out.println("jump>>>");
+	            
+//	            System.out.println("update action set node pos >>>" + System.nanoTime());
+//	            System.out.println("jump>>>" + _target.getPosition());
 	            _target.setPosition(newPosX, newPosY);
 	            
 	            _prevPositionX = newPosX;
 	            _prevPositionY = newPosY;
 } else {
 	            _target.setPosition(_startPositionX + x, _startPositionY + y);
- }// !CC_ENABLE_STACKABLE_ACTIONS	
+}// !CC_ENABLE_STACKABLE_ACTIONS	
 	        }
 	    }
 	    

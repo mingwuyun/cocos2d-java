@@ -46,7 +46,7 @@ public class ModuleBase2d extends Module implements IUpdater {
 		if(updater != null) {
 			updater.kill();
 		}
-		updater =  Director.getInstance().getScheduler().mainSchedulePerFrame(this, physicsScene, ModulePriority, false);
+		updater =  Director.getInstance().getScheduler().mainSchedulePerFrame(this, ModulePriority, false);
 	}
 
 	@Override

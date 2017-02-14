@@ -2053,6 +2053,7 @@ public class Node implements INode, IUpdater {
 //	    			+ "\n" + parentTransform);
 	        _modelViewTransform = this.transform(parentTransform);
 	        
+//	        System.out.println("trigger trans  " + _physicsCallFlag + " / " + _onTransformCallback);
 	        if(_onTransformCallback != null && !_physicsCallFlag) {
 		    	_onTransformCallback.onTransform(this);
 		    }

@@ -197,7 +197,9 @@ public class Base2D {
 	/**销毁系统处理的场景（主要用于切换）
 	 * 会销毁场景中的物理对象 */
 	public final void destroyScene(){
-//		scene.release();
+		currentScene.release();
+		//将broadPhase等记录清空
+		simulator.reset();
 	}
 	
 	/** 用于物理系统的销毁*/

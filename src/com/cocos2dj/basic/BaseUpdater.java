@@ -66,6 +66,7 @@ public abstract class BaseUpdater {
 	 * @param p
 	 */
 	public void setPriority(int p) {
+		
 		this.priority = p;
 	}
 	

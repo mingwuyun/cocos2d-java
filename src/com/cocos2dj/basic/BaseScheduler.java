@@ -74,9 +74,9 @@ public class BaseScheduler {
 		public void addUpdatable(BaseUpdater update) {
 			update.attach();
 			//当前的优先级小于最后的元素，需要重写排列
-			if(last != null && update.getPriority() < this.last.getPriority()) {
+//			if(last != null && update.getPriority() < this.last.getPriority()) {
 				requestSort();
-			}
+//			}
 			this.add(update);
 		}
 		
@@ -179,6 +179,7 @@ public class BaseScheduler {
 		public final void update(final BaseScheduler schedule, final float dt) {
 			if(this.needModified) {
 				needModified = false;
+				needSort = true;
 				
 				BaseUpdater temp = first;
 				if(updates.length < size) {//创建数据副本
@@ -208,6 +209,7 @@ public class BaseScheduler {
 			final int _size = size;	
 			for(int i = 0; i < _size; ++i) {
 				final BaseUpdater updatable = updates[i];
+//				System.out.println("system herer >>> " + i + " " + updatable.getPriority());
 				BaseUpdater ret = this.handleUpdatable(updatable, dt);
 				if(ret != null) {
 					schedule.add(ret, false);

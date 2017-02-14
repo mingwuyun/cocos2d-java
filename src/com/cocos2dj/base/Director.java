@@ -185,6 +185,7 @@ public class Director {
 		_scheduler = new Scheduler();
 		_actionManager = new ActionManager();
 		_scheduler.scheduleUpdate(_actionManager, Scheduler.PRIORITY_SYSTEM, false);
+//		_scheduler.scheduleUpdate(_actionManager, 100, false);
 		
 		_scenesStack = new Array<>();
 		

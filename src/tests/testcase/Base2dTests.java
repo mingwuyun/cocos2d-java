@@ -332,7 +332,7 @@ public class Base2dTests extends TestSuite {
 			
 			mario = new Mario();
 			mario.init(this);
-			
+//			
 			mario.aim.setPosition(50, 300);
 			
 			
@@ -343,34 +343,17 @@ public class Base2dTests extends TestSuite {
 			}, 2);
 			
 			
-			DrawNode test = (DrawNode) DrawNode.create().addTo(this);
+			
+			Node node = Node.create().addTo(this);
+			DrawNode test = (DrawNode) DrawNode.create().addTo(node);
 			test.drawSolidRect(0, 0, 100, 100, Color.GREEN);
-			moduleBase2d.createDynamicObjectWithAABB(0, 0, 100, 100).bindNode(test);
+			ComponentPhysics phy = moduleBase2d.createDynamicObjectWithAABB(0, 0, 100, 100).bindNode(node);
 			
 			//部分action对physics有效
-			test.setPosition(200, 200);
-			test.runAction(JumpBy.create(2f, 0, 0, 300, 1));
-			
-//			ComtestPhy 
-//			DrawNode groundPolygon = (DrawNode) DrawNode.create().addTo(this);
-//			
-//			float[] points = new float[]{
-//				-400, -10,
-//				400, -10,
-//				400, 200
-//			};
-//			groundPolygon.drawPolygon(points, null);
-//			groundPolygon.setPosition(500, 100);
-//			Polygon shape = new Polygon();
-//			shape.setPoints(points);
-//			
-//			PhysicsObject groundBody = moduleBase2d.createStaticObject(shape, 500, 100);
-//			groundBody.setStaticFriction(1.0f);
-//			groundBody.setFriction(1.0f);
-//			
-//			DrawNode ground2 = (DrawNode) DrawNode.create().addTo(this);
-//			ground2.drawSolidRect(1000, 180, 1500, 280, null);
-//			moduleBase2d.createStaticObjectWithAABBWorld(1000, 180, 1500, 280);
+			node.setPosition(100, 200);
+			JumpBy jb = JumpBy.create(2f, 0, 0, 300, 1);
+			node.runAction(jb);
+			phy.setVelocityX(2f);
 		}
 		
 		public boolean update(float dt) {

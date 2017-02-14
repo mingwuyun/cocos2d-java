@@ -216,7 +216,6 @@ public class ModuleGdxUI extends Module {
 			_stage.dispose();
 			_stage = null;
 		}
-		
 		if(renderFuncHandler != null) {
 			renderFuncHandler.removeSelf();
 			renderFuncHandler = null;
