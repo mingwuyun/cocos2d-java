@@ -1340,7 +1340,7 @@ public class Node implements INode, IUpdater {
      * @return An AABB (axis-aligned bounding-box) in its parent's coordinate system
      */
     public Rect getBoundingBox(final Rect out) {
-    	out.set(0, 0, _contentSize.width, _contentSize.height);
+    	out.set(-_anchorPointInPoints.x, -_anchorPointInPoints.y, _contentSize.width, _contentSize.height);
     	return AffineTransform.RectApplyAffineTransform(out, getNodeToParentAffineTransform(), out);
     }
     /**

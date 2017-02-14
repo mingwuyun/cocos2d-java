@@ -53,10 +53,12 @@ public class NodeTests extends TestSuite {
 //				System.out.println("node bounds = " + node.getBoundingBox());
 			});
 			node.scheduleUpdate();
-//			node.setAnchorPoint(0.5f, .5f);
+			node.setAnchorPoint(0f, 0f);
 			node.runAction(MoveTo.create(2, 1000, 500));
 //			node.runAction(ScaleBy.create(2, 2));
 			node.runAction(RotateBy.create(2, 1000));
+			
+			//bounds 没有考虑：中心点
 		}
 		
 		
