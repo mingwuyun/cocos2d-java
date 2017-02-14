@@ -2,10 +2,8 @@ package tests.testcase;
 
 import com.badlogic.gdx.graphics.Color;
 import com.cocos2dj.base.Rect;
-import com.cocos2dj.protocol.IComponent;
 import com.cocos2dj.s2d.ActionInterval.MoveTo;
 import com.cocos2dj.s2d.ActionInterval.RotateBy;
-import com.cocos2dj.s2d.ActionInterval.ScaleBy;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
 import com.cocos2dj.s2d.Sprite;

@@ -1257,4 +1257,208 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    	return ScaleBy.create(_duration, 1f / _endScaleX, 1f / _endScaleY);
 	    }
 	}
+   
+   	/////////////////////////////////////
+   	//TODO Blink 
+    public static class Blink extends ActionInterval {
+    	/** 
+         * Creates the action.
+         * @param duration Duration time, in seconds.
+         * @param blinks Blink times.
+         * @return An autoreleased Blink object.
+         */
+        public static Blink create(float duration, int blinks) {
+        	Blink ret = new Blink();
+        	if(ret.initWithDuration(duration, blinks)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+        //
+        // Overrides
+        //
+         public Blink copy() {
+        	 return Blink.create(_duration, _times);
+         }
+         public Blink reverse() {
+        	 return Blink.create(_duration, _times);
+         }
+        /**
+         * @param time In seconds.
+         */
+         public void update(float time) {
+        	 if(!isDone()) {
+        		 float slice = 1.0f / _times;
+        		 float m = time % slice;
+        		 _target.setVisible(m > slice/2f);
+        	 }
+         }
+         public void startWithTarget(INode target) { 
+        	 super.startWithTarget(target);
+        	 _originalState = _target.isVisible();
+         }
+         public void stop() { 
+        	 _target.setVisible(_originalState);
+        	 super.stop();
+         }
+        
+        public Blink() {}
+
+        /** 
+         * initializes the action 
+         * @param duration in seconds
+         */
+        public boolean initWithDuration(float duration, int blinks) {
+        	assert blinks>=0: "blinks should be >= 0";
+            if (blinks < 0) {
+                CCLog.error("Blink", "Blink::initWithDuration error:blinks should be >= 0");
+                return false;
+            }
+            if (super.initWithDuration(duration)) {
+                _times = blinks;
+                return true;
+            }
+            return false;
+        }
+        
+        protected int _times;
+        protected boolean _originalState;
+    }
+    
+    //////////////////////////////////
+    //FadeTo
+    public static class FadeTo extends ActionInterval {
+    	/** 
+         * Creates an action with duration and opacity.
+         * @param duration Duration time, in seconds.
+         * @param opacity A certain opacity, the range is from 0 to 255.
+         * @return An autoreleased FadeTo object.
+         */
+        public static FadeTo create(float duration, float opacity) {
+        	FadeTo ret = new FadeTo();
+        	if(ret.initWithDuration(duration, opacity)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+        //
+        // Overrides
+        //
+         public FadeTo clone()  {
+        	 return FadeTo.create(_duration, _toOpacity);
+         }
+         public FadeTo reverse()  {
+        	 throw new RuntimeException("reverse() not supported in FadeTo");
+         }
+         public void startWithTarget(INode target) {
+        	 super.startWithTarget(target);
+        	 _fromOpacity = _target.getOpacity();
+         }
+        /**
+         * @param time In seconds.
+         */
+         public void update(float time) {
+        	 _target.setOpacity(_fromOpacity + (_toOpacity - _fromOpacity) * time);
+         }
+        
+        public FadeTo() {}
+
+        /** 
+         * initializes the action with duration and opacity 
+         * @param duration in seconds
+         */
+        public boolean initWithDuration(float duration, float opacity) {
+        	if(opacity > 1f) {
+        		CCLog.error("FadeTo", "opacity should in range [0, 1]");
+        	}
+        	if(super.initWithDuration(duration)) {
+        		_toOpacity = opacity;
+        		return true;
+        	}
+        	return false;
+        }
+
+    	protected float _toOpacity;
+        protected float _fromOpacity;
+    }
+
+    ///////////////////////////////////////
+    //TODO FadeIn
+    public static class FadeIn extends FadeTo {
+        /** 
+         * Creates the action.
+         * @param d Duration time, in seconds.
+         * @return An autoreleased FadeIn object.
+         */
+        public static FadeIn create(float d) {
+        	FadeIn ret = new FadeIn();
+        	if(ret.initWithDuration(d, 1f)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+        //
+        // Overrides
+        //
+        public void startWithTarget(INode target) {
+        	super.startWithTarget(target);
+        	_toOpacity = 1f;
+        	_fromOpacity = _target.getOpacity();
+        }
+        public FadeIn clone() {
+        	return FadeIn.create(_duration);
+        }
+        public FadeOut reverse() {
+        	return FadeOut.create(_duration);
+//        	FadeOut.create(_duration)
+        }
+
+//        public void setReverseAction(FadeTo ac) {
+//        	this._reverseAction = ac;
+//        }
+
+        public FadeIn() {}
+
+//        protected FadeTo _reverseAction;
+    };
+
+    ///////////////////////////////////////
+    //TODO FadeOut
+    public static class FadeOut extends FadeTo {
+        /** 
+         * Creates the action.
+         * @param d Duration time, in seconds.
+         */
+        public static FadeOut create(float d) {
+        	FadeOut ret = new FadeOut();
+        	if(ret.initWithDuration(d, 0)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+	    //
+	    // Overrides
+	    //
+	    public void startWithTarget(INode target) {
+	    	super.startWithTarget(target);
+	    	_toOpacity = 0f;
+	    	_fromOpacity = _target.getOpacity();
+	    }
+	    public FadeOut clone() {
+	    	return FadeOut.create(_duration);
+	    }
+	    public FadeIn reverse() {
+	    	return FadeIn.create(_duration);
+	    }
+	
+//	    public void setReverseAction(FadeTo ac) {
+//	    	
+//	    }
+	    public FadeOut() {}
+//	    protected FadeTo _reverseAction;
+    }
 }

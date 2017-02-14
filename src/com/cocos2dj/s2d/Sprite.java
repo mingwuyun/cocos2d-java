@@ -501,9 +501,7 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     		_sprite.setSize(_contentSize.width, _contentSize.height);
     		
     		//skew 
-    		
-    		//color
-    		_sprite.setColor(_displayColor);
+    		//...
     	}
     	
     	if(_useCulling) {
@@ -518,9 +516,10 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	} else {
     		_insideBounds = true;
     	}
-    	
+		
     	if(_insideBounds) {
-//    		System.out.println("camera " + _name);
+    		//color
+    		_sprite.setColor(_displayColor);
     		renderer.addBatchCommand(_renderCommand);
     	} 
 //    	else {

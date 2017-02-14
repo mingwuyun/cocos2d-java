@@ -1274,7 +1274,7 @@ public class Node implements INode, IUpdater {
             for( ; i < _children.size; i++ )
             {
                 Node node = _children.get(i);
-                if (node != null && node._localZOrder < 0) {
+                if (node._localZOrder < 0) {
                     node.visit(renderer, _modelViewTransform, flags);
                 } else {
                     break;
@@ -2365,7 +2365,7 @@ public class Node implements INode, IUpdater {
 		updateDisplayedColor(r, g, b);
 	}
 	
-	protected final void disableCascadeColor() {
+	protected void disableCascadeColor() {
 		for(int i = 0; i < _children.size; ++i) {
 			_children.get(i).updateDisplayedColor(1f, 1f, 1f);
 		}

@@ -500,9 +500,9 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     final void pushShapeCommandCell(DrawType type, Color color, ShapeType drawType,
     		float borderWidth, float...vs) {
     	shapeCommandQueues.add(type);
-    	if(color == null) {
-    		color = Color.BLUE;
-    	}
+//    	if(color == null) {
+//    		color = Color.BLUE;
+//    	}
     	shapeCommandQueues.add(color);
     	shapeCommandQueues.add(drawType);
     	shapeCommandQueues.add(borderWidth);
@@ -536,6 +536,10 @@ public class DrawNode extends Node implements ShapeCommandCallback {
     	stackCommand.clear();
     	stackCommand.drawType = (DrawType) shapeCommandQueues.get(currShapePos++);
     	stackCommand.color = (Color) shapeCommandQueues.get(currShapePos++);
+    	// 如果color是null则使用默认颜色
+    	if(stackCommand.color == null) {
+    		stackCommand.color = getDisplayedColor();
+    	}
     	stackCommand.shapeType = (ShapeType) shapeCommandQueues.get(currShapePos++);
     	stackCommand.borderWidth = (float) shapeCommandQueues.get(currShapePos++);
     	int dataLen = (int) shapeCommandQueues.get(currShapePos++);

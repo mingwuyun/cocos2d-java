@@ -2,6 +2,9 @@ package tests.testcase;
 
 import com.cocos2dj.s2d.ActionInstant.CallFunc;
 import com.cocos2dj.s2d.ActionInterval.BezierBy;
+import com.cocos2dj.s2d.ActionInterval.FadeIn;
+import com.cocos2dj.s2d.ActionInterval.FadeOut;
+import com.cocos2dj.s2d.ActionInterval.FadeTo;
 import com.cocos2dj.s2d.ActionInterval.JumpBy;
 import com.cocos2dj.s2d.ActionInterval.JumpTo;
 import com.cocos2dj.s2d.ActionInterval.MoveBy;
@@ -27,6 +30,8 @@ import tests.TestSuite;
 public class ActionManagerTests extends TestSuite {
 	
 	public ActionManagerTests() {
+		
+		addTestCase("FadeTest", ()->{return new ActionFadeTest();});
 		addTestCase("ScaleTest", ()->{return new ActionScaleTest();});
 		addTestCase("jumpTest", ()->{return new ActionJumpTest();});
 		addTestCase("BezierTest", ()->{return new ActionBezierTest();});
@@ -295,6 +300,51 @@ public class ActionManagerTests extends TestSuite {
 			sprite2.runAction(Repeat.create(Sequence.create(
 					BezierBy.create(2, 900, 0, 450, 300),
 					BezierBy.create(2, -900, 0, -450, 300)
+					), 1));
+		}
+	}
+	
+	
+	//TODO FadeTest
+	static class ActionFadeTest extends ActionManagerTest {
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			Sprite sprite1 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite1.setRect(0, 0, 100, 120);
+			sprite1.setPosition(100, 220);
+			sprite1.setAnchorPoint(0, 0);
+//			sprite1.setCascadeOpacityEnabled(true);
+			//单独运行ScaleBy
+			sprite1.runAction(Repeat.create(Sequence.create(
+					FadeTo.create(0.5f, 0.2f),
+					FadeTo.create(1f, 1f)
+					), 5));
+			
+			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite2.setRect(0, 0, 100, 120);
+			sprite2.setPosition(100, 420);
+			
+			//FadeIn
+			sprite2.setOpacity(0f);
+			sprite2.runAction(FadeIn.create(4));
+			sprite2.runAction(Repeat.create(Sequence.create(
+					BezierBy.create(2, 900, 0, 350, 100),
+					BezierBy.create(2, -900, 0, -350, 100)
+					), 1));
+			
+			
+			Sprite sprite3 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite3.setRect(0, 0, 100, 120);
+			sprite3.setPosition(100, 220);
+			
+			//FadeOut
+			sprite3.setOpacity(1f);
+			sprite3.runAction(Repeat.create(Sequence.create(
+					BezierBy.create(2, 900, 0, 450, 300),
+					BezierBy.create(2, -600, 0, -450, 300),
+					FadeOut.create(1f)
 					), 1));
 		}
 	}

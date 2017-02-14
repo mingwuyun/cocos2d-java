@@ -13,10 +13,12 @@
 # FrameBuffer (推后)
 # Box2D (推后) 
 
-# color相关, 透明度相关
++ Vis插件
++ color相关, 透明度相关
+
+# global Zorder
 # renderCall统计
 # AI插件
-# Vis插件
 # UI系统
 
 
