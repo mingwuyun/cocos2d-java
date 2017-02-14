@@ -1,5 +1,6 @@
 package com.cocos2dj.s2d;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.macros.CCMacros;
@@ -1461,5 +1462,130 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 //	    }
 	    public FadeOut() {}
 //	    protected FadeTo _reverseAction;
+    }
+    
+    /////////////////////////////////////////
+    //TODO TintTo
+    public static class TintTo extends ActionInterval {
+    	/** 
+         * Creates an action with duration and color.
+         * @param duration Duration time, in seconds.
+         * @param red Red Color, from 0 to 255.
+         * @param green Green Color, from 0 to 255.
+         * @param blue Blue Color, from 0 to 255.
+         * @return An autoreleased TintTo object.
+         */
+        public static TintTo create(float duration, float red, float green, float blue) {
+        	TintTo ret = new TintTo();
+        	if(ret.initWithDuration(duration, red, green, blue)) {
+        		return ret;
+        	}
+        	return null;
+        }
+        
+        /**
+         * Creates an action with duration and color.
+         * @param duration Duration time, in seconds.
+         * @param color It's a Color3B type.
+         * @return An autoreleased TintTo object.
+         */
+        public static TintTo create(float duration, final Color color) {
+        	return TintTo.create(duration, color.r, color.g, color.b);
+        }
+
+        //
+        // Overrides
+        //
+        public TintTo copy() {
+        	return TintTo.create(_duration, _toR, _fromG, _fromB);
+        }
+        public TintTo reverse() {
+        	throw new RuntimeException("reverse() not supported in TintTo");
+        }
+        public void startWithTarget(INode target) {
+        	super.startWithTarget(target);
+        	_fromR = _target.getColorR();
+        	_fromG = _target.getColorG();
+        	_fromB = _target.getColorB();
+        }
+        /**
+         * @param time In seconds.
+         */
+        public void update(float time) {
+        	_target.setColor(_fromR + (_toR - _fromR) * time, 
+        			_fromG + (_toG - _fromG) * time, 
+        			_fromB + (_toB - _fromB) * time);
+        }
+        
+        public TintTo() {}
+
+        /** initializes the action with duration and color */
+        public boolean initWithDuration(float duration, float red, float green, float blue) {
+        	if(red > 1f || green > 1f || blue > 1f) {
+        		CCLog.debug("TintTo", "r, g, b range is [0, 1]");
+        	}
+        	_toR = red;
+        	_toG = green;
+        	_toB = blue;
+        	
+        	if(super.initWithDuration(duration)) {
+        		return true;
+        	}
+        	return false;
+        }
+
+        float _toR, _toG, _toB;
+        float _fromR, _fromG, _fromB;
+    }
+    
+    
+    ///////////////////////////////
+    //TODO TintBy
+    public static class TintBy extends ActionInterval {
+        /** 
+         * Creates an action with duration and color.
+         * @param duration Duration time, in seconds.
+         * @param deltaRed Delta red color.
+         * @param deltaGreen Delta green color.
+         * @param deltaBlue Delta blue color.
+         * @return An autoreleased TintBy object.
+         */
+        public static TintBy create(float duration, float deltaRed, float deltaGreen, float deltaBlue) {
+        	
+        }
+
+        //
+        // Overrides
+        //
+        public TintBy copy() {
+        	 
+        }
+        public TintBy reverse() {
+        	 
+        }
+        public void startWithTarget(INode target) {
+        	 
+        }
+        /**
+         * @param time In seconds.
+         */
+        public void update(float time) {
+        	 
+         }
+        
+        TintBy() {}
+
+        /** initializes the action with duration and color */
+        boolean initWithDuration(float duration, float deltaRed, float deltaGreen, float deltaBlue) {
+        	
+        }
+        
+        float _deltaR;
+        float _deltaG;
+        float _deltaB;
+
+        float _fromR;
+        float _fromG;
+        float _fromB;
     }
 }

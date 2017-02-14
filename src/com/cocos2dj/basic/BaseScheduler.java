@@ -74,9 +74,9 @@ public class BaseScheduler {
 		public void addUpdatable(BaseUpdater update) {
 			update.attach();
 			//当前的优先级小于最后的元素，需要重写排列
-//			if(last != null && update.getPriority() < this.last.getPriority()) {
+			if(last != null && update.getPriority() < this.last.getPriority()) {
 				requestSort();
-//			}
+			}
 			this.add(update);
 		}
 		
