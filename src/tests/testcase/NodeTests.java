@@ -1,5 +1,6 @@
 package tests.testcase;
 
+import com.badlogic.gdx.graphics.Color;
 import com.cocos2dj.base.Rect;
 import com.cocos2dj.protocol.IComponent;
 import com.cocos2dj.s2d.ActionInterval.MoveTo;
@@ -20,7 +21,7 @@ import tests.TestSuite;
 public class NodeTests extends TestSuite {
 	
 	public NodeTests() {
-		addTestCase("NodeTest2", ()->{return new NodeTest2();});
+		addTestCase("BoundingBoxTest", ()->{return new NodeTest2();});
 		addTestCase("NodeTest4", ()->{return new NodeTest4();});
 	}
 	
@@ -37,7 +38,7 @@ public class NodeTests extends TestSuite {
 			addChild(node);
 			
 			node.setOnTransformCallback((n)->{
-				System.out.println("updateTransform = " + node.getPosition());
+//				System.out.println("updateTransform = " + node.getPosition());
 			});
 			
 			DrawNode dn = new DrawNode();
@@ -49,16 +50,15 @@ public class NodeTests extends TestSuite {
 			
 			node.setOnUpdateCallback((n, t)->{
 				Rect r = node.getBoundingBox();
-				debugDraw.drawSolidRect(r.x, r.y, r.x + r.width, r.y + r.height, null);
-//				System.out.println("node bounds = " + node.getBoundingBox());
+				debugDraw.drawRect(r.x, r.y, r.x + r.width, r.y + r.height, null);
 			});
 			node.scheduleUpdate();
 			node.setAnchorPoint(0f, 0f);
 			node.runAction(MoveTo.create(2, 1000, 500));
-//			node.runAction(ScaleBy.create(2, 2));
 			node.runAction(RotateBy.create(2, 1000));
 			
-			//bounds 没有考虑：中心点
+			node.setColor(Color.RED);
+			node.setOpacity(0.5f);
 		}
 		
 		

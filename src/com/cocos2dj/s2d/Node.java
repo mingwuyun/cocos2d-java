@@ -2,7 +2,9 @@ package com.cocos2dj.s2d;
 
 import java.util.Comparator;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -72,7 +74,7 @@ public class Node implements INode, IUpdater {
 	}
 	
     ///////////////////////////////////
-    /// @name Constructor, Destructor and Initializers
+    /// @name ructor, Destructor and Initializers
 	//ctor>>
 	public Node() {
 		// 保证init执行，不要添加其他的ctor
@@ -2064,44 +2066,6 @@ public class Node implements INode, IUpdater {
 
 	    return flags;
 	}
-
-    
-    // overrides
-//    public GLubyte getOpacity() ;
-//    public GLubyte getDisplayedOpacity() ;
-//    public void setOpacity(GLubyte opacity);
-//    public void updateDisplayedOpacity(GLubyte parentOpacity);
-//    public boolean isCascadeOpacityEnabled() ;
-//    public void setCascadeOpacityEnabled(boolean cascadeOpacityEnabled);
-//    
-//    public  Color3B& getColor() ;
-//    public  Color3B& getDisplayedColor() ;
-//    public void setColor( Color3B& color);
-//    public void updateDisplayedColor( Color3B& parentColor);
-//    public boolean isCascadeColorEnabled() ;
-//    public void setCascadeColorEnabled(boolean cascadeColorEnabled);
-//    
-//    public void setOpacityModifyRGB(boolean value) {CC_UNUSED_PARAM(value);}
-//    public boolean isOpacityModifyRGB()  { return false; };
-	protected void updateCascadeOpacity() {
-		
-	}
-	
-	protected void disableCascadeOpacity() {
-		
-	}
-	
-	protected void updateCascadeColor() {
-		
-	}
-	
-	protected void disableCascadeColor() {
-		
-	}
-	
-	protected void updateColor() {
-		
-	}
     
 //    boolean doEnumerate(String name, std::function<boolean (Node *)> callback) ;
 //    boolean doEnumerateRecursive( Node* node,  std::string &name, std::function<boolean (Node *)> callback) ;
@@ -2181,9 +2145,6 @@ public class Node implements INode, IUpdater {
     protected Director _director = Director.justInstance();
     
     protected ComponentContainer _componentContainer;        ///< Dictionary of components
-
-    boolean		_cascadeColorEnabled;
-    boolean     _cascadeOpacityEnabled;
 
     static int s_globalOrderOfArrival;
     
@@ -2365,57 +2326,190 @@ public class Node implements INode, IUpdater {
 	public INodeType getNodeType() {
 		return _nodeType;
 	}
+	
+	
+	/////////////////////////////////////////
+	// color and opacity 
+	/**real opacity. range: [0,1]*/
+	protected float 		_opacity = 1f;
+	/**real color. range: [0,1]*/
+	protected float			_r = 1f, _g = 1f, _b = 1f;
+	protected Color			_displayColor = new Color(1, 1, 1, 1);
+	/**颜色是否影响子节点 */
+	protected boolean		_cascadeColorEnabled = true;
+	/**透明度是否影响子节点 */
+	protected boolean 		_cascadeOpacityEnabled = true;
+	
+	
+
+	protected void updateCascadeOpacity() {
+		float parentOpacity = 1f;
+		if(_parent != null && _parent.isCascadeOpacityEnabled()) {
+			parentOpacity = _parent.getDisplayedOpacity();
+		}
+		updateDisplayedOpacity(parentOpacity);
+	}
+	
+	protected void disableCascadeOpacity() {
+		_displayColor.a = _opacity;
+		for(int i = 0; i < _children.size; ++i) {
+			_children.get(i).updateDisplayedOpacity(1f);
+		}
+	}
+	
+	protected void updateCascadeColor() {
+		float r = 1, g = 1, b = 1;
+		if(_parent != null && _parent.isCascadeColorEnabled()) {
+			Color c = _parent.getDisplayedColor();
+			r = c.r; g = c.g; b = c.b;
+		}
+		updateDisplayedColor(r, g, b);
+	}
+	
+	protected final void disableCascadeColor() {
+		for(int i = 0; i < _children.size; ++i) {
+			_children.get(i).updateDisplayedColor(1f, 1f, 1f);
+		}
+	}
+	
+	protected void updateColor() {}
+	
+	
+    /**
+     * Return the node's opacity.
+     * @return A float value.
+     */
+     public float getOpacity() {
+    	 return _opacity;
+     }
+    /**
+     * Return the node's display opacity.
+     * The difference between opacity and displayedOpacity is:
+     * The displayedOpacity is what's the final rendering opacity of node.
+     * @return A float value.
+     */
+     public float getDisplayedOpacity() {
+    	 return _displayColor.a;
+     }
+    /**
+     * Change node opacity.
+     * @param opacity A float opacity value. [0, 1]
+     */
+     public void setOpacity(float opacity) {
+    	 opacity = MathUtils.clamp(opacity, 0, 1);
+    	 _displayColor.a = _opacity = opacity;
+    	 
+    	 updateCascadeOpacity();
+     }
+    /**
+     * Update the displayed opacity of node with it's parent opacity;
+     * @param parentOpacity The opacity of parent node.
+     */
+     protected void updateDisplayedOpacity(float parentOpacity) {
+    	 _displayColor.a = _opacity * parentOpacity;
+    	 
+    	 updateColor();
+    	 
+    	 if(_cascadeColorEnabled) {
+    		for(int i = 0; i < _children.size; ++i) {
+    			_children.get(i).updateDisplayedOpacity(_displayColor.a);
+    		}
+    	 }
+     }
+    /**
+     * Whether cascadeOpacity is enabled or not.
+     * @return A boolean value.
+     */
+     public final boolean isCascadeOpacityEnabled() {return _cascadeOpacityEnabled;}
+     
+    /**
+     * Change node's cascadeOpacity property.
+     * @param cascadeOpacityEnabled True to enable cascadeOpacity, false otherwise.
+     */
+     public void setCascadeOpacityEnabled(boolean cascadeOpacityEnabled) {
+    	 if (_cascadeOpacityEnabled == cascadeOpacityEnabled) {
+    		 return;
+    	 }
+	     _cascadeOpacityEnabled = cascadeOpacityEnabled;
+	     if (cascadeOpacityEnabled) {
+	    	 updateCascadeOpacity();
+	     } else {
+	        disableCascadeOpacity();
+	     }
+     }
+
+    /**
+     * Query node's color value.
+     * @return A Color3B color value.
+     */
+     public float getColorR() {return _r;}
+     public float getColorG() {return _g;}
+     public float getColorB() {return _b;}
+     
+    /**
+     * Query node's displayed color.
+     * @return A Color3B color value.
+     */
+     public Color getDisplayedColor() {
+    	 return _displayColor;
+     }
+     
+    /**
+     * Change the color of node.
+     * @param color A Color3B color value.
+     */
+     public void setColor(Color color) {
+    	 _displayColor.r = _r = color.r;
+    	 _displayColor.g = _g = color.g;
+    	 _displayColor.b = _b = color.b;
+    	 
+    	 updateCascadeColor();
+     }
+     
+     public void setColor(float r, float g, float b) {
+    	 _displayColor.r = _r = MathUtils.clamp(r, 0, 1);
+    	 _displayColor.g = _g = MathUtils.clamp(g, 0, 1);
+    	 _displayColor.b = _b = MathUtils.clamp(b, 0, 1);
+    	 
+    	 updateCascadeColor();
+     }
+     
+    /**
+     * Update node's displayed color with its parent color.
+     * @param parentColor A Color3B color value.
+     */
+     protected void updateDisplayedColor(float pR, float pG, float pB) {
+    	 _displayColor.r = _r * pR;
+    	 _displayColor.g = _g * pG;
+    	 _displayColor.b = _b * pB;
+    	 updateColor();
+	    
+	    if (_cascadeColorEnabled) {
+	    	for(int i = 0; i < _children.size; ++i) {
+	    		_children.get(i).updateDisplayedColor(_displayColor.r, _displayColor.g, _displayColor.b);
+	    	}
+	    }
+     }
+     
+    /**
+     * Query whether cascadeColor is enabled or not.
+     * @return Whether cascadeColor is enabled or not.
+     */
+     public final boolean isCascadeColorEnabled() {return _cascadeColorEnabled;}
+    /**
+     * If you want node's color affect the children node's color, then set it to true.
+     * Otherwise, set it to false.
+     * @param cascadeColorEnabled A boolean value.
+     */
+     public void setCascadeColorEnabled(boolean cascadeColorEnabled) {
+    	 if (_cascadeColorEnabled == cascadeColorEnabled) {
+    		 return;
+    	 }
+    	 _cascadeColorEnabled = cascadeColorEnabled;
+    	 if (_cascadeColorEnabled) {
+    		 updateCascadeColor();
+    	 } else {
+    		 disableCascadeColor();
+    	 }
+     }
 }
-
-// opacity controls
-//GLubyte		_displayedOpacity;
-//GLubyte     _realOpacity;
-//Color3B	    _displayedColor;
-//Color3B     _realColor;
-
-// NodeRGBA
-
-/** NodeRGBA is a subclass of Node that implements the RGBAProtocol protocol.
- 
- All features from Node are valid, plus the following new features:
- - opacity
- - RGB colors
- 
- Opacity/Color propagates into children that conform to the RGBAProtocol if cascadeOpacity/cascadeColor is enabled.
- @since v2.1
- */
-//class CC_DLL __NodeRGBA : public Node, public __RGBAProtocol
-//{
-//public:
-//    // overrides
-//    public GLubyte getOpacity()  override { return Node::getOpacity(); }
-//    public GLubyte getDisplayedOpacity()   override { return Node::getDisplayedOpacity(); }
-//    public void setOpacity(GLubyte opacity) override { return Node::setOpacity(opacity); }
-//    public void updateDisplayedOpacity(GLubyte parentOpacity) override { return Node::updateDisplayedOpacity(parentOpacity); }
-//    public boolean isCascadeOpacityEnabled()   override { return Node::isCascadeOpacityEnabled(); }
-//    public void setCascadeOpacityEnabled(boolean cascadeOpacityEnabled) override { return Node::setCascadeOpacityEnabled(cascadeOpacityEnabled); }
-//
-//    public  Color3B& getColor(void)  override { return Node::getColor(); }
-//    public  Color3B& getDisplayedColor()  override { return Node::getDisplayedColor(); }
-//    public void setColor( Color3B& color) override { return Node::setColor(color); }
-//    public void updateDisplayedColor( Color3B& parentColor) override { return Node::updateDisplayedColor(parentColor); }
-//    public boolean isCascadeColorEnabled()  override { return Node::isCascadeColorEnabled(); }
-//    public void setCascadeColorEnabled(boolean cascadeColorEnabled) override { return Node::setCascadeColorEnabled(cascadeColorEnabled); }
-//
-//    public void setOpacityModifyRGB(boolean bValue) override { return Node::setOpacityModifyRGB(bValue); }
-//    public boolean isOpacityModifyRGB()  override { return Node::isOpacityModifyRGB(); }
-//
-//CC_CONSTRUCTOR_ACCESS:
-//    __NodeRGBA();
-//    public ~__NodeRGBA() {}
-//
-//private:
-//    CC_DISALLOW_COPY_AND_ASSIGN(__NodeRGBA);
-//};
-//
-//// end of base_node group
-///// @}
-//
-//NS_CC_END
-//
-//#endif // __CCNODE_H__

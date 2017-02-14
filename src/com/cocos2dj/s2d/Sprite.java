@@ -481,7 +481,6 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     		setDirty(false);
     		
     		final float[] val = transform.val;
-    		
     		//gdx 中 origin仅与旋转／放缩相关，需要自行减去origin坐标才会修改中心
     		_sprite.setOrigin(_anchorPointInPoints.x, _anchorPointInPoints.y);
     		_sprite.setPosition(val[Matrix4.M03] - _anchorPointInPoints.x, 
@@ -502,8 +501,9 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     		_sprite.setSize(_contentSize.width, _contentSize.height);
     		
     		//skew 
-    		// i think we don`t need this
-    		// use shader do this
+    		
+    		//color
+    		_sprite.setColor(_displayColor);
     	}
     	
     	if(_useCulling) {
