@@ -1,7 +1,9 @@
 package tests.testcase;
 
+import com.badlogic.gdx.graphics.Color;
 import com.cocos2dj.base.Director;
 import com.cocos2dj.renderer.TextureRegion;
+import com.cocos2dj.s2d.Node;
 import com.cocos2dj.s2d.Sprite;
 
 import tests.TestCase;
@@ -15,9 +17,9 @@ import tests.TestSuite;
 public class SpriteTests extends TestSuite {
 
 	public SpriteTests() {
+		addTestCase("Alpha Color Test", ()->{return new SpriteTestAlphaTest();});
 		addTestCase("Rotate Color Scale Pos Size", ()->{return new SpriteTest1();});
 		addTestCase("Change Frame", ()->{return new SpriteTestChangeFrame();});
-		addTestCase("Alpha Test", ()->{return new SpriteTestAlphaTest();});
 //		addTestCase("Culling Test", ()->{return new SpriteCullingTest();});
 //		addTestCase("Add Remove Test", ()->{return new SpriteAddRemoveTest();});
 	}
@@ -77,14 +79,33 @@ public class SpriteTests extends TestSuite {
 	//TODO alpha （父子节点） 测试
 	static class SpriteTestAlphaTest extends SpriteTestBase {
 		
-//		Sprite spriteRotate;
-//		Sprite spriteColor;
-//		Sprite spriteScale;
-//		Sprite spritePos;
-		
 		public void onEnter() {
 			super.onEnter();
 			
+			Sprite spriteColorR = (Sprite) Sprite.create("powered.png").addTo(this);
+			spriteColorR.setPosition(100, 300);
+			spriteColorR.setColor(Color.RED);
+			Sprite spriteColorG = (Sprite) Sprite.create("powered.png").addTo(this);
+			spriteColorG.setPosition(300, 300);
+			spriteColorG.setColor(Color.GREEN);
+			Sprite spriteColorB = (Sprite) Sprite.create("powered.png").addTo(this);
+			spriteColorB.setPosition(500, 300);
+			spriteColorB.setColor(Color.BLUE);
+			
+			//use cascadeColor
+			Node root = Node.create().addTo(this);
+			
+			//传导颜色和透明度
+			root.setCascadeColorEnabled(true);
+			root.setCascadeOpacityEnabled(true);
+			
+			Sprite.create("powered.png").addTo(root).setPosition(-100, 0);
+			Sprite.create("powered.png").addTo(root).setPosition(100, 0);
+			
+			root.setPosition(800, 300);
+			root.setColor(Color.GOLD);
+			
+			root.setOpacity(0.5f);
 		}
 	}
 	

@@ -2336,12 +2336,11 @@ public class Node implements INode, IUpdater {
 	protected float			_r = 1f, _g = 1f, _b = 1f;
 	protected Color			_displayColor = new Color(1, 1, 1, 1);
 	/**颜色是否影响子节点 */
-	protected boolean		_cascadeColorEnabled = true;
+	protected boolean		_cascadeColorEnabled = false;	//确实设为true容易混乱
 	/**透明度是否影响子节点 */
-	protected boolean 		_cascadeOpacityEnabled = true;
+	protected boolean 		_cascadeOpacityEnabled = false;
 	
 	
-
 	protected void updateCascadeOpacity() {
 		float parentOpacity = 1f;
 		if(_parent != null && _parent.isCascadeOpacityEnabled()) {
@@ -2382,6 +2381,8 @@ public class Node implements INode, IUpdater {
      public float getOpacity() {
     	 return _opacity;
      }
+//     public float getAlpha() {return _opacity;}
+     
     /**
      * Return the node's display opacity.
      * The difference between opacity and displayedOpacity is:
@@ -2396,11 +2397,11 @@ public class Node implements INode, IUpdater {
      * @param opacity A float opacity value. [0, 1]
      */
      public void setOpacity(float opacity) {
-    	 opacity = MathUtils.clamp(opacity, 0, 1);
-    	 _displayColor.a = _opacity = opacity;
-    	 
+    	 _displayColor.a = _opacity = MathUtils.clamp(opacity, 0, 1);
     	 updateCascadeOpacity();
      }
+//     public void setAlpha(float alpha) {setOpacity(alpha);}
+     
     /**
      * Update the displayed opacity of node with it's parent opacity;
      * @param parentOpacity The opacity of parent node.
@@ -2410,7 +2411,7 @@ public class Node implements INode, IUpdater {
     	 
     	 updateColor();
     	 
-    	 if(_cascadeColorEnabled) {
+    	 if(_cascadeOpacityEnabled) {
     		for(int i = 0; i < _children.size; ++i) {
     			_children.get(i).updateDisplayedOpacity(_displayColor.a);
     		}
