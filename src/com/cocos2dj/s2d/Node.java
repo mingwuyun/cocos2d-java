@@ -24,6 +24,7 @@ import com.cocos2dj.protocol.INodePool;
 import com.cocos2dj.protocol.INodeType;
 import com.cocos2dj.protocol.IUpdater;
 import com.cocos2dj.renderer.Renderer;
+import com.cocos2dj.utils.TransformUtils;
 
 /** 
  * Node.java
@@ -764,8 +765,6 @@ public class Node implements INode, IUpdater {
      * @param name   An identifier to find the child node.
      *
      * @return a Node object whose name equals to the input parameter
-     *
-     * @since v3.2
      */
     public Node getChildByName(String name) {
     	for(Node node : _children) {
@@ -1089,13 +1088,9 @@ public class Node implements INode, IUpdater {
      *
      * @return The GLProgram (shader) currently used for this node
      */
-//    Shad getGLProgram() ;
-//    CC_DEPRECATED_ATTRIBUTE GLProgram* getShaderProgram()  { return getGLProgram(); }
     public ShaderProgram getGLProgramShader() {
     	return _shaderProgram;
     }
-//    void setGLProgramState(GLProgramState *glProgramState);
-//    ShaderProgram d;
 
     /**
      * Sets the shader program for this node
@@ -1344,13 +1339,19 @@ public class Node implements INode, IUpdater {
      *
      * @return An AABB (axis-aligned bounding-box) in its parent's coordinate system
      */
+    public Rect getBoundingBox(final Rect out) {
+    	out.set(0, 0, _contentSize.width, _contentSize.height);
+    	return AffineTransform.RectApplyAffineTransform(out, getNodeToParentAffineTransform(), out);
+    }
+    /**
+     * return bounds aabb
+     * @return <b>stack object</b>
+     */
     public Rect getBoundingBox() {
-    	
-    	return null;
+    	Rect temp = Rect.getStackInstance();
+    	return getBoundingBox(temp);
     }
 
-//    /** @deprecated Use getBoundingBox instead */
-//    CC_DEPRECATED_ATTRIBUTE inline publi.c Rect boundingBox()  { return getBoundingBox(); }
 
     public void setEventDispatcher(EventDispatcher dispatcher) {
 //    	if(dispatcher != getEventDispatcher()) {
@@ -1366,7 +1367,6 @@ public class Node implements INode, IUpdater {
     
     ////////////////////////////////////////
     //TODO Actions
-
     /**
      * Sets the ActionManager object that is used by all actions.
      *
@@ -1386,8 +1386,6 @@ public class Node implements INode, IUpdater {
     public ActionManager getActionManager() { 
     	return _director.getActionManager(); 
    }
-    
-//    public  ActionManager* getActionManager()  { return _actionManager; }
 
     /**
      * Executes an action, and returns the action that is executed.
@@ -1617,7 +1615,6 @@ public class Node implements INode, IUpdater {
      * @see `schedule(SEL_SCHEDULE, float, unsigned int, float)`
      *
      * @param selector      A function wrapped as a selector
-     * @lua NA
      */
     public void unschedule(IUpdater selector) {
     	if(selector == null) {
@@ -1629,9 +1626,6 @@ public class Node implements INode, IUpdater {
    
     /**
      * Unschedules a lambda function.
-     *
-     * @param key      The key of the lambda function to be unscheduled.
-     * @lua NA
      */
     public void unschedule(String key) {
     	_director.getScheduler().unschedule(this, key);
@@ -1640,13 +1634,10 @@ public class Node implements INode, IUpdater {
     /**
      * Unschedule all scheduled selectors: custom selectors, and the 'update' selector.
      * Actions are not affected by this method.
-     * @lua NA
      */
     public void unscheduleAllCallbacks() {
     	_director.getScheduler().unscheduleAllForTarget(this);
     }
-    
-    
 
     /**
      * Resumes all scheduled selectors, actions and event listeners.
@@ -1667,17 +1658,6 @@ public class Node implements INode, IUpdater {
     	_director.getActionManager().pauseTarget(this);
     	_director.getEventDispatcher().pauseEventListenersForTarget(this);
     }
-
-    /**
-     * Resumes all scheduled selectors, actions and event listeners.
-     * This method is called internally by onEnter
-     */
-//    CC_DEPRECATED_ATTRIBUTE void resumeSchedulerAndActions();
-    /**
-     * Pauses all scheduled selectors, actions and event listeners..
-     * This method is called internally by onExit
-     */
-//    CC_DEPRECATED_ATTRIBUTE void pauseSchedulerAndActions();
 
     /*
      * Update method will be called automatically every frame if "scheduleUpdate" is called, and the node is "live"
@@ -1721,17 +1701,13 @@ public class Node implements INode, IUpdater {
      */
     public final Matrix4 getNodeToParentTransform(Node ancestor) {
     	final Matrix4 t = poolMatrix_1;
-    	
-//    	System.out.println("dirty = " + _transformDirty + this);
 //    	System.out.println("nodeToParentTransform = " + getNodeToParentTransform() + this);
-    	
     	t.set(getNodeToParentTransform());
 //        Mat4 t(this->getNodeToParentTransform());
         for (Node p = _parent;  p != null && p != ancestor ; p = p._parent) {
 //            t = p->getNodeToParentTransform() * t;
             t.mulLeft(p.getNodeToParentTransform());
         }
-//        System.out.println("getNodeToParentTransform" + t);
         return t;
     }
     
@@ -1771,17 +1747,17 @@ public class Node implements INode, IUpdater {
             if (_scaleX != 1.f) {
 //            	_tr
             	_transform.val[Matrix4.M00] *= _scaleX; 
-            	_transform.val[Matrix4.M01] *= _scaleX; 
-            	_transform.val[Matrix4.M02] *= _scaleX;
+            	_transform.val[Matrix4.M10] *= _scaleX; 
+            	_transform.val[Matrix4.M20] *= _scaleX;
             }
             if (_scaleY != 1.f) {
-            	_transform.val[Matrix4.M10] *= _scaleY; 
+            	_transform.val[Matrix4.M01] *= _scaleY; 
             	_transform.val[Matrix4.M11] *= _scaleY; 
-            	_transform.val[Matrix4.M12] *= _scaleY;
+            	_transform.val[Matrix4.M21] *= _scaleY;
             }
             if (_scaleZ != 1.f) {
-            	_transform.val[Matrix4.M20] *= _scaleZ;
-            	_transform.val[Matrix4.M21] *= _scaleZ; 
+            	_transform.val[Matrix4.M02] *= _scaleZ;
+            	_transform.val[Matrix4.M12] *= _scaleZ; 
             	_transform.val[Matrix4.M22] *= _scaleZ;
             }
         }
@@ -1808,8 +1784,9 @@ public class Node implements INode, IUpdater {
     }
     
     public AffineTransform getNodeToParentAffineTransform() {
-    	
-    	return null;
+    	AffineTransform ret = AffineTransform.getStackAffineTransform();
+    	TransformUtils.GLToCGAffine(getNodeToParentTransform().val, ret);
+    	return ret;
     }
 
     /** 
@@ -1828,8 +1805,6 @@ public class Node implements INode, IUpdater {
     	}
     }
 
-    /** @deprecated use getNodeToParentTransform() instead */
-//    CC_DEPRECATED_ATTRIBUTE inline public AffineTransform nodeToParentTransform()  { return getNodeToParentAffineTransform(); }
     /**
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.
      * The matrix is in Pixels.
@@ -1848,9 +1823,6 @@ public class Node implements INode, IUpdater {
     	return null;
     }
 
-    /** @deprecated Use getParentToNodeTransform() instead */
-//    CC_DEPRECATED_ATTRIBUTE inline public AffineTransform parentToNodeTransform()  { return getParentToNodeAffineTransform(); }
-
     /**
      * Returns the world affine transform matrix. The matrix is in Pixels.
      * @return <b>(pool object)</b>
@@ -1862,9 +1834,6 @@ public class Node implements INode, IUpdater {
     public AffineTransform getNodeToWorldAffineTransform() {
     	return null;
     }
-
-    /** @deprecated Use getNodeToWorldTransform() instead */
-//    CC_DEPRECATED_ATTRIBUTE inline public AffineTransform nodeToWorldTransform()  { return getNodeToWorldAffineTransform(); }
 
     /**
      * Returns the inverse world affine transform matrix. The matrix is in Pixels.
@@ -2005,25 +1974,6 @@ public class Node implements INode, IUpdater {
     }
     
     /////////////////////////////////////
-    
-    // overrides
-//    public GLubyte getOpacity() ;
-//    public GLubyte getDisplayedOpacity() ;
-//    public void setOpacity(GLubyte opacity);
-//    public void updateDisplayedOpacity(GLubyte parentOpacity);
-//    public boolean isCascadeOpacityEnabled() ;
-//    public void setCascadeOpacityEnabled(boolean cascadeOpacityEnabled);
-//    
-//    public  Color3B& getColor() ;
-//    public  Color3B& getDisplayedColor() ;
-//    public void setColor( Color3B& color);
-//    public void updateDisplayedColor( Color3B& parentColor);
-//    public boolean isCascadeColorEnabled() ;
-//    public void setCascadeColorEnabled(boolean cascadeColorEnabled);
-//    
-//    public void setOpacityModifyRGB(boolean value) {CC_UNUSED_PARAM(value);}
-//    public boolean isOpacityModifyRGB()  { return false; };
-
     public final void setOnEnterCallback(OnEnterCallback callback) { _onEnterCallback = callback; }
     public final OnEnterCallback getOnEnterCallback()  { return _onEnterCallback; }   
     public final void setOnExitCallback(OnExitCallback callback) { _onExitCallback = callback; }
@@ -2054,22 +2004,10 @@ public class Node implements INode, IUpdater {
     	this._onExitTransitionDidStartCallback = callback;
     }
     
-//CC_CONSTRUCTOR_ACCESS:
-    // Nodes should be created using create();
-//    Node();
-//    public ~Node();
-    
     //override
     public void init() {
     	
     }
-
-    
-    /// lazy allocs
-//	protected void childrenAlloc() {
-//		_children.ensureCapacity(4);
-//	}
-    
     
 
     /// Convert cocos2d coordinates to UI windows coordinate.
@@ -2079,18 +2017,12 @@ public class Node implements INode, IUpdater {
 	}
 
 	protected Matrix4 transform(final Matrix4 parentTransform) {
-		//TODO transform method>>>
-//		System.out.println(getDescription() + "parent trans"+ "\n" + parentTransform);
 		Matrix4 trans = getNodeToParentTransform();
 //		System.out.println(getDescription() + "local trans"+ "\n" + trans);
 		Matrix4 ret = _modelViewTransform.set(trans).mulLeft(parentTransform);
 //		System.out.println(getDescription() + "ret trans"+ "\n" + ret);
-		
 		// 2d rotation transform
 		_modelRotationZ = _rotationZ + (_parent != null ? _parent._modelRotationZ : 0);
-//		_
-//		_modelRotationZ
-		
 		return ret;
 	}
 	
@@ -2105,13 +2037,10 @@ public class Node implements INode, IUpdater {
 	            _normalizedPositionDirty = false;
 	        }
 	    }
-
 	    //remove this two line given that isVisitableByVisitingCamera should not affect the calculation of transform given that we are visiting scene
 	    //without involving view and projection matrix.
-	    
 //	    if (!isVisitableByVisitingCamera())
 //	        return parentFlags;
-	    
 	    int flags = parentFlags;
 	    flags |= (_transformUpdated ? FLAGS_TRANSFORM_DIRTY : 0);
 	    flags |= (_contentSizeDirty ? FLAGS_CONTENT_SIZE_DIRTY : 0);
@@ -2130,14 +2059,30 @@ public class Node implements INode, IUpdater {
 //	        System.out.println("transro m = \n" + _modelViewTransform);
 	    }
 	    
-	   
-	    
 	    _transformUpdated = false;
 	    _contentSizeDirty = false;
 
 	    return flags;
 	}
 
+    
+    // overrides
+//    public GLubyte getOpacity() ;
+//    public GLubyte getDisplayedOpacity() ;
+//    public void setOpacity(GLubyte opacity);
+//    public void updateDisplayedOpacity(GLubyte parentOpacity);
+//    public boolean isCascadeOpacityEnabled() ;
+//    public void setCascadeOpacityEnabled(boolean cascadeOpacityEnabled);
+//    
+//    public  Color3B& getColor() ;
+//    public  Color3B& getDisplayedColor() ;
+//    public void setColor( Color3B& color);
+//    public void updateDisplayedColor( Color3B& parentColor);
+//    public boolean isCascadeColorEnabled() ;
+//    public void setCascadeColorEnabled(boolean cascadeColorEnabled);
+//    
+//    public void setOpacityModifyRGB(boolean value) {CC_UNUSED_PARAM(value);}
+//    public boolean isOpacityModifyRGB()  { return false; };
 	protected void updateCascadeOpacity() {
 		
 	}
@@ -2160,16 +2105,6 @@ public class Node implements INode, IUpdater {
     
 //    boolean doEnumerate(String name, std::function<boolean (Node *)> callback) ;
 //    boolean doEnumerateRecursive( Node* node,  std::string &name, std::function<boolean (Node *)> callback) ;
-    
-//#if CC_USE_PHYSICS
-//    void updatePhysicsBodyTransform(Scene* layer);
-//    public void updatePhysicsBodyPosition(Scene* layer);
-//    public void updatePhysicsBodyRotation(Scene* layer);
-//    public void updatePhysicsBodyScale(Scene* scene);
-//#endif // CC_USE_PHYSICS
-    
-
-    
     ////////////////////////////////////////////////////
     //fields>>
     protected float _rotationX;               ///< rotation on the X-axis
@@ -2242,28 +2177,11 @@ public class Node implements INode, IUpdater {
     protected boolean _isTransitionFinished;       ///< flag to indicate whether the transition was finished
     protected boolean _additionalTransformDirty;
     protected boolean _normalizedPositionDirty;
-//    
-    protected Director _director = Director.justInstance();
     
-//#if CC_ENABLE_SCRIPT_BINDING
-//    int _scriptHandler;               ///< script handler for onEnter() & onExit(), used in Javascript binding and Lua binding.
-//    int _updateScriptHandler;         ///< script handler for update() callback per frame, which is invoked from lua & javascript.
-//    ccScriptType _scriptType;         ///< type of script binding, lua or javascript
-//#endif
+    protected Director _director = Director.justInstance();
     
     protected ComponentContainer _componentContainer;        ///< Dictionary of components
 
-//#if CC_USE_PHYSICS
-//    PhysicsBody* _physicsBody;        ///< the physicsBody the node have
-//    float _physicsScaleStartX;         ///< the scale x value when setPhysicsBody
-//    float _physicsScaleStartY;         ///< the scale y value when setPhysicsBody
-//#endif
-    
-    // opacity controls
-//    GLubyte		_displayedOpacity;
-//    GLubyte     _realOpacity;
-//    Color3B	    _displayedColor;
-//    Color3B     _realColor;
     boolean		_cascadeColorEnabled;
     boolean     _cascadeOpacityEnabled;
 
@@ -2336,6 +2254,7 @@ public class Node implements INode, IUpdater {
 
 	/////////////////////////////////////////////////////
 	//TODO pools about
+	// 对象池扩展
 	protected INodePool 		_nodePool;
 	protected INodeType			_nodeType; 
 	protected boolean			_inPool;
@@ -2447,6 +2366,12 @@ public class Node implements INode, IUpdater {
 		return _nodeType;
 	}
 }
+
+// opacity controls
+//GLubyte		_displayedOpacity;
+//GLubyte     _realOpacity;
+//Color3B	    _displayedColor;
+//Color3B     _realColor;
 
 // NodeRGBA
 

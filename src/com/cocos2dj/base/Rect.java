@@ -9,13 +9,16 @@ public class Rect extends Rectangle {
 	private static final long serialVersionUID = -3855101754113979241L;
 	private static final Rect _rect = new Rect();
 	
+	public static Rect getStackInstance() {
+		return _rect;
+	}
+	
 	/**
 	 * 值传递使用的Rect 返回一个静态Rect
 	 */
 	public static Rect Get(float x, float y, float w, float h) {
 		return (Rect) _rect.set(x, y, w, h);
 	}
-	
 	
 	public Rect() {
 		super();
@@ -78,5 +81,9 @@ public class Rect extends Rectangle {
 		}
 	}
     
+	public float getMinX() {return x;}
+	public float getMinY() {return y;}
+	public float getMaxX() {return x + width;}
+	public float getMaxY() {return y + height;}
     static final Rect ZERO = new Rect();
 }
