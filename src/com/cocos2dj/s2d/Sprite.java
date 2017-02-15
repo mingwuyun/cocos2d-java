@@ -606,6 +606,8 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	setPosition(rect.x + rect.width / 2f, rect.y + rect.height / 2f);
     	if(_sprite == null) {
     		_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(texture);
+    	} else {
+    		_sprite.setRegion(texture.createTextureRegion());
     	}
     	return true;
     }
@@ -626,6 +628,8 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	
     	if(_sprite != null) {
     		_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(region);
+    	} else {
+    		_sprite.setRegion(region);
     	}
     	return true;
     }
