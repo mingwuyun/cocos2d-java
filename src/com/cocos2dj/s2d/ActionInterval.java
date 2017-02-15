@@ -1467,6 +1467,11 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
     /////////////////////////////////////////
     //TODO TintTo
     public static class TintTo extends ActionInterval {
+    	
+    	public static TintTo create255(float duration, float red, float green, float blue) {
+    		return create(duration, red/255f, green/255f, blue/255f);
+    	}
+    	
     	/** 
          * Creates an action with duration and color.
          * @param duration Duration time, in seconds.
@@ -1542,6 +1547,11 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
     ///////////////////////////////
     //TODO TintBy
     public static class TintBy extends ActionInterval {
+    	
+    	public static TintBy create255(float duration, float deltaRed, float deltaGreen, float deltaBlue) {
+    		return TintBy.create(duration, deltaRed/255f, deltaGreen/255f, deltaBlue/255f);
+    	}
+    	
         /** 
          * Creates an action with duration and color.
          * @param duration Duration time, in seconds.
@@ -1551,33 +1561,49 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
          * @return An autoreleased TintBy object.
          */
         public static TintBy create(float duration, float deltaRed, float deltaGreen, float deltaBlue) {
-        	
+        	TintBy ret = new TintBy();
+        	if(ret.initWithDuration(duration, deltaRed, deltaGreen, deltaBlue)) {
+        		return ret;
+        	}
+        	return null;
         }
 
         //
         // Overrides
         //
         public TintBy copy() {
-        	 
+        	 return TintBy.create(_duration, _deltaR, _deltaG, _deltaB);
         }
         public TintBy reverse() {
-        	 
+        	 return TintBy.create(_duration, -_deltaR, -_deltaG, -_deltaB);
         }
         public void startWithTarget(INode target) {
-        	 
+        	 super.startWithTarget(target);
+        	 _fromR = _target.getColorR();
+        	 _fromG = _target.getColorG();
+        	 _fromB = _target.getColorB();
         }
         /**
          * @param time In seconds.
          */
         public void update(float time) {
-        	 
+        	System.out.println("_target color = " + (_fromR + _deltaR * time)
+        			+ _deltaR + " / " + _fromR);
+        	 _target.setColor(_fromR + _deltaR * time, 
+        			 _fromG + _deltaG * time, _fromB + _deltaB * time);
          }
         
-        TintBy() {}
+        public TintBy() {}
 
         /** initializes the action with duration and color */
-        boolean initWithDuration(float duration, float deltaRed, float deltaGreen, float deltaBlue) {
-        	
+        public boolean initWithDuration(float duration, float deltaRed, float deltaGreen, float deltaBlue) {
+        	if(super.initWithDuration(duration)) {
+        		_deltaR = deltaRed;
+        		_deltaB = deltaBlue;
+        		_deltaG = deltaGreen;
+        		return true;
+        	}
+        	return false;
         }
         
         float _deltaR;
@@ -1587,5 +1613,40 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         float _fromR;
         float _fromG;
         float _fromB;
+    }
+    
+    ////////////////////////////////////
+    //TODO DelayTime
+    /**Delays the action a certain amount of seconds. */
+    public static class DelayTime extends ActionInterval {
+    	/** 
+         * Creates the action.
+         * @param d Duration time, in seconds.
+         * @return An autoreleased DelayTime object.
+         */
+        public static DelayTime create(float d) {
+        	DelayTime ret = new DelayTime();
+        	if(ret.initWithDuration(d)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+        //
+        // Overrides
+        //
+        /**
+         * @param time In seconds.
+         */
+        public void update(float time) {}
+        
+        public DelayTime reverse() {
+        	return DelayTime.create(_duration);
+        }
+        public DelayTime copy() {
+        	return DelayTime.create(_duration);
+        }
+
+        public DelayTime() {}
     }
 }

@@ -2,6 +2,7 @@ package tests.testcase;
 
 import com.cocos2dj.s2d.ActionInstant.CallFunc;
 import com.cocos2dj.s2d.ActionInterval.BezierBy;
+import com.cocos2dj.s2d.ActionInterval.DelayTime;
 import com.cocos2dj.s2d.ActionInterval.FadeIn;
 import com.cocos2dj.s2d.ActionInterval.FadeOut;
 import com.cocos2dj.s2d.ActionInterval.FadeTo;
@@ -17,6 +18,8 @@ import com.cocos2dj.s2d.ActionInterval.ScaleBy;
 import com.cocos2dj.s2d.ActionInterval.ScaleTo;
 import com.cocos2dj.s2d.ActionInterval.Sequence;
 import com.cocos2dj.s2d.ActionInterval.Spawn;
+import com.cocos2dj.s2d.ActionInterval.TintBy;
+import com.cocos2dj.s2d.ActionInterval.TintTo;
 import com.cocos2dj.s2d.Sprite;
 
 import tests.TestCase;
@@ -31,6 +34,7 @@ public class ActionManagerTests extends TestSuite {
 	
 	public ActionManagerTests() {
 		
+		addTestCase("TintTest", ()->{return new ActionTintTest();});
 		addTestCase("FadeTest", ()->{return new ActionFadeTest();});
 		addTestCase("ScaleTest", ()->{return new ActionScaleTest();});
 		addTestCase("jumpTest", ()->{return new ActionJumpTest();});
@@ -347,5 +351,43 @@ public class ActionManagerTests extends TestSuite {
 					FadeOut.create(1f)
 					), 1));
 		}
+	}
+	
+	//TODO TintTest
+	static class ActionTintTest extends ActionManagerTest {
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			Sprite sprite1 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite1.setRect(0, 0, 100, 120);
+			sprite1.setPosition(100, 220);
+			sprite1.setAnchorPoint(0, 0);
+			//单独运行TintBy
+			sprite1.runAction(Repeat.create(Sequence.create(
+					TintBy.create255(1f, -255, 0f, -255),
+					TintBy.create(1f, 1f, 0, 1f)
+					), 5));
+			
+			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite2.setRect(0, 0, 100, 120);
+			sprite2.setPosition(100, 420);
+//			
+//			//TintTo
+			sprite2.runAction(Repeat.create(Sequence.create(
+					TintTo.create255(0.5f, 255, 0, 0),
+					DelayTime.create(0.5f),
+					TintTo.create(0.5f, 0, 1, 0),
+					DelayTime.create(.5f),
+					TintTo.create(0.5f, 0, 0, 1),
+					DelayTime.create(.5f)
+					), 5));
+			sprite2.runAction(Repeat.create(Sequence.create(
+					DelayTime.create(5),
+					BezierBy.create(2, 900, 0, 350, 100),
+					BezierBy.create(2, -900, 0, -350, 100)
+					), 1));
+		}
+	
 	}
 }
