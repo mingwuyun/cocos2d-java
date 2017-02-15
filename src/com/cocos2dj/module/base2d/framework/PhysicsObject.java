@@ -327,7 +327,6 @@ public class PhysicsObject {
 	public final void setPosition(final float positionX,final float positionY){
 		physicsImpl.setPosition(positionX, positionY);
 		listener.onUpdatePosition(this);
-		
 	}
 	
 	/**获取physicsObject位置 

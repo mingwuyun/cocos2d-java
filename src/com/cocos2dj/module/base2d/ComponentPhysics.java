@@ -27,10 +27,22 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	
 	public ComponentPhysics() {
 		super();
+		_physicsMidifer = true;
 	}
 	
 	public ComponentPhysics(PhysicsObjectType type) {
 		super(type);
+		_physicsMidifer = true;
+	}
+	
+	public ComponentPhysics(boolean physicsModifer) {
+		super();
+		_physicsMidifer = physicsModifer;
+	}
+	
+	public ComponentPhysics(PhysicsObjectType type, boolean physicsModifer) {
+		super(type);
+		_physicsMidifer = physicsModifer;
 	}
 	
 	
@@ -44,7 +56,7 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	protected Node 		_owner;
 	protected String 	_name;
 	protected boolean	_enabled;
-	
+	final boolean		_physicsMidifer;		//是否允许物理引擎修正位置
 
 	
 	public ComponentPhysics bindNode(Node node) {
@@ -90,14 +102,19 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 		}
 		_owner.setOnTransformCallback(this);
 		setUserData(_owner);
-		listener = this;
+		
+		if(_physicsMidifer) {
+			listener = this;
+		} else {
+			listener = nullUpdateListener;
+		}
 	}
 
 	@Override
 	public void onRemove() {
 		_owner.setOnTransformCallback(null);
 		setUserData(null);
-		listener = null;
+		listener = nullUpdateListener;
 	}
 	
 	/*
