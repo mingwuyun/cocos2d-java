@@ -1,6 +1,12 @@
 package tests.testcase;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.cocos2dj.macros.CC;
+import com.cocos2dj.renderer.Texture;
+import com.cocos2dj.renderer.TextureRegion;
 import com.cocos2dj.s2d.ActionInstant.CallFunc;
+import com.cocos2dj.s2d.ActionInterval.ActionFloat;
+import com.cocos2dj.s2d.ActionInterval.Animate;
 import com.cocos2dj.s2d.ActionInterval.BezierBy;
 import com.cocos2dj.s2d.ActionInterval.DelayTime;
 import com.cocos2dj.s2d.ActionInterval.FadeIn;
@@ -18,6 +24,7 @@ import com.cocos2dj.s2d.ActionInterval.ScaleBy;
 import com.cocos2dj.s2d.ActionInterval.ScaleTo;
 import com.cocos2dj.s2d.ActionInterval.Sequence;
 import com.cocos2dj.s2d.ActionInterval.Spawn;
+import com.cocos2dj.s2d.ActionInterval.TargetedAction;
 import com.cocos2dj.s2d.ActionInterval.TintBy;
 import com.cocos2dj.s2d.ActionInterval.TintTo;
 import com.cocos2dj.s2d.Sprite;
@@ -33,7 +40,8 @@ import tests.TestSuite;
 public class ActionManagerTests extends TestSuite {
 	
 	public ActionManagerTests() {
-		
+		addTestCase("TargetedAndFloatTest", ()->{return new ActionTargetedTest();});
+		addTestCase("AnimationTest", ()->{return new ActionAnimaTest();});
 		addTestCase("TintTest", ()->{return new ActionTintTest();});
 		addTestCase("FadeTest", ()->{return new ActionFadeTest();});
 		addTestCase("ScaleTest", ()->{return new ActionScaleTest();});
@@ -363,6 +371,7 @@ public class ActionManagerTests extends TestSuite {
 			sprite1.setRect(0, 0, 100, 120);
 			sprite1.setPosition(100, 220);
 			sprite1.setAnchorPoint(0, 0);
+			
 			//单独运行TintBy
 			sprite1.runAction(Repeat.create(Sequence.create(
 					TintBy.create255(1f, -255, 0f, -255),
@@ -387,6 +396,79 @@ public class ActionManagerTests extends TestSuite {
 					BezierBy.create(2, 900, 0, 350, 100),
 					BezierBy.create(2, -900, 0, -350, 100)
 					), 1));
+		}
+	
+	}
+	
+	
+	//TODO AnimaTest
+	static class ActionAnimaTest extends ActionManagerTest {
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			Texture t = CC.LoadImage("walkanim.png");
+			TextureRegion[] ts = t.splitRowCol(1, 4);	//
+			
+			for(int i = 0; i < 4; ++i) {
+				Sprite.createWithSpriteFrame(ts[i]).addTo(this).setPosition(100 + 100 * i, 200);
+			}
+			
+			Animation animation = new Animation(3/30f, ts);
+			Sprite spriteAnimation = (Sprite) Sprite.create().addTo(this);
+			
+			//修正sprite大小等动画 size设置无效
+			spriteAnimation.runAction(RepeatForever.create(
+					Animate.create(animation, true)));
+			spriteAnimation.setContentSize(100, 100);
+			spriteAnimation.setPosition(600, 320);
+			
+			//不修正sprite大小的动画
+			Sprite spriteAnimation2 = (Sprite) Sprite.create().addTo(this);
+			spriteAnimation2.runAction(RepeatForever.create(
+					Animate.create(animation)));
+			
+			spriteAnimation2.setContentSize(100, 100);
+			spriteAnimation2.setPosition(800, 320);
+		}
+	
+	}
+	
+	//TODO Targeted and Float Test
+	static class ActionTargetedTest extends ActionManagerTest {
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			Sprite sprite1 = (Sprite) Sprite.create("powered.png").addTo(this);
+			Sprite sprite2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			Sprite sprite3 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite1.setScale(0.5f);
+			sprite2.setScale(0.5f);
+			sprite3.setScale(0.5f);
+			
+			sprite1.setPosition(100, 200);
+			sprite2.setPosition(400, 200);
+			sprite3.setPosition(1000, 200);
+			
+			JumpTo spr1JumpTo = JumpTo.create(1f, sprite2.getPosition(), 400, 1);
+			TargetedAction t1 = TargetedAction.create(sprite1, Sequence.create(spr1JumpTo, 
+					FadeOut.create(0.1f)));
+			
+			TargetedAction t2 = 
+					TargetedAction.create(sprite2, 
+					Sequence.create(
+						MoveTo.create(0.2f, sprite3.getPosition()),
+						CallFunc.create(()->{
+							sprite2.runAction(MoveTo.create(0.3f, 600, 800));
+						})));
+			
+			TargetedAction t3 = TargetedAction.create(sprite3, MoveTo.create(0.3f, 1100, 800));
+			
+			this.runAction(Sequence.create(t1, t2, t3));
+			
+			
+			runAction(ActionFloat.create(1, 0, 100, (f) -> {System.out.println("value = " + f);}));
 		}
 	
 	}

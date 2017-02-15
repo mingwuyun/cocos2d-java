@@ -3,6 +3,7 @@ package com.cocos2dj.s2d;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -13,7 +14,7 @@ import com.cocos2dj.renderer.GLProgramCache;
 import com.cocos2dj.renderer.RenderCommand;
 import com.cocos2dj.renderer.Renderer;
 import com.cocos2dj.renderer.Texture;
-import com.cocos2dj.renderer.TextureRegion;
+//import com.cocos2dj.renderer.TextureRegion;
 
 /**
  * Sprite.java
@@ -34,7 +35,9 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
      * @return An autoreleased sprite object.
      */
     public static Sprite create() {
-    	return new Sprite();
+    	Sprite sprite = new Sprite();
+    	sprite.init();
+    	return sprite;
     }
 
     /**
@@ -551,13 +554,16 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
      * @js ctor
      */
     //ctor>>
-    public Sprite() {
+    protected Sprite() {
     	_renderCommand = new RenderCommand.BatchCommand(this);
     }
 
     
     /* Initializes an empty sprite with no parameters. */
     public void init() {
+    	if(_sprite == null) {
+    		_sprite = new com.badlogic.gdx.graphics.g2d.Sprite();
+    	}
 //    	initWithTexture(null, Rect.Get(0, 0, 0, 0));
     }
 
@@ -598,7 +604,9 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	super.setAnchorPoint(0.5f, 0.5f);
     	super.setContentSize(rect.width, rect.height);
     	setPosition(rect.x + rect.width / 2f, rect.y + rect.height / 2f);
-    	_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(texture);
+    	if(_sprite == null) {
+    		_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(texture);
+    	}
     	return true;
     }
     
@@ -616,7 +624,9 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	super.setAnchorPoint(0.5f, 0.5f);
     	super.setContentSize(region.getRegionWidth(), region.getRegionHeight());
     	
-    	_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(region);
+    	if(_sprite != null) {
+    		_sprite = new com.badlogic.gdx.graphics.g2d.Sprite(region);
+    	}
     	return true;
     }
 
@@ -718,7 +728,9 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     			batch.setShader(_shaderProgram);
     		}
     	}
-		_sprite.draw(batch);
+    	if(_sprite.getTexture() != null) {
+    		_sprite.draw(batch);
+    	}
 	}
     
     

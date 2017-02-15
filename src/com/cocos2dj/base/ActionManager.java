@@ -357,7 +357,7 @@ public class ActionManager implements IUpdater {
    
    final void actionAllocWithHashElement(struct_hashElement element) {
 	   if(element.actions == null) {
-		   element.actions = new Array<>();
+		   element.actions = new Array<>(5);
 	   }
    }
 
@@ -382,7 +382,21 @@ public class ActionManager implements IUpdater {
 			   CCLog.engine("ActionManager", "action's originalTarget can't be null");
 			   return;
 		   }
+		   
 		   struct_hashElement element = _targets.get(target);
+		   if(element == null) {
+			   element = new struct_hashElement();
+			   element.paused = !target.isRunning();
+			   element.target = target;
+			   _targets.put(target, element);
+			   //TODO elements
+			   _elements.add(element);
+		   }
+		   actionAllocWithHashElement(element);
+
+//		   System.out.println("element = " + element);
+//		   System.out.println(" actions = " + element.actions);
+		   
 		   element.actions.add(action);
 	   }
 	   _toAddElements.clear();

@@ -1,9 +1,12 @@
 package com.cocos2dj.s2d;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.macros.CCMacros;
+import com.cocos2dj.protocol.IFunctionOneArg;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.Action.FiniteTimeAction;
 
@@ -41,7 +44,7 @@ public class ActionInterval extends FiniteTimeAction {
    }
 
    //
-   // Overrides
+   // s
    public boolean isDone() {
 //	   System.out.println(this + " [" + _elapsed + " " + _duration+"]"); 
 	   return _elapsed >= _duration;
@@ -126,7 +129,7 @@ public class ActionInterval extends FiniteTimeAction {
 	    }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public Sequence copy() {
 	    	FiniteTimeAction[] newActions = new FiniteTimeAction[_actions.length];
@@ -148,7 +151,7 @@ public class ActionInterval extends FiniteTimeAction {
 	    
 	    public void startWithTarget(INode target) {
 	    	if (target == null) {
-	            CCLog.error("Sequence", "Sequence::startWithTarget error: target is nullptr!");
+	            CCLog.error("Sequence", "Sequence::startWithTarget error: target is null!");
 	            return;
 	        }
 //	        if (_duration > CCMacros.FLT_EPSILON) {
@@ -185,7 +188,8 @@ public class ActionInterval extends FiniteTimeAction {
 	 	   }
 	 	   
 			FiniteTimeAction currAction = _actions[_currAction];
-			float currActionElapsed = _elapsed - _totalTime;
+			float currActionElapsed = _elapsed  - _totalTime;
+//			float currActionElapsed = t * _duration  - _totalTime;
 			currAction._firstTick = false;
 			currAction._elapsed = currActionElapsed;
 			
@@ -195,8 +199,8 @@ public class ActionInterval extends FiniteTimeAction {
 //			System.out.println("totalDuration = " + _duration);
 //			System.out.println("_elapsed" + _elapsed);
 			
-			if(currActionElapsed >= currAction._duration) {
-				
+//			if(currActionElapsed >= currAction._duration) {
+			if(currAction.isDone()) {
 				if(currAction._duration == 0) { //instant action.
 					currAction.update(1f);
 				}
@@ -279,7 +283,7 @@ public class ActionInterval extends FiniteTimeAction {
 	    }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public Repeat copy() {
 	    	return Repeat.create(_innerAction, _times);
@@ -306,9 +310,9 @@ public class ActionInterval extends FiniteTimeAction {
 			float currActionElapsed = _elapsed - totalTime;
 			_innerAction._firstTick = false;
 			_innerAction._elapsed = currActionElapsed;
-			
-			if(currActionElapsed >= _innerAction._duration 
-					&& _innerAction.isDone()) {	//FIX: 确保完成
+//			currActionElapsed >= _innerAction._duration 
+//					&& 
+			if(_innerAction.isDone()) {	//FIX: 确保完成
 				_elapsed = totalTime + _innerAction._duration;		//防止精度问题，重置为标准时间
 				
 				++_total;
@@ -386,7 +390,7 @@ public class ActionInterval extends FiniteTimeAction {
        }
 
        //
-       // Overrides
+       // s
        //
        public RepeatForever copy() {
 	    	return RepeatForever.create(_innerAction.copy());
@@ -426,9 +430,9 @@ public class ActionInterval extends FiniteTimeAction {
 
        /** initializes the action */
        public boolean initWithAction(ActionInterval action) {
-    	   assert action != null: "action can't be nullptr!";
+    	   assert action != null: "action can't be null!";
     	    if (action == null) {
-    	        CCLog.error("RepeatForever", "RepeatForever::initWithAction error:action is nullptr!");
+    	        CCLog.error("RepeatForever", "RepeatForever::initWithAction error:action is null!");
     	        return false;
     	    }
     	    _innerAction = action;
@@ -451,9 +455,9 @@ public class ActionInterval extends FiniteTimeAction {
        }
 
        //
-       // Overrides
+       // s
        //
-        public Spawn clone() {
+        public Spawn copy() {
         	FiniteTimeAction[] newActions = new FiniteTimeAction[_actions.length];
 	    	final int n = _actions.length - 1;
 	    	for(int i = 0; i <= n; ++i) {
@@ -472,7 +476,7 @@ public class ActionInterval extends FiniteTimeAction {
         }
         public void startWithTarget(INode target) {
         	if (target == null) {
-                CCLog.error("Spawn", "Spawn::startWithTarget error: target is nullptr!");
+                CCLog.error("Spawn", "Spawn::startWithTarget error: target is null!");
                 return;
             }
         	for(FiniteTimeAction action : _actions) {
@@ -558,7 +562,7 @@ public class ActionInterval extends FiniteTimeAction {
 //	    static MoveBy* create(float duration,  Vec3& deltaPosition);
 	
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public MoveBy copy() {
 	    	return MoveBy.create(_duration, _positionDeltaX, _positionDeltaY);
@@ -639,7 +643,7 @@ if (CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public MoveTo copy() {
 	    	return MoveTo.create(_duration, _endX, _endY);
@@ -690,7 +694,7 @@ if (CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public RotateTo copy() {
 	    	return RotateTo.create(_duration, _dstAngle);
@@ -767,7 +771,7 @@ if (CC_ENABLE_STACKABLE_ACTIONS) {
        }
 
        //
-       // Override
+       // 
        //
        public RotateBy copy() {
     	   return RotateBy.create(_duration, _deltaAngle);
@@ -854,7 +858,7 @@ if (CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 	    
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public BezierBy copy() {
 	    	return create(_duration, _endPositionX, _endPositionY, _control1X, _control1Y, _control2X, _control2Y);
@@ -965,7 +969,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public JumpBy copy() {
 	    	return JumpBy.create(_duration, _deltaX, _deltaY, _height, _jumps);
@@ -1079,7 +1083,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 
 	    //
-	    // Override
+	    // 
 	    //
 	     public void startWithTarget(INode target) {
 	    	 super.startWithTarget(target);
@@ -1150,7 +1154,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 	
 	    //
-	    // Overrides
+	    // s
 	    //
 	     public ScaleTo copy() {
 	    	 return ScaleTo.create(_duration, _endScaleX, _endScaleY);
@@ -1245,7 +1249,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public void startWithTarget(INode target) {
 	    	super.startWithTarget(target);
@@ -1278,7 +1282,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         //
-        // Overrides
+        // s
         //
          public Blink copy() {
         	 return Blink.create(_duration, _times);
@@ -1346,9 +1350,9 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         //
-        // Overrides
+        // s
         //
-         public FadeTo clone()  {
+         public FadeTo copy()  {
         	 return FadeTo.create(_duration, _toOpacity);
          }
          public FadeTo reverse()  {
@@ -1403,14 +1407,14 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         //
-        // Overrides
+        // s
         //
         public void startWithTarget(INode target) {
         	super.startWithTarget(target);
         	_toOpacity = 1f;
         	_fromOpacity = _target.getOpacity();
         }
-        public FadeIn clone() {
+        public FadeIn copy() {
         	return FadeIn.create(_duration);
         }
         public FadeOut reverse() {
@@ -1443,14 +1447,14 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
 	    //
-	    // Overrides
+	    // s
 	    //
 	    public void startWithTarget(INode target) {
 	    	super.startWithTarget(target);
 	    	_toOpacity = 0f;
 	    	_fromOpacity = _target.getOpacity();
 	    }
-	    public FadeOut clone() {
+	    public FadeOut copy() {
 	    	return FadeOut.create(_duration);
 	    }
 	    public FadeIn reverse() {
@@ -1499,7 +1503,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         //
-        // Overrides
+        // s
         //
         public TintTo copy() {
         	return TintTo.create(_duration, _toR, _fromG, _fromB);
@@ -1569,7 +1573,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         //
-        // Overrides
+        // s
         //
         public TintBy copy() {
         	 return TintBy.create(_duration, _deltaR, _deltaG, _deltaB);
@@ -1633,7 +1637,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         //
-        // Overrides
+        // s
         //
         /**
          * @param time In seconds.
@@ -1648,5 +1652,337 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
         }
 
         public DelayTime() {}
+    }
+    
+    /////////////////////////////////////////////
+    //TODO ReverseTime
+    /**update时间从1-0变换 不能用于repeat／sequence等动作 */
+    public static class ReverseTime extends ActionInterval {
+    	/** Creates the action.
+        *
+        * @param action a certain action.
+        * @return An autoreleased ReverseTime object.
+        * 不能用于repeat／sequence等动作
+        */
+       public static ReverseTime create(FiniteTimeAction action) {
+    	   ReverseTime ret = new ReverseTime();
+    	   if(ret.initWithAction(action.copy())) {
+    		   return ret;
+    	   }
+    	   return null;
+       }
+
+       //
+       // s
+       //
+       public ReverseTime reverse() {
+    	   //??
+    	   return (ReverseTime) _other.copy();
+       }
+       public ReverseTime copy() {
+    	   return ReverseTime.create(_other.copy());
+       }
+       public void startWithTarget(INode target) {
+    	   super.startWithTarget(target);
+    	   _other.startWithTarget(target);
+       }
+       public void stop() {
+    	   _other.stop();
+    	   super.stop();
+       }
+       
+       /**
+        * @param time In seconds.
+        */
+       public void update(float time) {
+    	   if(_other != null) {
+    		   if(!sendUpdateEventToScript(1-time, _other)) {
+    			   _other.update(1 - time);
+    		   }
+    	   }
+       }
+       
+       public ReverseTime() {
+    	   
+       }
+
+       /** initializes the action */
+       public boolean initWithAction(FiniteTimeAction action) {
+    	   assert action != null: "action can't be null!";
+    	   assert action != _other: "action doesn't equal to _other!";
+    	   if (action == null || action == _other) {
+    	        CCLog.error("ReverseTime", "ReverseTime::initWithAction error: action is null or action equal to _other");
+    	        return false;
+    	    }
+
+    	    if (initWithDuration(action.getDuration())) {
+    	        _other = action;
+    	        return true;
+    	    }
+    	    return false;
+       }
+
+       protected FiniteTimeAction _other;
+    }
+    
+    
+    //////////////////////////////////
+    //TODO Animate
+    public static class Animate extends ActionInterval {
+    	/** Creates the action with an Animation and will restore the original frame when the animation is over.
+        *
+        * @param animation A certain animation.
+        * @return An autoreleased Animate object.
+        */
+       public static Animate create(Animation animation) {
+    	   return create(animation, false);
+       }
+       /** Creates the action with an Animation and will restore the original frame when the animation is over.
+        *
+        * @param animation A certain animation.
+        * @param modifier true : reset sprite size to frame; false:use sprite size
+        * @return An autoreleased Animate object.
+        */
+       public static Animate create(Animation animation, boolean modifierSprite) {
+    	   Animate ret = new Animate();
+    	   if(ret.initWithAnimation(animation, modifierSprite)) {
+    		   return ret;
+    	   }
+    	   return null;
+       }
+
+       /** Sets the Animation object to be animated 
+        * 
+        * @param animation certain animation.
+        */
+       public void setAnimation( Animation animation ) {
+    	   _animation = animation;
+       }
+       /** returns the Animation object that is being animated 
+        *
+        * @return Gets the animation object that is being animated.
+        */
+       public Animation getAnimation() { return _animation;}
+
+       /**
+        * Gets the index of sprite frame currently displayed.
+        * @return int  the index of sprite frame currently displayed.
+        */
+       int getCurrentFrameIndex() { return _currFrameIndex; }
+       //
+       // s
+       //
+       public Animate copy() {
+    	   return Animate.create(_animation);
+       }
+       public Animate reverse() {
+    	   final TextureRegion[] srcRegions = _animation.getKeyFrames();
+    	   final int n = srcRegions.length;
+    	   TextureRegion[] newRegions = new TextureRegion[n]; 
+    	   for(int i = 0; i < n; ++i) {
+    		   newRegions[i] = srcRegions[n - 1 - i];
+    	   }
+    	   Animation newAnimation = new Animation(_animation.getFrameDuration(), newRegions);
+    	   newAnimation.setPlayMode(_animation.getPlayMode());
+    	   return Animate.create(newAnimation);
+       }
+       
+       public void startWithTarget(INode target) {
+    	   super.startWithTarget(target);
+    	   _currFrameIndex = 0;
+    	   if(_target instanceof Sprite) {
+    		   _tempSprite = (Sprite) _target;
+    	   } else {
+    		   CCLog.error("Animate", "animate action _target must instanceof Sprite!");
+    	   }
+       }
+       
+//       public void stop() {
+//    	   super.stop();
+//       }
+       
+       /**
+        * @param t In seconds.
+        */
+       public void update(float t) {
+    	   float stateTime = t * _duration;
+    	   _currFrameIndex = _animation.getKeyFrameIndex(stateTime);
+    	   if(_tempSprite != null) {
+    		   _tempSprite.setSpriteFrame(_animation.getKeyFrames()[_currFrameIndex], _modifierSprite);
+    	   } else {
+    		   CCLog.error("Animate", "animate action not found sprite !");
+    	   }
+       }
+       
+       public Animate() {
+    	   
+       }
+
+       /** initializes the action with an Animation and will restore the original frame when the animation is over */
+       public boolean initWithAnimation(Animation animation, boolean modifierSprite) {
+    	   if (animation == null) {
+    	        CCLog.error("Animate", "Animate::initWithAnimation: argument Animation must be non-nullptr");
+    	        return false;
+    	   }
+    	   if(super.initWithDuration(animation.getAnimationDuration())) {
+    		   _currFrameIndex = 0;
+    		   _modifierSprite = modifierSprite;
+    		   _animation = animation;
+    		   return true;
+    	   }
+    	   return false;
+       }
+       
+       protected Sprite		_tempSprite;
+       protected boolean	_modifierSprite;	//修正sprite大小
+       protected Animation 	_animation;
+       protected int 		_currFrameIndex;
+    }
+    
+    /////////////////////////////////
+    //TODO TargetedAction
+    public static class TargetedAction extends ActionInterval {
+    	/** Create an action with the specified action and forced target.
+         * 
+         * @param target The target needs to .
+         * @param action The action needs to .
+         * @return An autoreleased TargetedAction object.
+         */
+        public static TargetedAction create(Node target, FiniteTimeAction action) {
+        	TargetedAction ret = new TargetedAction();
+        	if(ret.initWithTarget(target, action)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+        /** Sets the target that the action will be forced to run with.
+         *
+         * @param forcedTarget The target that the action will be forced to run with.
+         */
+        public void setForcedTarget(Node forcedTarget) {
+        	_forcedTarget = forcedTarget;
+        }
+        /** returns the target that the action is forced to run with. 
+         *
+         * @return The target that the action is forced to run with.
+         */
+        public Node getForcedTarget() { return _forcedTarget; }
+
+        //
+        // s
+        //
+        public TargetedAction copy() {
+        	return TargetedAction.create(_forcedTarget, _action.copy());
+        }
+        
+        public TargetedAction reverse() {
+        	return TargetedAction.create(_forcedTarget, _action.reverse());
+        }
+        
+        public void startWithTarget(INode target) {
+        	super.startWithTarget(target);
+        	_action.startWithTarget(_forcedTarget);
+        }
+        public void stop() {
+        	_action.stop();
+        }
+
+        public boolean isDone() {
+        	return _action.isDone();
+        }
+        
+        /**
+         * @param time In seconds.
+         */
+        public void update(float time) {
+        	_action._elapsed = _elapsed;
+        	if(!sendUpdateEventToScript(time, _action)) {
+        		_action.update(time);
+        	}
+        }
+        
+        public TargetedAction() {
+        	
+        }
+
+        /** Init an action with the specified action and forced target */
+        public boolean initWithTarget(Node target, FiniteTimeAction action) {
+        	if(super.initWithDuration(action.getDuration())) {
+        		_forcedTarget = target;
+        		_action = action;
+        		return true;
+        	}
+        	return false;
+        }
+
+        protected FiniteTimeAction _action;
+        protected Node _forcedTarget;
+    }
+    
+    //////////////////////////////////////
+    //TODO ActionFloat
+    public static class ActionFloat extends ActionInterval {
+        /**
+         * Creates FloatAction with specified duration, from value, to value and callback to report back
+         * results
+         * @param duration of the action
+         * @param from value to start from
+         * @param to value to be at the end of the action
+         * @param callback to report back result
+         *
+         * @return An autoreleased ActionFloat object
+         */
+        public static ActionFloat create(float duration, float from, float to, IFunctionOneArg<Float> callback) {
+        	ActionFloat ret = new ActionFloat();
+        	if(ret.initWithDuration(duration, from, to, callback)) {
+        		return ret;
+        	}
+        	return null;
+        }
+
+        /**
+         * Overridden ActionInterval methods
+         */
+        public void startWithTarget(INode target) {
+        	super.startWithTarget(target);
+        	_delta = _to - _from;
+        }
+        
+        public void update(float delta) {
+        	float value = _to - _delta * (1 - delta);
+            if (_callback != null) {
+                // report back value to caller
+                _callback.callback(value);
+            }
+        }
+        public ActionFloat reverse() {
+        	return ActionFloat.create(_duration, _to, _from, _callback);
+        }
+        public ActionFloat copy() {
+        	return ActionFloat.create(_duration, _from, _to, _callback);
+        }
+
+        ActionFloat() {};
+
+        public boolean initWithDuration(float duration, float from, float to, IFunctionOneArg<Float> callback) {
+        	if(super.initWithDuration(duration)) {
+        		_from = from;
+        		_to = to;
+        		_callback = callback;
+        		return true;
+        	}
+        	return false;
+        }
+
+    
+        /* From value */
+        protected float _from;
+        /* To value */
+        protected float _to;
+        /* delta time */
+        protected float _delta;
+        /* Callback to report back results */
+        protected IFunctionOneArg<Float> _callback;
     }
 }
