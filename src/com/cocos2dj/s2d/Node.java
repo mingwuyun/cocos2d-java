@@ -2219,7 +2219,7 @@ public class Node implements INode, IUpdater {
 	// 对象池扩展
 	protected INodePool 		_nodePool;
 	protected INodeType			_nodeType; 
-	protected boolean			_inPool;
+	protected boolean			_inPool = true;
 	protected OnSleepCallback	_onSleepCallback;
 	protected OnAwakeCallback	_onAwakeCallback;
 	protected NodeProxy			_nodeProxy;
