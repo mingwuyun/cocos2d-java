@@ -1,6 +1,8 @@
 package com.cocos2dj.module.base2d;
 
 import com.badlogic.gdx.math.Vector2;
+import com.cocos2dj.macros.CC;
+import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.module.base2d.framework.PhysicsObject;
 import com.cocos2dj.module.base2d.framework.PhysicsObjectType;
 import com.cocos2dj.module.base2d.framework.callback.UpdateListener;
@@ -78,6 +80,14 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 
 	@Override
 	public void onAdd() {
+		if(isRemoved() && !checkRemoveFlag()) {
+			ModuleBase2d module = CC.GetRunningSceneModule(ModuleBase2d.class);
+			if(module != null) {
+				module.getCurrentPhysicsScene().add(this);
+			} else {
+				CCLog.error("ComponentPhysics", "this scene not found physics module");
+			}
+		}
 		_owner.setOnTransformCallback(this);
 		setUserData(_owner);
 		listener = this;

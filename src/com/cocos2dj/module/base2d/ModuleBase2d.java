@@ -63,6 +63,9 @@ public class ModuleBase2d extends Module implements IUpdater {
 		return false;
 	}
 	
+	public PhysicsScene getCurrentPhysicsScene() {
+		return physicsScene;
+	}
 	
 	//fields>>
 	private Base2D 			base2d;
