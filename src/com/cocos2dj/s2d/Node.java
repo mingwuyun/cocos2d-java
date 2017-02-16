@@ -2268,7 +2268,7 @@ public class Node implements INode, IUpdater {
 
 	@Override
 	public void onSleep() {
-		_running = false;
+//		_running = false;
 		
 		if(_onSleepCallback != null) {
     		_onSleepCallback.onSleep(this);
@@ -2289,7 +2289,7 @@ public class Node implements INode, IUpdater {
 
 	@Override
 	public void onAwake() {
-		_running = true;
+//		_running = true;
 		
 		if(_onAwakeCallback != null) {
 			_onAwakeCallback.onAwake(this);
