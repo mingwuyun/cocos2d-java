@@ -45,7 +45,6 @@ public class Base2dNode extends Node implements UpdateListener {
 	
 	protected ComponentPhysics		_physics;
 	
-	
 	protected Base2dNode() {}
 	
 	protected int initWithPhysics(ComponentPhysics physics) {
@@ -53,6 +52,7 @@ public class Base2dNode extends Node implements UpdateListener {
 		_physics.setNodeModifer(false);		//close node modifer
 		_physics.setPhysicsModifer(false);	//close physics modifer
 		_physics.setPositionUpdateListener(this);
+		_physics.setPosition(getPositionX(), getPositionY());
 		return super.addComponent(_physics);
 	}
 	
@@ -71,6 +71,10 @@ public class Base2dNode extends Node implements UpdateListener {
 	}
 	
 	public void setPosition(Vector2 position) {
+//		superSetPosition(position);
+//		if(_physics == null) {
+//			return;
+//		}
 		//转换到world坐标中设置
 		if(_parent != null) {
 			Vector2 temp = _parent.convertToWorldSpace(position);
@@ -79,6 +83,7 @@ public class Base2dNode extends Node implements UpdateListener {
 			Vector2 temp = position;
 			_physics.setPosition(temp.x, temp.y);
 		}
+//		superSetPosition(position);
 	}
 	
 	public final void superSetPosition(final Vector2 pos) {
@@ -95,8 +100,19 @@ public class Base2dNode extends Node implements UpdateListener {
 	    _physicsCallFlag = false;
 	}
 	
+//	public boolean update(float dt) {
+//		super.update(dt);
+//		//需要转换为world坐标再设置更新
+//		if(_parent != null) {
+//			superSetPosition(_parent.convertToNodeSpace(_physics.getPosition()));
+//		} else {
+//			superSetPosition(_physics.getPosition());
+//		}
+//		return false;
+//	}
+	
 	public void onUpdatePosition(PhysicsObject o) {
-		//需要转换为world坐标再设置更新
+//		需要转换为world坐标再设置更新
 		if(_parent != null) {
 			superSetPosition(_parent.convertToNodeSpace(o.getPosition()));
 		} else {
