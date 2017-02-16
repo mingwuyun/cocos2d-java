@@ -8,7 +8,7 @@ public class DefaultContactListener implements ContactListener {
 
 	@Override
 	public boolean cancelContact(PhysicsObject o1, PhysicsObject o2) {
-		return o1.cancelContact(o2) && o2.cancelContact(o1);
+		return o1.cancelContact(o2) || o2.cancelContact(o1);
 	}
 
 	@Override
