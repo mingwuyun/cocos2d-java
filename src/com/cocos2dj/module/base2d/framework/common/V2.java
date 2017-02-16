@@ -31,6 +31,8 @@ import com.badlogic.gdx.math.Vector2;
  */
 public final class V2 {
 	
+	public static Vector2 stackVec2 = new Vector2();
+	
 	/**(x, y) <- (y, x)*/
 	public static final void swap(Vector2 self){
 		float temp = self.x;

@@ -1013,6 +1013,11 @@ public class Node implements INode, IUpdater {
   			if (_isTransitionFinished) {
   				child.onEnterTransitionDidFinish();
   			}
+  			
+  			//FIX : onEnter() may call later then onSleep(). check and recall here
+  			if(_inPool) {
+  				onSleep();
+  			}
   		}
       
   		if (_cascadeColorEnabled) {
@@ -2156,6 +2161,7 @@ public class Node implements INode, IUpdater {
     protected OnExitTransitionDidStartCallback 		_onExitTransitionDidStartCallback;
     
     protected OnTransformCallback	_onTransformCallback;
+    
     protected boolean 				_physicsCallFlag;		
     
     public final float getModelRotation() {
@@ -2219,7 +2225,7 @@ public class Node implements INode, IUpdater {
 	// 对象池扩展
 	protected INodePool 		_nodePool;
 	protected INodeType			_nodeType; 
-	protected boolean			_inPool = true;
+	protected boolean			_inPool;
 	protected OnSleepCallback	_onSleepCallback;
 	protected OnAwakeCallback	_onAwakeCallback;
 	protected NodeProxy			_nodeProxy;
@@ -2262,6 +2268,8 @@ public class Node implements INode, IUpdater {
 
 	@Override
 	public void onSleep() {
+		_running = false;
+		
 		if(_onSleepCallback != null) {
     		_onSleepCallback.onSleep(this);
     	}	
@@ -2281,6 +2289,8 @@ public class Node implements INode, IUpdater {
 
 	@Override
 	public void onAwake() {
+		_running = true;
+		
 		if(_onAwakeCallback != null) {
 			_onAwakeCallback.onAwake(this);
     	}	

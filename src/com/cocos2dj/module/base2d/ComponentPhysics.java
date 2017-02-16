@@ -27,12 +27,10 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	
 	public ComponentPhysics() {
 		super();
-		_physicsMidifer = true;
 	}
 	
 	public ComponentPhysics(PhysicsObjectType type) {
 		super(type);
-		_physicsMidifer = true;
 	}
 	
 	public ComponentPhysics(boolean physicsModifer) {
@@ -43,6 +41,12 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	public ComponentPhysics(PhysicsObjectType type, boolean physicsModifer) {
 		super(type);
 		_physicsMidifer = physicsModifer;
+	}
+	
+	public ComponentPhysics(PhysicsObjectType type, boolean physicsModifer, boolean nodeModifer) {
+		super(type);
+		_physicsMidifer = physicsModifer;
+		_nodeModifer = nodeModifer;
 	}
 	
 	
@@ -56,7 +60,8 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	protected Node 		_owner;
 	protected String 	_name;
 	protected boolean	_enabled;
-	final boolean		_physicsMidifer;		//是否允许物理引擎修正位置
+	boolean				_nodeModifer = true;			//是否允许节点修正位置
+	boolean				_physicsMidifer = true;		//是否允许物理引擎修正位置
 
 	
 	public ComponentPhysics bindNode(Node node) {
@@ -65,6 +70,12 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	}
 	
 	
+	public void setNodeModifer(boolean enable) {
+		_nodeModifer = enable;
+	}
+	public void setPhysicsModifer(boolean enable) {
+		_physicsMidifer = enable;
+	}
 	
 	//override>>
 	@Override
@@ -100,18 +111,21 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 				CCLog.error("ComponentPhysics", "this scene not found physics module");
 			}
 		}
-		_owner.setOnTransformCallback(this);
+		
+		if(_nodeModifer) {			//节点修正
+			_owner.setOnTransformCallback(this);
+		}
+		
 		setUserData(_owner);
 		
-		if(_physicsMidifer) {
-			listener = this;
-		} else {
-			listener = nullUpdateListener;
+		if(_physicsMidifer) {		//物理修正
+			setPositionUpdateListener(this);
 		}
 	}
 
 	@Override
 	public void onRemove() {
+		removeSelf();
 		_owner.setOnTransformCallback(null);
 		setUserData(null);
 		listener = nullUpdateListener;

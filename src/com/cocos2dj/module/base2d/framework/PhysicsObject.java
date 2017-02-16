@@ -142,6 +142,9 @@ public class PhysicsObject {
 		this.listener = listener;
 	}
 	
+	public final void setPositionUpdateListener(UpdateListener listener) {
+		this.listener = listener == null ? nullUpdateListener : listener;
+	}
 	
 	public final boolean isSleep() {return sleep;}
 	/**
@@ -384,7 +387,7 @@ public class PhysicsObject {
 	}
 	
 	public final void move(final TimeInfo time) {
-		physicsImpl.move(time, null, this); //generator 位移修正
+		physicsImpl.move(time, poolVector2, this); //generator 位移修正
 	}
 	
 	/**更新AABB以及返回时间步内移动的距离，调用updateListener接口方法

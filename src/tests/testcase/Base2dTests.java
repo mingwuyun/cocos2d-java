@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.basic.BaseInput;
+import com.cocos2dj.module.base2d.Base2dNode;
 import com.cocos2dj.module.base2d.ComponentPhysics;
 import com.cocos2dj.module.base2d.ComponentPhysics.ContactCallback;
 import com.cocos2dj.module.base2d.ModuleBase2d;
@@ -17,6 +18,7 @@ import com.cocos2dj.module.base2d.framework.collision.Polygon;
 import com.cocos2dj.module.base2d.framework.common.MathUtils;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.ActionInterval.JumpBy;
+import com.cocos2dj.s2d.ActionInterval.Repeat;
 import com.cocos2dj.s2d.Camera;
 import com.cocos2dj.s2d.DrawNode;
 import com.cocos2dj.s2d.Node;
@@ -34,6 +36,7 @@ import tests.TestSuite;
 public class Base2dTests extends TestSuite {
 	
 	public Base2dTests() {
+		addTestCase("Base2dNodeTest", ()->{return new Base2DNodeTest();});
 		addTestCase("GeneratorTest", ()->{return new Base2DGeneratorTest();});
 		addTestCase("Base2DTest2", ()->{return new Base2DTest2();});
 		addTestCase("Base2DTest1", ()->{return new Base2DTest1();});
@@ -147,7 +150,7 @@ public class Base2dTests extends TestSuite {
 		
 		public void init(Scene scene) {
 			ModuleBase2d base2d = (ModuleBase2d) scene.getModule(ModuleBase2d.class);
-			aim = Node.create().addTo(scene);
+			aim = Base2dNode.create().addTo(scene);
 			aim.setNodeCallback(this);
 			aim.scheduleUpdate();
 			
@@ -353,6 +356,59 @@ public class Base2dTests extends TestSuite {
 			node.setPosition(100, 200);
 			JumpBy jb = JumpBy.create(2f, 0, 0, 300, 1);
 			node.runAction(jb);
+			phy.setVelocityX(2f);
+		}
+		
+		public boolean update(float dt) {
+			super.update(dt);
+			return false;
+		}
+		
+		public String subtitle() {
+			return "contactListener and sleep/awake";
+		}
+	}
+	
+	///////////////////////////////////
+	// Base2DNode测试	
+	static class Base2DNodeTest extends Base2DDemo {
+		
+		ModuleBase2d 	moduleBase2d;
+		Mario 			mario;
+		
+		public void onEnter() {
+			super.onEnter();
+			
+			// 添加moduleBase2d插件
+			moduleBase2d = createModule(ModuleBase2d.class);	
+			
+			DrawNode ground = (DrawNode) DrawNode.create().addTo(this);
+			ground.drawRect(0, 0, 1500, 100, null);
+			moduleBase2d.createStaticObjectWithAABBWorld(0, 0, 1500, 100);
+			
+			mario = new Mario();
+			mario.init(this);
+//			
+			mario.aim.setPosition(50, 300);
+			
+			
+			PhysicsGenerator testG = mario.body.addGenerator(PhysicsGenerator.TEST, true);
+			scheduleOnce((t)->{
+				testG.stop();
+				return false;
+			}, 2);
+			
+			
+			//如果绑定物理对象，建议使用Base2dNode绑定而不是Node
+			Node node = Base2dNode.create().addTo(this);
+			DrawNode test = (DrawNode) DrawNode.create().addTo(node);
+			test.drawSolidRect(0, 0, 100, 100, Color.GREEN);
+			ComponentPhysics phy = moduleBase2d.createDynamicObjectWithAABB(0, 0, 100, 100).bindNode(node);
+			
+			//部分action对physics有效
+			node.setPosition(100, 150);
+			JumpBy jb = JumpBy.create(2f, 0, 0, 300, 1);
+			node.runAction(Repeat.create(jb, 5));
 			phy.setVelocityX(2f);
 		}
 		

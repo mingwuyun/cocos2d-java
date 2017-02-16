@@ -138,7 +138,7 @@ public class NodePool<T extends Node> implements INodePool {
 			pool = new ObjectPool<T>(clazz, argInitSize, argParam, argArgs) {
 				public void onCreated(T t){
 					t._setNodePool(NodePool.this);	//先设置为pool对象
-					
+					t._setInPool(true);
 					onCreate(t);
 					
 					parent.addChild(t);
@@ -158,7 +158,7 @@ public class NodePool<T extends Node> implements INodePool {
 			pool = new ObjectPoolLinear<T>(clazz, argInitSize, argAddCount, argParam, argArgs){
 				public void onCreated(T t){
 					t._setNodePool(NodePool.this);
-					
+					t._setInPool(true);
 					onCreate(t);
 					
 					parent.addChild(t);
