@@ -18,7 +18,40 @@ public class Direct {
 	public static final int DOWN = 7;
 	public static final int RIGHT_DOWN = 8;
 	
-	
+	/*
+	 * up:			1000
+	 * down:		0100
+	 * left: 		0010
+	 * right:		0001
+	 * leftup:		
+	 * leftdown:	
+	 * rightup:		
+	 * rightdown:	
+	 */
+	public static final int getDirect(boolean up, boolean down, boolean left, boolean right) {
+		if(left) {
+			if(up) {
+				return Direct.LEFT_UP;
+			} else if(down) {
+				return Direct.LEFT_DOWN;
+			} else {
+				return Direct.LEFT;
+			}
+		} else if(right) {
+			if(up) {
+				return Direct.RIGHT_UP;
+			} else if(down) {
+				return Direct.RIGHT_DOWN;
+			} else {
+				return Direct.RIGHT;
+			}
+		} else if(up) {
+			return Direct.UP;
+		} else if(down) {
+			return Direct.DOWN;
+		}
+		return Direct.NULL;
+	}
 	
 	/**����t1�����t0�ķ�λ���ķ���
 	 * @return t1�����t0�ķ�λ Direct��ĳ��� */

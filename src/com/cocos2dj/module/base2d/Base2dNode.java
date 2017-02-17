@@ -72,9 +72,10 @@ public class Base2dNode extends Node implements UpdateListener {
 	
 	public void setPosition(Vector2 position) {
 //		superSetPosition(position);
-//		if(_physics == null) {
-//			return;
-//		}
+		if(_physics == null) {
+			superSetPosition(position);
+			return;
+		}
 		//转换到world坐标中设置
 		if(_parent != null) {
 			Vector2 temp = _parent.convertToWorldSpace(position);
