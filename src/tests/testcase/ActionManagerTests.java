@@ -8,6 +8,7 @@ import com.cocos2dj.s2d.ActionInstant.CallFunc;
 import com.cocos2dj.s2d.ActionInterval.ActionFloat;
 import com.cocos2dj.s2d.ActionInterval.Animate;
 import com.cocos2dj.s2d.ActionInterval.BezierBy;
+import com.cocos2dj.s2d.ActionInterval.BezierTo;
 import com.cocos2dj.s2d.ActionInterval.DelayTime;
 import com.cocos2dj.s2d.ActionInterval.FadeIn;
 import com.cocos2dj.s2d.ActionInterval.FadeOut;
@@ -280,6 +281,18 @@ public class ActionManagerTests extends TestSuite {
 //					MoveBy.create(1, -900, -300)
 					), 1));
 			sprite2.runAction(MoveBy.create(4, 0, 300));
+			
+			
+			Sprite sprite3 = (Sprite) Sprite.create("powered.png").addTo(this);
+			sprite3.setRect(0, 0, 100, 120);
+			sprite3.setPosition(1100, 220);
+			
+			sprite3.runAction(Repeat.create(Sequence.create(
+					BezierTo.create(2, 100, 220, 450, 500),
+					BezierTo.create(2, 900, 300,  450, 500)
+//					MoveBy.create(1, -900, -300)
+					), 1));
+			sprite3.runAction(MoveBy.create(4, 0, 300));
 		}
 	}
 	

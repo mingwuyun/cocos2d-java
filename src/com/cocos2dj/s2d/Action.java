@@ -116,6 +116,28 @@ public class Action implements IAction {
 	//fields<<
 	
 	
+	/**
+	 * 不限制执行时间的动作
+	 * 需要自行设定终结条件
+	 */
+	public static class InfiniteTimeAction extends Action {
+		
+		public void setDone(boolean isDone) {_isDone = isDone;}
+		
+		public InfiniteTimeAction reverse() {
+			return null;
+		}
+		public InfiniteTimeAction copy() {
+			return null;
+		}
+		
+		public boolean isDone() {
+			return _isDone;
+		}
+		
+		protected boolean _isDone;
+	}
+	
 	/** @class FiniteTimeAction
 	 * @brief
 	 * Base class actions that do have a finite time duration.

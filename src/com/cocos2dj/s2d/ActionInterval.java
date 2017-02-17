@@ -926,6 +926,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	    protected float 		_startPositionY;
 	    protected float			_prevPositionX;
 	    protected float			_prevPositionY;
+	    
 	    protected float 		_endPositionX;
 	    protected float			_endPositionY;
 	    protected float 		_control1X;
@@ -938,7 +939,84 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
    
    ////////////////////////////////////////////////////
    //TODO BezierTo
-//   public static class 
+   public static class BezierTo extends BezierBy {
+	   
+	   public static BezierTo create(float t, Vector2 end, Vector2 control1, Vector2 control2) {
+	    	return BezierTo.create(t, end.x, end.y, control1.x, control1.y, control2.x, control2.y);
+	   }
+	   
+	   public static BezierTo create(float t, Vector2 end, Vector2 control) {
+	    	return BezierTo.create(t, end.x, end.y, control.x, control.y, control.x, control.y);
+	   }
+	   
+	   public static BezierTo create(float t, float endX, float endY, float cX, float cY) {
+		   return BezierTo.create(t, endX, endY, cX, cY, cX, cY);
+	   }
+	   
+	   /** Creates the action with a duration and a bezier configuration.
+	     * @param t Duration time, in seconds.
+	     * @param c Bezier config.
+	     * @return An autoreleased BezierTo object.
+	     * @code
+	     * when this function bound to js or lua,the input params are changed
+	     * in js: var create(var t,var table)
+	     * in lua: local create(local t, local table)
+	     * @endcode
+	     */
+	    public static BezierTo create(float t, float endX, float endY, float c1X, float c1Y, float c2X, float c2Y) {
+	    	BezierTo ret = new BezierTo();
+	    	if(ret.initWithDuration(t, endX, endY, c1X, c1Y, c2X, c2Y)) {
+	    		return ret;
+	    	}
+	    	return null;
+	    }
+
+	    //
+	    // Overrides
+	    //
+	    public void startWithTarget(INode target) {
+	    	super.startWithTarget(target);
+	    	_control1X = _to_control1X - _startPositionX;
+	    	_control1Y = _to_control1Y - _startPositionY;
+	    	
+	    	_control2X = _to_control2X - _startPositionX;
+	    	_control2Y = _to_control2Y - _startPositionY;
+	    	
+	    	_endPositionX = _to_endPositionX - _startPositionX;
+	    	_endPositionY = _to_endPositionY - _startPositionY;
+	    }
+	    
+	    public BezierTo copy() {
+	    	return BezierTo.create(_duration, _to_endPositionX, _to_endPositionY, _to_control1X, _to_control1Y, _to_control2X, _to_control2Y);
+	    }
+	    public BezierTo reverse() {
+	    	throw new RuntimeException("BezierTo doesn't support the 'reverse' method");
+	    }
+	    
+	    public BezierTo() {}
+	    /*
+	     * @param t In seconds.
+	     */
+	    public boolean initWithDuration(float t, float endX, float endY, float c1X, float c1Y, float c2X, float c2Y) {
+	    	if(super.initWithDuration(t)) {
+	    		_to_control1X = c1X;
+	    		_to_control1Y = c1Y;
+	    		_to_control2X = c2X;
+	    		_to_control2Y = c2Y;
+	    		_to_endPositionX = endX;
+	    		_to_endPositionY = endY;
+	    		return true;
+	    	}
+	    	return false;
+	    }
+	    
+	    protected float 		_to_endPositionX;
+	    protected float			_to_endPositionY;
+	    protected float 		_to_control1X;
+	    protected float			_to_control1Y;
+	    protected float			_to_control2X;
+	    protected float 		_to_control2Y;
+   }
    
    
    ////////////////////////////////////////////////////
