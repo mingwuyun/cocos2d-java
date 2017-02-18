@@ -2,9 +2,6 @@ package tests.testcase;
 
 import com.badlogic.gdx.graphics.Color;
 import com.cocos2dj.base.Rect;
-import com.cocos2dj.s2d.ActionCondition;
-import com.cocos2dj.s2d.ActionCondition.Move;
-import com.cocos2dj.s2d.ActionInterval.MoveBy;
 import com.cocos2dj.s2d.ActionInterval.MoveTo;
 import com.cocos2dj.s2d.ActionInterval.RotateBy;
 import com.cocos2dj.s2d.DrawNode;
@@ -53,22 +50,14 @@ public class NodeTests extends TestSuite {
 				Rect r = node.getBoundingBox();
 				debugDraw.drawRect(r.x, r.y, r.x + r.width, r.y + r.height, null);
 			});
-//			node.scheduleUpdate();
-//			node.setAnchorPoint(0f, 0f);
-//			node.runAction(MoveTo.create(2, 1000, 500));
-//			node.runAction(RotateBy.create(2, 1000));
+			node.scheduleUpdate();
+			node.setAnchorPoint(0f, 0f);
+			node.runAction(MoveTo.create(2, 1000, 500));
+			node.runAction(RotateBy.create(2, 1000));
 			
 			
-			ActionCondition ac = new ActionCondition() {
-				public void update(float t) {
-					System.out.println("ac = " + t);
-					if(t > 5) {
-						setDone(true);
-					}
-				}
-			};
-			node.runAction(Move.create(2, 0, 100));
-			node.runAction(MoveBy.create(0.5f, 500, 100));
+//			node.runAction(Move.create(2, 0, 100));
+//			node.runAction(MoveBy.create(0.5f, 500, 100));
 			
 			node.setColor(Color.RED);
 			node.setOpacity(0.5f);
