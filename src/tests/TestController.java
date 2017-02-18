@@ -11,6 +11,7 @@ import tests.testcase.BehaviorTreeTests;
 import tests.testcase.CameraTests;
 import tests.testcase.DrawNodeTests;
 import tests.testcase.EventTests;
+import tests.testcase.FiniteActionTests;
 import tests.testcase.InfiniteActionTests;
 import tests.testcase.NodeTests;
 import tests.testcase.ShaderTests;
@@ -117,8 +118,9 @@ public class TestController {
 //    		System.out.println("d = " + this + "  " + _director);
     		addTest("NodeTests", ()->{return new NodeTests();});
     		addTest("EventTests", ()->{return new EventTests();});
+    		addTest("ActionManagerTests", ()->{return new ActionManagerTests();});
+    		addTest("FiniteActionTests", ()->{return new FiniteActionTests();});
     		addTest("InfiniteActionTests", ()->{return new InfiniteActionTests();});
-    		addTest("ActionTests", ()->{return new ActionManagerTests();});
     		addTest("SpriteTests", ()->{return new SpriteTests();});
     		addTest("CameraTests", ()->{return new CameraTests();});
     		addTest("ShaderTests", ()->{return new ShaderTests();});
