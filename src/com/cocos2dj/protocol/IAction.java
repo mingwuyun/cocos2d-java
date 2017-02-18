@@ -19,4 +19,10 @@ public interface IAction {
 	
 	public boolean isDone();
 	
+	/**设置是否在ActionManager中执行 */
+	public void setAttached(boolean attached);
+	
+	/**@return 是否在ActionManager中执行 */
+	public boolean isAttached();
+	
 }

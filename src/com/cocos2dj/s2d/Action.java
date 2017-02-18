@@ -98,7 +98,9 @@ public class Action implements IAction {
 	public boolean isDone() {
 		return true;
 	}
-
+	
+	public boolean isAttached() {return _attached;}
+	public void setAttached(boolean attached) {_attached = attached;}
 	
 	//fields>>
 	protected INode		_originalTarget;
@@ -113,6 +115,8 @@ public class Action implements IAction {
 	protected int 		_tag = IAction.INVALID_TAG;
 	 /** The action flag field. To categorize action into certain groups.*/
 	protected int 		_flags = 0;
+	
+	protected boolean 	_attached = false;
 	//fields<<
 	
 	

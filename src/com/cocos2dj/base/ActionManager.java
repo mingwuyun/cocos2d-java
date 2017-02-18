@@ -48,6 +48,9 @@ public class ActionManager implements IUpdater {
 	   
 	   assert !element.actions.contains(action, true) :"action already be added!";
 	   
+	   //TODO action attach
+	   action.setAttached(true);
+	   
 	   if(_lock) {		//添加到缓存队列
 		   _toAddElements.add(action);
 		   action.startWithTarget(target);
@@ -84,6 +87,10 @@ public class ActionManager implements IUpdater {
 			   element.currentActionSalvaged = true;
 		   }
 		   
+		   for(IAction action : element.actions) {
+			 //TODO action detach
+			   action.setAttached(false);
+		   }
 		   element.actions.clear();
 //		   if(_currentTarget == element) {
 //			   _currentTargetSalvaged = true;
@@ -332,6 +339,9 @@ public class ActionManager implements IUpdater {
    // declared in ActionManager.m
    final void removeActionAtIndex(int index, struct_hashElement element) {
 	   IAction action = element.actions.get(index);
+	   
+	 //TODO action detach
+	   action.setAttached(false);
 	   
 	   if(action == element.currentAction && !element.currentActionSalvaged) {
 		   element.currentActionSalvaged = true;

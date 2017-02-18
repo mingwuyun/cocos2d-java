@@ -48,8 +48,12 @@ public class ShaderTests extends TestSuite {
 				
 			ShaderProgram shader = GLProgramCache.getInstance().loadGLProgramFromStringAndFile(
 					GLProgramCache.getInstance().getSpriteBatchDefaultProgram().getVertexShaderSource(), 
-					"shader/ice.fragment.glsl");
-			spriteShader.setShaderProgram(shader);
+					"shader/flip.fragment.glsl");
+//			shader.setUniformi("", 1);
+//			spriteShader.setShaderProgram(shader);
+			
+//			spriteShader.getGLProgramShader().set;
+			
 			
 			scheduleUpdate();
 		}

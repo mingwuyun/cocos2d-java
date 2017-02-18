@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.Action.InfiniteTimeAction;
-import com.cocos2dj.s2d.ActionInterval.JumpBy;
 
 /**
  * ActionCondition.java
@@ -366,6 +365,7 @@ if(CC_ENABLE_STACKABLE_ACTIONS) {
 	     */
 	    public void update(float t) {
 	        // parabolic jump (since v0.8.2)
+	    	System.out.println("t = " + t);
 	    	t /= _timeUnit;
 	        if (_target != null) {
 	            float frac = t;// * _jumps % 1.0f;
