@@ -8,7 +8,6 @@ import com.cocos2dj.module.base2d.framework.PhysicsObjectType;
 import com.cocos2dj.module.base2d.framework.callback.UpdateListener;
 import com.cocos2dj.module.base2d.framework.collision.ContactCollisionData;
 import com.cocos2dj.protocol.IComponent;
-import com.cocos2dj.protocol.INode;
 import com.cocos2dj.s2d.Node;
 
 /**
@@ -23,7 +22,7 @@ import com.cocos2dj.s2d.Node;
  * 
  * @author Copyright(c) 2017 xu jun
  */
-public class ComponentPhysics extends PhysicsObject implements IComponent, INode.OnTransformCallback, UpdateListener {
+public class ComponentPhysics extends PhysicsObject implements IComponent, UpdateListener {
 	
 	public ComponentPhysics() {
 		super();
@@ -43,13 +42,6 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 		_physicsMidifer = physicsModifer;
 	}
 	
-	public ComponentPhysics(PhysicsObjectType type, boolean physicsModifer, boolean nodeModifer) {
-		super(type);
-		_physicsMidifer = physicsModifer;
-		_nodeModifer = nodeModifer;
-	}
-	
-	
 	public final void setOwner(Node owner) {this._owner = owner;}
 	public final Node getOwner() {return _owner;}
 	public boolean isEnabled() {return _enabled;}
@@ -60,7 +52,6 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	protected Node 		_owner;
 	protected String 	_name;
 	protected boolean	_enabled;
-	boolean				_nodeModifer = true;			//是否允许节点修正位置
 	boolean				_physicsMidifer = true;		//是否允许物理引擎修正位置
 
 	
@@ -69,10 +60,6 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 		return this;
 	}
 	
-	
-	public void setNodeModifer(boolean enable) {
-		_nodeModifer = enable;
-	}
 	public void setPhysicsModifer(boolean enable) {
 		_physicsMidifer = enable;
 	}
@@ -112,10 +99,6 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 			}
 		}
 		
-		if(_nodeModifer) {			//节点修正
-			_owner.setOnTransformCallback(this);
-		}
-		
 		setUserData(_owner);
 		
 		if(_physicsMidifer) {		//物理修正
@@ -126,7 +109,6 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	@Override
 	public void onRemove() {
 		removeSelf();
-		_owner.setOnTransformCallback(null);
 		setUserData(null);
 		listener = nullUpdateListener;
 	}
@@ -135,9 +117,8 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 	 * base2d并不是刚体模拟物理引擎，
 	 * rotation不做同步
 	 */
-	//node更新物理对象位置
-	@Override
-	public final void onTransform(INode n) {
+	//node更新物理对象位置，physics主动更新
+	public void updateObject() {
 		final Node parent = _owner.getParent();
 		//转换到world坐标中设置
 		if(parent != null) {
@@ -160,7 +141,7 @@ public class ComponentPhysics extends PhysicsObject implements IComponent, INode
 		} else {
 			_owner.setPosition(o.getPosition());
 		}
-		_owner._setPhysicsCallFlag();
+//		_owner._setPhysicsCallFlag();
 	}
 	
 	

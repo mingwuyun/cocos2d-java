@@ -26,7 +26,9 @@ public class PosSolver {
 			}
 			
 			//更新速度
+			temp.updateObject();
 			temp.updateVelocity(time);
+			
 		
 			switch(temp.getPhysicsObjectType()) {
 			case Detect: {

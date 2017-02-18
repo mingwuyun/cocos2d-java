@@ -319,7 +319,7 @@ public class Node implements INode, IUpdater {
         _usingNormalizedPosition = true;
         _normalizedPositionDirty = true;
         _transformUpdated = _transformDirty = _inverseDirty = true;
-        _physicsCallFlag = false;
+//        _physicsCallFlag = false;
     }
 
     /**
@@ -366,7 +366,7 @@ public class Node implements INode, IUpdater {
         
         _transformUpdated = _transformDirty = _inverseDirty = true;
         _usingNormalizedPosition = false;
-        _physicsCallFlag = false;
+//        _physicsCallFlag = false;
     }
     
     /**
@@ -548,7 +548,7 @@ public class Node implements INode, IUpdater {
     	    
     	_rotationZ = rotation;
 	    _transformUpdated = _transformDirty = _inverseDirty = true;
-	    _physicsCallFlag = false;
+//	    _physicsCallFlag = false;
 	    updateRotationQuat();
     }
     
@@ -2059,7 +2059,7 @@ public class Node implements INode, IUpdater {
 	        _modelViewTransform = this.transform(parentTransform);
 	        
 //	        System.out.println("trigger trans  " + _physicsCallFlag + " / " + _onTransformCallback);
-	        if(_onTransformCallback != null && !_physicsCallFlag) {
+	        if(_onTransformCallback != null) {//&& !_physicsCallFlag) {
 		    	_onTransformCallback.onTransform(this);
 		    }
 //	        Vector3 d = new Vector3();
@@ -2162,17 +2162,17 @@ public class Node implements INode, IUpdater {
     
     protected OnTransformCallback	_onTransformCallback;
     
-    protected boolean 				_physicsCallFlag;		
+//    protected boolean 				_physicsCallFlag;		
     
     public final float getModelRotation() {
     	return _modelRotationZ;
     }
     
-    /** 物理对象修正标志，不会触发onTransform
-     * 手动调用一次setPosition后失效 <b>不要手动调用</b> */
-    public final void _setPhysicsCallFlag() {
-    	_physicsCallFlag = true;
-    }
+//    /** 物理对象修正标志，不会触发onTransform
+//     * 手动调用一次setPosition后失效 <b>不要手动调用</b> */
+//    public final void _setPhysicsCallFlag() {
+//    	_physicsCallFlag = true;
+//    }
     
     /**返回位置更新标志 在drawScene（visit方法调用）后会失效 */
     public final boolean getTransformDirty() {

@@ -1268,6 +1268,11 @@ public class PhysicsObject {
 		return ret;
 	}
 	
+	/**general update */
+	public void updateObject() {
+		
+	}
+	
 	////////////////////////////////
 	//TODO generator
 	Array<PhysicsGenerator>			generatorList;
