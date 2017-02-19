@@ -56,6 +56,10 @@ public class Rect extends Rectangle {
 		this.set(x, y, width, height);
 	}
 	
+	public boolean containsPoint(float x, float y) {
+		return contains(x, y);
+	}
+	
     /**
      * @js NA
      */

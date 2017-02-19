@@ -3,6 +3,9 @@ package com.cocos2dj.ui;
 import com.badlogic.gdx.math.Matrix4;
 import com.cocos2dj.base.Event;
 import com.cocos2dj.base.EventListenerTouchOneByOne;
+import com.cocos2dj.base.EventListenerTouchOneByOne.OnTouchCancelledCallback;
+import com.cocos2dj.base.EventListenerTouchOneByOne.TouchCallback;
+import com.cocos2dj.base.Rect;
 import com.cocos2dj.base.Size;
 import com.cocos2dj.base.Touch;
 import com.cocos2dj.renderer.Renderer;
@@ -13,12 +16,21 @@ import com.cocos2dj.ui.LayoutParameter.ILayoutParameter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-public class Widget extends ProtectedNode implements ILayoutParameter {
+public class Widget extends ProtectedNode implements ILayoutParameter, TouchCallback, OnTouchCancelledCallback {
 
 //	@Override
 //	public LayoutParameter getLayoutParameter() {
 //		return null;
 //	}
+	 /**
+     * Widget focus direction.
+     */
+	public static enum FocusDirection {
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
 
 	 /**
      * Widget position type for layout.
@@ -92,7 +104,13 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * Create and return a empty Widget instance pointer.
      */
     public static Widget create() {
-    	
+    	Widget ret = new Widget();
+    	return ret;
+    }
+    
+    protected void release() {
+    	super.release();
+    	cleanupWidget();
     }
 
     /**
@@ -103,16 +121,15 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param enabled Set to true to enable touch, false otherwise.
      */
      public void setEnabled(boolean enabled) {
-    	 
+    	 _enabled = enabled;
+    	 setBright(enabled);
      }
 
     /**
      * Determines if the widget is enabled or not.
      * @return true if the widget is enabled, false if the widget is disabled.
      */
-    public boolean isEnabled() {
-    	
-    }
+    public final boolean isEnabled() {return _enabled;}
 
     /**
      * Sets whether the widget is bright
@@ -122,7 +139,13 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param bright   true if the widget is bright, false if the widget is dark.
      */
     public void setBright(boolean bright) {
-    	
+    	 _bright = bright;
+	    if (_bright) {
+	        _brightStyle = BrightStyle.NONE;
+	        setBrightStyle(BrightStyle.NORMAL);
+	    } else {
+	        onPressStateChangedToDisabled();
+	    }
     }
 
     /**
@@ -130,9 +153,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *
      * @return true if the widget is bright, false if the widget is dark.
      */
-    public boolean isBright() {
-    	
-    }
+    public final boolean isBright() {return isBright();}
 
     /**
      * Sets whether the widget is touch enabled.
@@ -141,8 +162,22 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *
      * @param enabled   True if the widget is touch enabled, false if the widget is touch disabled.
      */
-     public void setTouchEnabled(boolean enabled) {
-    	 
+     public void setTouchEnabled(boolean enable) {
+    	 if (enable == _touchEnabled) {
+	        return;
+	    }
+	    _touchEnabled = enable;
+	    if (_touchEnabled) {
+	        _touchListener = EventListenerTouchOneByOne.create();
+	        _touchListener.setSwallowTouches(true);
+	        _touchListener.setOnTouchBeganCallback(this);
+	        _touchListener.setOnTouchMovedCallback(this);
+	        _touchListener.setOnTouchEndedCallback(this);
+	        _touchListener.setOnTouchCancelledCallback(this);
+	        getEventDispatcher().addEventListenerWithSceneGraphPriority(_touchListener, this);
+	    } else {
+	    	getEventDispatcher().removeEventListener(_touchListener);
+	    }
      }
 
     /**
@@ -153,7 +188,20 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param style   BrightStyle::NORMAL means the widget is in normal state, BrightStyle::HIGHLIGHT means the widget is in highlight state.
      */
     public void setBrightStyle(BrightStyle style) {
-    	
+    	if (_brightStyle == style) {
+            return;
+        }
+        _brightStyle = style;
+        switch (_brightStyle) {
+            case NORMAL:
+                onPressStateChangedToNormal();
+                break;
+            case HIGHLIGHT:
+                onPressStateChangedToPressed();
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -161,18 +209,14 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *
      * @return true if the widget is touch enabled, false if the widget is touch disabled.
      */
-    public boolean isTouchEnabled() {
-    	
-    }
+    public final boolean isTouchEnabled() {return _touchEnabled;}
 
     /**
      * Determines if the widget is highlighted
      *
      * @return true if the widget is highlighted, false if the widget is not highlighted.
      */
-    public boolean isHighlighted() {
-    	
-    }
+    public boolean isHighlighted() {return _highlight;}
 
     /**
      * Sets whether the widget is highlighted
@@ -182,7 +226,19 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param highlight   true if the widget is highlighted, false if the widget is not highlighted.
      */
     public void setHighlighted(boolean highlight) {
-    	
+    	if (highlight == _highlight) {
+            return;
+        }
+        _highlight = highlight;
+        if (_bright) {
+            if (_highlight){
+                setBrightStyle(BrightStyle.HIGHLIGHT);
+            } else {
+                setBrightStyle(BrightStyle.NORMAL);
+            }
+        } else {
+            onPressStateChangedToDisabled();
+        }
     }
 
     /**
@@ -190,7 +246,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return The left boundary position of this widget.
      */
     public float getLeftBoundary() {
-    	
+    	return getPosition().x - getAnchorPointX() * _contentSize.width;
     }
     
     /**
@@ -198,7 +254,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return The bottom boundary position of this widget.
      */
     public float getBottomBoundary() {
-    	
+    	 return getPosition().y - getAnchorPointY() * _contentSize.height;
     }
 
     /**
@@ -206,7 +262,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return The right boundary position of this widget.
      */
     public float getRightBoundary() {
-    	
+    	return getPosition().x + getAnchorPointX() * _contentSize.width;
     }
 
     /**
@@ -214,14 +270,17 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return The top boundary position of this widget.
      */
     public float getTopBoundary() {
-    	
+    	return getPosition().y + getAnchorPointY() * _contentSize.height;
     }
 
     /**
      * @js NA
      */
      public void visit(Renderer renderer,  Matrix4 parentTransform, int parentFlags) {
-    	 
+    	 if(_visible) {
+    		 adaptRenderers();
+    		 super.visit(renderer, parentTransform, parentFlags);
+    	 }
      }
 
     /**
@@ -229,7 +288,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *@param callback  The callback in `ccWidgetEventCallback.`
      */
     public void addTouchEventListener(WidgetTouchCallback callback) {
-    	
+    	_touchEventCallback = callback;
     }
     
     /**
@@ -237,7 +296,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param callback The callback in `ccWidgetClickCallback`.
      */
     public void addClickEventListener(WidgetClickCallback callback) {
-    	
+    	_clickEventListener = callback;
     }
     /**
      * Set a event handler to the widget in order to use cocostudio editor and framework
@@ -245,7 +304,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @lua NA
      */
      public void addCCSEventListener(WidgetEventCallback callback) {
-    	 
+    	 _ccEventCallback = callback;
      }
     /**/
 
@@ -258,7 +317,18 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param pos  The position (x,y) of the widget in OpenGL coordinates
      */
      public void setPosition( Vector2 pos) {
-    	 
+    	if (!_usingLayoutComponent && _running) {
+    		Widget widgetParent = getWidgetParent();
+	        if (widgetParent != null) {
+	            Size pSize = widgetParent.getContentSize();
+	            if (pSize.width <= 0.0f || pSize.height <= 0.0f) {
+	                _positionPercent.setZero();
+	            } else {
+	                _positionPercent.set(pos.x / pSize.width, pos.y / pSize.height);
+	            }
+	        }
+	    }
+	    super.setPosition(pos);
      }
 
     /**
@@ -267,7 +337,23 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param percent  The percent (x,y) of the widget in OpenGL coordinates
      */
     public void setPositionPercent(Vector2 percent) {
-    	
+    	if (_usingLayoutComponent) {
+    		LayoutComponent component = this.getOrCreateLayoutComponent();
+            component.setPositionPercentX(percent.x);
+            component.setPositionPercentY(percent.y);
+            component.refreshLayout();
+        }
+        else
+        {
+            _positionPercent.set(percent); 
+            if (_running){
+                Widget widgetParent = getWidgetParent();
+                if (widgetParent != null) {
+                    Size parentSize = widgetParent.getContentSize();
+                    setPosition(Math.abs(parentSize.width * _positionPercent.x), Math.abs(parentSize.height * _positionPercent.y));
+                }
+            }
+        }
     }
 
     /**
@@ -278,7 +364,13 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return The percent (x,y) of the widget in OpenGL coordinates
      */
      public Vector2 getPositionPercent() {
-    	 
+    	 if (_usingLayoutComponent) {
+    		 LayoutComponent component = this.getOrCreateLayoutComponent();
+	        float percentX = component.getPositionPercentX();
+	        float percentY = component.getPositionPercentY();
+	        _positionPercent.set(percentX, percentY);
+	    }
+	    return _positionPercent;
      }
 
     /**
@@ -289,7 +381,17 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param type  the position type of widget
      */
     public void setPositionType(PositionType type) {
-    	
+    	 _positionType = type;
+	    if (_usingLayoutComponent) {
+	    	LayoutComponent component = getOrCreateLayoutComponent();
+	        if (type == PositionType.ABSOLUTE) {
+	            component.setPositionPercentXEnabled(false);
+	            component.setPositionPercentYEnabled(false);
+	        } else {
+	            component.setPositionPercentXEnabled(true);
+	            component.setPositionPercentYEnabled(true);
+	        }
+	    }
     }
 
     /**
@@ -299,9 +401,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *
      * @return type  the position type of widget
      */
-    public PositionType getPositionType() {
-    	
-    }
+    public final PositionType getPositionType() {return _positionType;}
 
     /**
      * Sets whether the widget should be flipped horizontally or not.
@@ -309,7 +409,9 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param flippedX true if the widget should be flipped horizontally, false otherwise.
      */
      public void setFlippedX(boolean flippedX) {
-    	 
+    	 float realScale = this.getScaleX();
+         _flippedX = flippedX;
+         this.setScaleX(realScale);
      }
 
     /**
@@ -329,7 +431,9 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param flippedY true if the widget should be flipped vertically, false otherwise.
      */
      public void setFlippedY(boolean flippedY) {
-    	 
+    	 float realScale = this.getScaleY();
+         _flippedY = flippedY;
+         this.setScaleY(realScale);
      }
 
     /**
@@ -354,28 +458,45 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
 
     //override the setScale function of Node
      public void setScaleX(float scaleX) {
-    	 
+    	 if (_flippedX) {
+             scaleX = scaleX * -1;
+         }
+         super.setScaleX(scaleX);
      }
      public void setScaleY(float scaleY) {
-    	 
+    	 if (_flippedY) {
+             scaleY = scaleY * -1;
+         }
+         super.setScaleY(scaleY);
      }
      public void setScale(float scale) {
-    	 
+    	 this.setScaleX(scale);
+         this.setScaleY(scale);
      }
      public void setScale(float scalex, float scaley) {
-    	 
+    	 this.setScaleX(scalex);
+         this.setScaleY(scaley);
      }
-//    using Node::setScaleZ;
+//    using super.setScaleZ;
      public float getScaleX() {
-    	 
+    	 float originalScale = super.getScaleX();
+         if (_flippedX) {
+             originalScale = originalScale * -1.0f;
+         }
+         return originalScale;
      }
      public float getScaleY() {
-    	 
+    	 float originalScale = super.getScaleY();
+         if (_flippedY) {
+             originalScale = originalScale * -1.0f;
+         }
+         return originalScale;
      }
      public float getScale() {
-    	 
+    	 assert this.getScaleX() == this.getScaleY(): "scaleX should be equal to scaleY.";
+         return this.getScaleX();
      }
-//    using Node::getScaleZ;
+//    using super.getScaleZ;
     
     /**
      * Checks a point if in parent's area.
@@ -384,39 +505,94 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return true if the point is in parent's area, false otherwise.
      */
     public boolean isClippingParentContainsPoint( Vector2 pt) {
-    	
+    	_affectByClipping = false;
+        Node parent = getParent();
+        Widget clippingParent = null;
+        while (parent != null) {
+            Layout layoutParent = (Layout) parent;
+            if (layoutParent != null) {
+                if (layoutParent.isClippingEnabled()) {
+                    _affectByClipping = true;
+                    clippingParent = layoutParent;
+                    break;
+                }
+            }
+            parent = parent.getParent();
+        }
+
+        if (!_affectByClipping) {
+            return true;
+        }
+        
+        if (clippingParent != null) {
+            boolean bRet = false;
+            Camera camera = Camera.getVisitingCamera();
+            // Camera isn't null means in touch begin process, otherwise use _hittedByCamera instead.
+            if (clippingParent.hitTest(pt, (camera != null ? camera : _hittedByCamera), null)) {
+                bRet = true;
+            }
+            if (bRet) {
+                return clippingParent.isClippingParentContainsPoint(pt);
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
      * Gets the touch began point of widget when widget is selected.
      * @return the touch began point.
      */
-     public Vector2 getTouchBeganPosition() {
-    	 
-     }
+     public Vector2 getTouchBeganPosition() {return _touchBeganPosition;}
 
     /*
      * Gets the touch move point of widget when widget is selected.
      * @return the touch move point.
      */
-     public Vector2 getTouchMovePosition() {
-    	 
-     }
+     public Vector2 getTouchMovePosition() {return _touchMovePosition;}
 
     /*
      * Gets the touch end point of widget when widget is selected.
      * @return the touch end point.
      */
-     public Vector2 getTouchEndPosition() {
-    	 
-     }
+     public Vector2 getTouchEndPosition() {return _touchEndPosition;}
      
     /**
      * Changes the size that is widget's size
      * @param contentSize A content size in `Size`.
      */
      public void setContentSize( Size contentSize) {
-    	 
+    	Size previousSize = super.getContentSize();
+	    if(previousSize.equals(contentSize)) {
+	        return;
+	    }
+	    super.setContentSize(contentSize);
+
+	    _customSize.set(contentSize);
+	    if (_unifySize) {
+	        //unify Size logic
+	    } else if(_ignoreSize) {
+	        super.setContentSize(getVirtualRendererSize());
+	    }
+	    if (!_usingLayoutComponent && _running) {
+	        Widget widgetParent = getWidgetParent();
+	        Size pSize;
+	        if (widgetParent != null) {
+	            pSize = widgetParent.getContentSize();
+	        } else {
+	            pSize = _parent.getContentSize();
+	        }
+	        float spx = 0.0f;
+	        float spy = 0.0f;
+	        if (pSize.width > 0.0f) {
+	            spx = _customSize.width / pSize.width;
+	        }
+	        if (pSize.height > 0.0f) {
+	            spy = _customSize.height / pSize.height;
+	        }
+	        _sizePercent.set(spx, spy);
+	    }
+	    onSizeChanged();
      }
 
     /**
@@ -425,7 +601,29 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param percent that is widget's percent size
      */
      public void setSizePercent( Vector2 percent) {
-    	 
+    	 if (_usingLayoutComponent) {
+    		 LayoutComponent component = getOrCreateLayoutComponent();
+	        component.setUsingPercentContentSize(true);
+	        component.setPercentContentSize(percent);
+	        component.refreshLayout();
+	    } else {
+	        _sizePercent = percent;
+	        Size cSize = _customSize;
+	        if (_running) {
+	            Widget widgetParent = getWidgetParent();
+	            if (widgetParent != null) {
+	                cSize.setSize(widgetParent.getContentSize().width * percent.x, widgetParent.getContentSize().height * percent.y);
+	            } else {
+	                cSize.setSize(_parent.getContentSize().width * percent.x, _parent.getContentSize().height * percent.y);
+	            }
+	        }
+	        if (_ignoreSize) {
+	            this.setContentSize(getVirtualRendererSize());
+	        } else {
+	            this.setContentSize(cSize);
+	        }
+//	        _customSize = cSize;
+	    }
      }
 
     /**
@@ -436,7 +634,16 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @param type that is widget's size type
      */
     public void setSizeType(SizeType type) {
-    	
+    	 _sizeType = type;
+	    if (_usingLayoutComponent) {
+	        LayoutComponent component = this.getOrCreateLayoutComponent();
+
+	        if (_sizeType == SizeType.PERCENT) {
+	            component.setUsingPercentContentSize(true);
+	        } else {
+	            component.setUsingPercentContentSize(false);
+	        }
+	    }
     }
 
     /**
@@ -444,9 +651,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *
      * @see `SizeType`
      */
-    public SizeType getSizeType() {
-    	
-    }
+    public final SizeType getSizeType() {return _sizeType;}
 
 //    /**
 //     * Get the size of widget
@@ -459,9 +664,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * Get the user defined widget size.
      *@return User defined size.
      */
-     public Size getCustomSize() {
-    	 
-     }
+     public Size getCustomSize() {return _contentSize;}
     
     /**
      * Get the content size of widget.
@@ -476,7 +679,11 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return Percent size.
      */
      public Vector2 getSizePercent() {
-    	 
+    	 if (_usingLayoutComponent) {
+	        LayoutComponent component = this.getOrCreateLayoutComponent();
+	        _sizePercent.set(component.getPercentContentSize());
+	    }
+	    return _sizePercent;
      }
 
     /**
@@ -489,7 +696,9 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      * @return true if the point is in widget's content space, false otherwise.
      */
      public boolean hitTest( Vector2 pt,  Camera camera, Vector3 p) {
-    	 
+    	 Rect rect = new Rect();
+    	 rect.setSize(_contentSize.width, _contentSize.height);
+    	 return isScreenPointInRect(pt, camera, getWorldToNodeTransform(), rect, p);
      }
 
     /**
@@ -595,7 +804,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *
      * @return Node pointer.
      */
-     public Node getRenderer() {
+     public Node getVirtualRenderer() {
     	 
      }
 
@@ -604,7 +813,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
      *  Get the  renderer's size
      *@return Widget  renderer size.
      */
-     public Size getRendererSize() {
+     public Size getVirtualRendererSize() {
     	 
      }
     
@@ -798,7 +1007,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
     
     /**
      * When a widget lose/get focus, this method will be called. Be Caution when you provide your own version, 
-     * you must call widget->setFocused(true/false) to change the focus state of the current focused widget;
+     * you must call widget.setFocused(true/false) to change the focus state of the current focused widget;
      */
     OnFousChangedCallback onFousChanged;
     
@@ -1036,6 +1245,8 @@ public class Widget extends ProtectedNode implements ILayoutParameter {
     String _callbackType;
     String _callbackName;
     
-    
+    private class FocusNavigationController {
+    	
+    }
     private static FocusNavigationController _focusNavigationController;
 }

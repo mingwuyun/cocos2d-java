@@ -285,8 +285,8 @@ public class Node implements INode, IUpdater {
      * Usually we use `Vector2(x,y)` to compose Vector2 object.
      * This code snippet sets the node in the center of screen.
      @code
-     Size size = Director::getInstance()->getWinSize();
-     node->setPosition( Vector2(size.width/2, size.height/2) )
+     Size size = Director::getInstance().getWinSize();
+     node.setPosition( Vector2(size.width/2, size.height/2) )
      @endcode
      *
      * @param position  The position (x,y) of the node in OpenGL coordinates
@@ -302,7 +302,7 @@ public class Node implements INode, IUpdater {
      @code
      // pseudo code
      void setNormalizedPosition(Vector2 pos) {
-       Size s = getParent()->getContentSize();
+       Size s = getParent().getContentSize();
        _position = pos * s;
      }
      @endcode
@@ -1028,7 +1028,7 @@ public class Node implements INode, IUpdater {
   		}
   	}
 
-      /// Removes a child, call child->onExit(), do cleanup, remove it from children array.
+      /// Removes a child, call child.onExit(), do cleanup, remove it from children array.
   	protected void detachChild(Node child, int index, boolean doCleanup) {
   		if(_running) {
   			child.onExitTransitionDidStart();
@@ -1327,7 +1327,7 @@ public class Node implements INode, IUpdater {
     
     /** Returns the Scene that contains the Node.
      It returns `nullptr` if the node doesn't belong to any Scene.
-     This function recursively calls parent->getScene() until parent is a Scene object. The results are not cached. It is that the user caches the results in case this functions is being used inside a loop.
+     This function recursively calls parent.getScene() until parent is a Scene object. The results are not cached. It is that the user caches the results in case this functions is being used inside a loop.
      */
     public Scene getScene() {
     	if (_parent == null) {
@@ -1554,7 +1554,7 @@ public class Node implements INode, IUpdater {
      // firstly, implement a schedule function
      void MyNode::TickMe(float dt);
      // wrap this function into a selector via schedule_selector marco.
-     this->schedule(schedule_selector(MyNode::TickMe), 0, 0, 0);
+     this.schedule(schedule_selector(MyNode::TickMe), 0, 0, 0);
      @endcode
      *
      * @param selector  The SEL_SCHEDULE selector to be scheduled.
@@ -1688,7 +1688,7 @@ public class Node implements INode, IUpdater {
      *
      * This method is moved from Sprite, so it's no longer specific to Sprite.
      * As the result, you apply SpriteBatchNode's optimization on your customed Node.
-     * e.g., `batchNode->addChild(myCustomNode)`, while you can only addChild(sprite) before.
+     * e.g., `batchNode.addChild(myCustomNode)`, while you can only addChild(sprite) before.
      */
     public void updateTransform() {
     	// Recursively iterate over children
@@ -1710,9 +1710,9 @@ public class Node implements INode, IUpdater {
     	final Matrix4 t = poolMatrix_1;
 //    	System.out.println("nodeToParentTransform = " + getNodeToParentTransform() + this);
     	t.set(getNodeToParentTransform());
-//        Mat4 t(this->getNodeToParentTransform());
+//        Mat4 t(this.getNodeToParentTransform());
         for (Node p = _parent;  p != null && p != ancestor ; p = p._parent) {
-//            t = p->getNodeToParentTransform() * t;
+//            t = p.getNodeToParentTransform() * t;
             t.mulLeft(p.getNodeToParentTransform());
         }
         return t;
@@ -2523,5 +2523,91 @@ public class Node implements INode, IUpdater {
     	 } else {
     		 disableCascadeColor();
     	 }
+     }
+     
+     
+     /**
+      * This is a helper function, checks a GL screen point is in content rectangle space.
+      *
+      * The content rectangle defined by origin(0,0) and content size.
+      * This function convert GL screen point to near and far planes as points Pn and Pf,
+      * then calculate the intersect point P which the line PnPf intersect with content rectangle.
+      * If P in content rectangle means this node be hit.
+      *
+      * @param pt        The point in GL screen space.
+      * @param camera    Which camera used to unproject pt to near/far planes.
+      * @param w2l       World to local transform matrix, used to convert Pn and Pf to rectangle space.
+      * @param rect      The test rectangle in local space.
+      * @parma p         Point to a Vector3 for store the intersect point, if don't need them set to nullptr.
+      * @return true if the point is in content rectangle, false otherwise.
+      */
+//     static final Vector3 stackVec3_1 = new Vector3();
+//     static final Vector3 stackVec3_2 = new Vector3();
+//     static final Vector3 stackVec3_3 = new Vector3();
+//     static final Vector3 stackVec3_1 = new Vector3();
+//     static final Vector3 stackVec3_2 = new Vector3();
+//     static final Vector3 stackVec3_3 = new Vector3();
+     public static boolean isScreenPointInRect(Vector2 pt, final Camera camera, final Matrix4 w2l, final Rect rect, Vector3 p) {
+    	 if (null == camera || rect.width <= 0 || rect.height <= 0) {
+	        return false;
+	    }
+	    
+    	Vector3 Pn = new Vector3();
+    	Vector3 Pf = new Vector3();
+    	Vector3 E = new Vector3();
+    	Vector3 B = new Vector3();
+    	Vector3 C = new Vector3();
+    	Vector3 BxC = new Vector3();
+//    	Vector3 BxCdotE = new Vector3();
+    	
+	    // first, convert pt to near/far plane, get Pn and Pf
+    	Pn.set(pt.x, pt.y, -1);
+    	Pf.set(pt.x, pt.y, 1);
+	    Pn.set(camera.unprojectGL(Pn));
+	    Pf.set(camera.unprojectGL(Pf));
+	    
+	    //  then convert Pn and Pf to node space
+	    Pn.mul(w2l);
+	    Pf.mul(w2l);
+//	    w2l.transformPoint(Pn);
+//	    w2l.transformPoint(Pf);
+
+	    // Pn and Pf define a line Q(t) = D + t * E which D = Pn
+	    E.set(Pf).sub(Pn);
+	    
+	    // second, get three points which define content plane
+	    //  these points define a plane P(u, w) = A + uB + wC
+//	    Vector3 A = Vector3(rect.origin.x, rect.origin.y, 0);
+	    final float Ax = rect.x; final float Ay = rect.y;
+//	    Vector3 B(rect.origin.x + rect.size.width, rect.origin.y, 0);
+//	    Vector3 C(rect.origin.x, rect.origin.y + rect.size.height, 0);
+//	    B = B - A;
+//	    C = C - A;
+	    B.set(rect.x + rect.width - Ax, rect.y - Ay, 0);
+	    C.set(rect.x - Ax, rect.y + rect.height - Ay, 0);
+	    
+	    //  the line Q(t) intercept with plane P(u, w)
+	    //  calculate the intercept point P = Q(t)
+	    //      (BxC).A - (BxC).D
+	    //  t = -----------------
+	    //          (BxC).E
+//	    Vector3 BxC;
+	    BxC.set(B).crs(C);
+//	    Vector3::cross(B, C, &BxC);
+//	    auto BxCdotE = BxC.dot(E);
+	    float BxCdotE = BxC.dot(E);
+	    if (BxCdotE == 0) {
+	        return false;
+	    }
+	    float t = (BxC.dot(Ax, Ay, 0) - BxC.dot(Pn)) / BxCdotE;
+	    
+	    float Px = Pn.x + t * E.x;
+	    float Py = Pn.y + t * E.y;
+	    float Pz = Pn.z + t * E.z;
+//	    Vector3 P = Pn + t * E;
+	    if (p != null) {
+	        p.set(Px, Py, Pz);
+	    }
+	    return rect.containsPoint(Px, Py);
      }
 }
