@@ -91,6 +91,12 @@ public class ActionManager implements IUpdater {
 			 //TODO action detach
 			   action.setAttached(false);
 		   }
+		   
+		// removeTo
+		   if(_lock) {		//handle remove until next update
+			   return;
+		   }
+		   
 		   element.actions.clear();
 //		   if(_currentTarget == element) {
 //			   _currentTargetSalvaged = true;
@@ -107,6 +113,26 @@ public class ActionManager implements IUpdater {
    public void removeAction(IAction action) {
 	   if(action == null) {return;}
 	   
+	   // removeTo
+	   if(_lock) {
+		   action.setAttached(false);
+//		   _toRemoveElements.add(action);
+		   return;
+	   }
+	   
+	   unsafeRemoveAction(action);
+//	   struct_hashElement element = null;
+//	   element = _targets.get(action.getOriginalTarget());
+//	   if(element != null) {
+//		   int index = element.actions.indexOf(action, true);
+//		   if(index > -1) {
+//			   removeActionAtIndex(index, element);
+//		   }
+//	   }
+   }
+   
+   /**移除action 无论是否正在遍历 */
+   final void unsafeRemoveAction(IAction action) {
 	   struct_hashElement element = null;
 	   element = _targets.get(action.getOriginalTarget());
 	   if(element != null) {
@@ -133,6 +159,15 @@ public class ActionManager implements IUpdater {
 		   for(int i = actions.size - 1; i >= 0; --i) {
 			   if(actions.get(i).getTag() == tag 
 					   && actions.get(i).getOriginalTarget() == target) {
+				   
+				  // removeTo
+				   if(_lock) {
+					   IAction action = actions.get(i);
+					   action.setAttached(false);
+//					   _toRemoveElements.add(action);
+					   return;
+				   }
+				   
 				   removeActionAtIndex(i, element);
 				   break;
 			   }
@@ -157,6 +192,15 @@ public class ActionManager implements IUpdater {
 		   for(int i = actions.size - 1; i >= 0; --i) {
 			   if(actions.get(i).getTag() == tag 
 					   && actions.get(i).getOriginalTarget() == target) {
+				   
+				 // removeTo
+				   if(_lock) {
+					   IAction action = actions.get(i);
+					   action.setAttached(false);
+//					   _toRemoveElements.add(action);
+					   continue;
+				   }
+				   
 				   removeActionAtIndex(i, element);
 			   }
 		   }
@@ -183,6 +227,15 @@ public class ActionManager implements IUpdater {
 		   for(int i = actions.size - 1; i >= 0; --i) {
 			   if((actions.get(i).getFlags() & flags) != 0
 					   && actions.get(i).getOriginalTarget() == target) {
+				   
+				// removeTo
+				   if(_lock) {
+					   IAction action = actions.get(i);
+					   action.setAttached(false);
+//					   _toRemoveElements.add(action);
+					   continue;
+				   }
+				   
 				   removeActionAtIndex(i, element);
 			   }
 		   }
@@ -294,22 +347,26 @@ public class ActionManager implements IUpdater {
 		   }
 		   
 		   if(!_currentTarget.paused) {
-			   //更新时候需要从后向前——可能在过程中执行删除操作
+			   // 更新时候需要从后向前——可能在过程中执行删除操作
 			   Array<IAction> actions = _currentTarget.actions;
+//			   actions.t
 			   for(int i = actions.size - 1; i >= 0; --i) {
-//				   _currentTarget.currentAction = actions.get(_currentTarget.actionIndex);
-//				   IAction a = _currentTarget.currentAction; 
 				   IAction a = actions.get(i);
-//				   _currentTarget.currentActionSalvaged = false;
+				   
+				   //remove when (attach = false)
+				   if(!a.isAttached()) {
+					   unsafeRemoveAction(a);
+//					   actions.removeIndex(i);
+					   continue;
+				   }
 				   
 				   a.step(dt * 0.001f);	//ms to s
 				   
 				   if(a.isDone()) {
 					   a.stop();
 //					   _currentTarget.currentAction = null;
-					   removeAction(a);
+					   unsafeRemoveAction(a);
 				   }
-				   
 ////				   if(_currentTarget.currentActionSalvaged) {
 ////					   _currentTarget.currentAction = null;
 //				   } else 
@@ -321,7 +378,6 @@ public class ActionManager implements IUpdater {
 				   _currentTarget.currentAction = null;
 			   }
 		   }
-		   
 //		   if(_currentTargetSalvaged && _currentTarget.actions.size <= 0) {
 //			   deleteHashElement(_currentTarget);
 //		   }
@@ -342,19 +398,15 @@ public class ActionManager implements IUpdater {
 	   
 	 //TODO action detach
 	   action.setAttached(false);
-	   
-	   if(action == element.currentAction && !element.currentActionSalvaged) {
-		   element.currentActionSalvaged = true;
-	   }
+//	   if(action == element.currentAction && !element.currentActionSalvaged) {
+//		   element.currentActionSalvaged = true;
+//	   }
 	   
 	   element.actions.removeIndex(index);
 	   
 	   element.actionIndex--;
 	   
 	   if(element.actions.size <= 0) {
-//		   if(_currentTarget == element) {
-//			   _currentTargetSalvaged = true;
-//		   }
 		   deleteHashElement(element);
 	   }
    }
@@ -412,6 +464,12 @@ public class ActionManager implements IUpdater {
 	   _toAddElements.clear();
    }
    
+   /**更新删除缓存队列 */
+   final void updateToRemoveArray() {
+	   //删除需要判断isAttached —— 可能移除之后同一帧又添加回去，此时不应该删除
+	   
+   }
+   
    
 //   protected boolean        _currentTargetSalvaged;
    HashMap<INode, struct_hashElement> 
@@ -420,6 +478,7 @@ public class ActionManager implements IUpdater {
    ObjectLinkedList<struct_hashElement>
    							_elements = new ObjectLinkedList<>();
    Array<IAction> 			_toAddElements = new Array<>();
+//   Array<IAction> 			_toRemoveElements = new Array<>();
    private volatile boolean  _lock;		
    
    

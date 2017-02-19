@@ -8,6 +8,7 @@ import com.cocos2dj.base.EventListenerTouchOneByOne.TouchCallback;
 import com.cocos2dj.base.Rect;
 import com.cocos2dj.base.Size;
 import com.cocos2dj.base.Touch;
+import com.cocos2dj.protocol.IComponent;
 import com.cocos2dj.renderer.Renderer;
 import com.cocos2dj.s2d.Camera;
 import com.cocos2dj.s2d.Node;
@@ -696,6 +697,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @return true if the point is in widget's content space, false otherwise.
      */
      public boolean hitTest( Vector2 pt,  Camera camera, Vector3 p) {
+    	 //TODO 该方法需要验证
     	 Rect rect = new Rect();
     	 rect.setSize(_contentSize.width, _contentSize.height);
     	 return isScreenPointInRect(pt, camera, getWorldToNodeTransform(), rect, p);
@@ -708,7 +710,29 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return True if user want to handle touches, false otherwise.
      */
      public boolean onTouchBegan(Touch touch, Event unusedEvent){
-    	 
+    	 _hitted = false;
+	    if (isVisible() && isEnabled() && isAncestorsEnabled() && isAncestorsVisible(this) ) {
+	        _touchBeganPosition = touch.getLocation();
+	        Camera camera = Camera.getVisitingCamera();
+	        if(hitTest(_touchBeganPosition, camera, null)) {
+	            if (isClippingParentContainsPoint(_touchBeganPosition)) {
+	                _hittedByCamera = camera;
+	                _hitted = true;
+	            }
+	        }
+	    }
+	    if (!_hitted) {
+	        return false;
+	    }
+	    setHighlighted(true);
+	    /*
+	     * Propagate touch events to its parents
+	     */
+	    if (_propagateTouchEvents) {
+	        this.propagateTouchEvent(TouchEventType.BEGAN, this, touch);
+	    }
+	    pushDownEvent();
+	    return true;
      }
 
     /**
@@ -717,7 +741,15 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@param unusedEvent The touch event info.
      */
      public void onTouchMoved(Touch touch, Event unusedEvent) {
-    	 
+    	 _touchMovePosition = touch.getLocation();
+    	 setHighlighted(hitTest(_touchMovePosition, _hittedByCamera, null));
+	    /*
+	     * Propagate touch events to its parents
+	     */
+	    if (_propagateTouchEvents) {
+	        this.propagateTouchEvent(TouchEventType.MOVED, this, touch);
+	    }
+	    moveEvent();
      }
 
     /**
@@ -726,7 +758,23 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@param unusedEvent The touch event info.
      */
      public void onTouchEnded(Touch touch, Event unusedEvent) {
-    	 
+    	 _touchEndPosition = touch.getLocation();
+
+	    /*
+	     * Propagate touch events to its parents
+	     */
+	    if (_propagateTouchEvents){
+	        this.propagateTouchEvent(TouchEventType.ENDED, this, touch);
+	    }
+
+	    boolean highlight = _highlight;
+	    setHighlighted(false);
+
+	    if (highlight) {
+	        releaseUpEvent();
+	    } else {
+	        cancelUpEvent();
+	    }
      }
 
     /**
@@ -735,7 +783,8 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@param unusedEvent The touch event info.
      */
      public void onTouchCancelled(Touch touch, Event unusedEvent) {
-    	 
+    	 setHighlighted(false);
+    	 cancelUpEvent();
      }
 
     /**
@@ -745,7 +794,12 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @param parameter LayoutParameter pointer
      */
     public void setLayoutParameter(LayoutParameter parameter) {
-    	
+    	//TODO 未完成
+    	if (parameter == null) {
+            return;
+        }
+//        _layoutParameterDictionary.insert((int)parameter.getLayoutType(), parameter);
+//        _layoutParameterType = parameter.getLayoutType();
     }
 
     /**
@@ -756,7 +810,9 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
 //     */
     public LayoutParameter getLayoutParameter() {
     	
+    	return null;
     }
+    
     /**
      * Gets LayoutParameter of widget.
      *
@@ -776,7 +832,20 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @param ignore set member variable _ignoreSize to ignore
      */
      public void ignoreContentAdaptWithSize(boolean ignore) {
-    	 
+    	 if (_unifySize) {
+	        this.setContentSize(_customSize);
+	        return;
+	    }
+	    if (_ignoreSize == ignore) {
+	        return;
+	    }
+	    _ignoreSize = ignore;
+	    if (_ignoreSize) {
+	        Size s = getVirtualRendererSize();
+	        this.setContentSize(s);
+	    } else{
+	        this.setContentSize(_customSize);
+	    }
      }
 
     /**
@@ -784,9 +853,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *
      * @return True means ignore user defined content size, false otherwise.
      */
-    public boolean isIgnoreContentAdaptWithSize() {
-    	
-    }
+    public boolean isIgnoreContentAdaptWithSize() {return _ignoreSize;}
 
     /**
      * Gets position of widget in world space.
@@ -794,7 +861,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @return Position of widget in world space.
      */
     public Vector2 getWorldPosition() {
-    	
+    	return convertToWorldSpace(getAnchorPointInPoints());
     }
 
     /**
@@ -805,7 +872,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @return Node pointer.
      */
      public Node getVirtualRenderer() {
-    	 
+    	 return this;
      }
 
 
@@ -814,7 +881,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return Widget  renderer size.
      */
      public Size getVirtualRendererSize() {
-    	 
+    	 return _contentSize;
      }
     
 
@@ -823,7 +890,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @return get the class description.
      */
      public String getDescription() {
-    	 
+    	 return "Widget";
      }
 
     /**
@@ -831,8 +898,12 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @return A cloned widget copy of original.
      */
     public Widget copy() {
-    	
+    	Widget clonedWidget = createCloneInstance();
+        clonedWidget.copyProperties(this);
+        clonedWidget.copyClonedWidgetChildren(this);
+        return clonedWidget;
     }
+    
     /**
      * @lua NA
      */
@@ -866,17 +937,13 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * Set the tag of action.
      *@param tag  A integer tag value.
      */
-    public void setActionTag(int tag) {
-    	
-    }
+    public void setActionTag(int tag) {_actionTag = tag;}
 
     /**
      * Get the action tag.
      *@return Action tag.
      */
-    public int getActionTag() {
-    	
-    }
+    public int getActionTag() {return _actionTag;}
     
     /**
      * @brief Allow widget touch events to propagate to its parents. Set false will disable propagation
@@ -884,7 +951,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @since v3.3
      */
     public void setPropagateTouchEvents(boolean isPropagate) {
-    	
+    	_propagateTouchEvents = isPropagate;
     }
     
     /**
@@ -894,7 +961,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      */
      
     public boolean isPropagateTouchEvents() {
-    	
+    	return _propagateTouchEvents;
     }
     
     /**
@@ -904,7 +971,9 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @since v3.3
      */
     public void setSwallowTouches(boolean swallow) {
-    	
+    	if(_touchListener != null) {
+    		_touchListener.setSwallowTouches(swallow);
+    	}
     }
     
     /**
@@ -913,16 +982,17 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * @since v3.3
      */
     public boolean isSwallowTouches() {
-    	
+    	if(_touchListener != null) {
+    		return _touchListener.isSwallowTouches();
+    	}
+    	return false;
     }
     
     /**
      * Query whether widget is focused or not.
      *@return  whether the widget is focused or not
      */
-    public boolean isFocused() {
-    	
-    }
+    public boolean isFocused() {return _focused;}
     
     /**
      * Toggle widget focus status.
@@ -930,16 +1000,22 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return void
      */
     public void setFocused(boolean focus) {
-    	
+    	_focused = focus;
+
+        //make sure there is only one focusedWidget
+        if (focus) {
+            _focusedWidget = this;
+            if (_focusNavigationController != null) {
+                _focusNavigationController.setFirstFocsuedWidget(this);
+            }
+        }
     }
     
     /**
      * Query widget's focus enable state.
      *@return true represent the widget could accept focus, false represent the widget couldn't accept focus
      */
-    public boolean isFocusEnabled() {
-    	
-    }
+    public boolean isFocusEnabled() {return _focusEnabled;}
     
     /**
      * Allow widget to accept focus.
@@ -947,7 +1023,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return void
      */
     public void setFocusEnabled(boolean enable) {
-    	
+    	_focusEnabled = enable;
     }
     
     /**
@@ -958,8 +1034,29 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return the next focused widget in a layout
      */
      public Widget findNextFocusedWidget(FocusDirection direction, Widget current) {
-    	 
-     }
+    	 if (null == _onNextFocusedWidget || null == _onNextFocusedWidget.onNextFocusedWidget(direction) ) {
+	        if (this.isFocused() || current instanceof Layout) {
+	            Node parent = this.getParent();
+	            Layout layout = parent instanceof Layout ? (Layout) parent : null;
+	            if (null == layout) {
+	                //the outer layout's default behaviour is : loop focus
+	                if (current instanceof Layout) {
+	                    return current.findNextFocusedWidget(direction, current);
+	                }
+	                return current;
+	            } else {
+	                Widget nextWidget = layout.findNextFocusedWidget(direction, current);
+	                return nextWidget;
+	            }
+	        } else {
+	            return current;
+	        }
+	    } else {
+	        Widget getFocusWidget = _onNextFocusedWidget.onNextFocusedWidget(direction);
+	        this.dispatchFocusEvent(this, getFocusWidget);
+	        return getFocusWidget;
+	    }
+    }
     
     /**
      * when a widget calls this method, it will get focus immediately.
@@ -985,7 +1082,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * No matter what widget object you call this method on , it will return you the exact one focused widget.
      */
     public static Widget getCurrentFocusedWidget() {
-    	
+    	return _focusedWidget;
     }
 
     /*
@@ -997,19 +1094,19 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
     }
 
     
-    public static interface OnFousChangedCallback {
-    	
+    public static interface OnFocusChangedCallback {
+    	public void onFocusChanged(Widget prev, Widget next);
     }
     
     public static interface OnNextFocusedWidgetCallback {
-    	
+    	public Widget onNextFocusedWidget(FocusDirection focusDirection);
     }
     
     /**
      * When a widget lose/get focus, this method will be called. Be Caution when you provide your own version, 
      * you must call widget.setFocused(true/false) to change the focus state of the current focused widget;
      */
-    OnFousChangedCallback onFousChanged;
+    OnFocusChangedCallback _onFocusChanged;
     
 //    std::function<void(Widget,Widget)> onFocusChanged;
 
@@ -1017,7 +1114,7 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      * use this function to manually specify the next focused widget regards to each direction
      */
 //    std::function<Widget(FocusDirection)> onNextFocusedWidget;
-    OnNextFocusedWidgetCallback onNextFocusedWidget;
+    OnNextFocusedWidgetCallback _onNextFocusedWidget;
     
     /**
      *Toggle use unify size.
@@ -1025,16 +1122,14 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return void
      */
     public void setUnifySizeEnabled(boolean enable) {
-    	
+    	 _unifySize = enable;
     }
 
     /**
      * Query whether unify size enable state. 
      *@return true represent the widget use Unify Size, false represent the widget couldn't use Unify Size
      */
-    public boolean isUnifySizeEnabled() {
-    	
-    }
+    public boolean isUnifySizeEnabled() {return _unifySize; }
 
     /**
      * Set callback name.
@@ -1067,16 +1162,14 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
      *@return void
      */
     public void setLayoutComponentEnabled(boolean enable) {
-    	
+    	_usingLayoutComponent = enable;
     }
 
     /**
      * Query whether layout component is enabled or not. 
      *@return true represent the widget use Layout Component, false represent the widget couldn't use Layout Component.
      */
-    public boolean isLayoutComponentEnabled() {
-    	
-    }
+    public boolean isLayoutComponentEnabled() {return _usingLayoutComponent;}
 
     //initializes state of widget.
     public void init() {
@@ -1160,22 +1253,74 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
     protected void updateChildrenDisplayedRGBA() {}
     
     protected void copyProperties(Widget model) {}
-    protected Widget createCloneInstance() {}
+    
+    protected Widget createCloneInstance() {
+    	return Widget.create();
+    }
+    
     protected void copySpecialProperties(Widget model) {}
     protected void copyClonedWidgetChildren(Widget model) {}
     
-    protected Widget getWidgetParent() {}
+    protected Widget getWidgetParent() {
+    	return (Widget) getParent();
+    }
     protected void updateContentSizeWithTextureSize( Size size) {}
     
-    protected boolean isAncestorsEnabled() {}
-    protected Widget getAncensterWidget(Node node) {}
-    protected boolean isAncestorsVisible(Node node) {}
+    protected boolean isAncestorsEnabled() {
+    	Widget parentWidget = this.getAncensterWidget(this);
+        if (parentWidget == null) {
+            return true;
+        }
+        if (parentWidget != null && !parentWidget.isEnabled()) {
+            return false;
+        }
+
+        return parentWidget.isAncestorsEnabled();
+    }
+    
+    /**getRootWidget */
+    protected Widget getAncensterWidget(Node node) {
+    	if (null == node) {
+	        return null;
+	    }
+
+	    Node parent = node.getParent();
+	    if (null == parent) {
+	        return null;
+	    }
+	    Widget parentWidget = parent instanceof Widget ? (Widget)parent : null;
+	    if (parentWidget != null) {
+	        return parentWidget;
+	    } else {
+	        return this.getAncensterWidget(parent.getParent());
+	    }
+    }
+    
+    protected boolean isAncestorsVisible(Node node) {
+    	if (null == node){
+            return true;
+        }
+        Node parent = node.getParent();
+        if (parent != null && !parent.isVisible()) {
+            return false;
+        }
+        return this.isAncestorsVisible(parent);
+    }
+    
 
     protected void cleanupWidget() {
     	
     }
     protected LayoutComponent getOrCreateLayoutComponent() {
-    	
+    	IComponent layoutComponent = this.getComponent(GUIDefine.__LAYOUT_COMPONENT_NAME);
+        if (null == layoutComponent)
+        {
+            LayoutComponent component = LayoutComponent.create();
+            this.addComponent(component);
+            layoutComponent = component;
+        }
+
+        return (LayoutComponent)layoutComponent;
     }
 
     protected boolean _usingLayoutComponent;
@@ -1246,6 +1391,11 @@ public class Widget extends ProtectedNode implements ILayoutParameter, TouchCall
     String _callbackName;
     
     private class FocusNavigationController {
+
+		public void setFirstFocsuedWidget(Widget widget) {
+			// TODO Auto-generated method stub
+			
+		}
     	
     }
     private static FocusNavigationController _focusNavigationController;
