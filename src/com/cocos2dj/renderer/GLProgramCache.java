@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.cocos2dj.basic.Engine;
+import com.cocos2dj.basic.IDisposable;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.platform.FileUtils;
 
@@ -24,6 +26,12 @@ public class GLProgramCache {
 		if(_instance == null) {
 			_instance = new GLProgramCache();
 			_instance.init();
+			Engine.registerDisposable(new IDisposable() {
+				@Override
+				public void dispose() {
+					_instance = null;
+				}
+			});
 		}
 		return _instance;
 	}

@@ -21,7 +21,7 @@ import java.util.Comparator;
  * 
  * @author Copyright (c) 2017 xu jun
  */
-public class BaseScheduler {
+public class BaseScheduler implements IDisposable {
 	
 	//class>>
 	/**排序 */
@@ -236,6 +236,7 @@ public class BaseScheduler {
 	public static final BaseScheduler instance() {
 		if(instance == null) {
 			instance = new BaseScheduler();
+			Engine.registerDisposable(instance);
 		}
 		return instance;
 	}

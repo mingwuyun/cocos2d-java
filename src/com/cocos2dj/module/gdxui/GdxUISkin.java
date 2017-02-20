@@ -74,11 +74,13 @@ public class GdxUISkin implements IDisposable {
 		if(defaultSkin != null) {
 			if(Engine.instance().isGLThread()) {
 				defaultSkin.dispose();
+				defaultSkin = null;
 			} else {
 				new BaseTask(new Runnable() {
 					@Override
 					public void run() {
 						defaultSkin.dispose();
+						defaultSkin = null;
 					}
 				}).attachScheduleToRenderBefore();
 			}
@@ -87,7 +89,7 @@ public class GdxUISkin implements IDisposable {
 			skins.get(i).second.dispose();
 		}
 		skins.clear();
+
+		_instance = null;
 	}
-	
-	
 }

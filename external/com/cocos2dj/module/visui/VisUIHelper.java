@@ -14,7 +14,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooser.Mode;
  * 
  * @author Copyright(c) 2017 xujun
  */
-public interface VisUIHelper {
+public class VisUIHelper {
 	
 	public static VisScrollPane warpScrollPane(Actor widget, float width, float height) {
 		VisScrollPane scrollPane = new VisScrollPane(widget);

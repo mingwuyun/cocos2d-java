@@ -1,10 +1,16 @@
 package com.cocos2dj.module.visui;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.cocos2dj.module.Module;
 import com.cocos2dj.module.gdxui.ModuleGdxUI;
 import com.cocos2dj.protocol.IScene;
 import com.cocos2dj.s2d.Scene;
 import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.util.TableUtils;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisWindow;
+import com.kotcrab.vis.ui.widget.file.FileChooser;
 
 /**
  * ModuleVisUI.java
@@ -20,10 +26,30 @@ import com.kotcrab.vis.ui.VisUI;
  * </pre>
  * @author Copyright (c) 2017 xu jun
  */
-public class ModuleVisUI extends Module implements VisUIHelper {
+public class ModuleVisUI extends Module {
 
 	public ModuleVisUI() {
 		super(ModuleId, ModuleType);
+	}
+
+	public static VisScrollPane warpScrollPane(Actor widget, float width, float height) {
+		return VisUIHelper.warpScrollPane(widget, width, height);
+	}
+
+	public static VisTable createTableWithDefaultBg() {
+		return VisUIHelper.createTableWithDefaultBg();
+	}
+
+	public static VisWindow createWindow(String windowName, float width, float height, boolean closeButton) {
+		return VisUIHelper.createWindow(windowName, width, height, closeButton);
+	}
+
+	public static FileChooser createOpenFileChooser(float width, float height) {
+		return VisUIHelper.createOpenFileChooser(width, height);
+	}
+
+	public static FileChooser createSaveFileChooser(float width, float height) {
+		return VisUIHelper.createSaveFileChooser(width, height);
 	}
 
 	public static final String ModuleId = "VisUI";

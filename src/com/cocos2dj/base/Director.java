@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.cocos2dj.basic.BaseCoreTimer;
+import com.cocos2dj.basic.Engine;
+import com.cocos2dj.basic.IDisposable;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.platform.GLView;
 import com.cocos2dj.protocol.IFunctionOneArgRet;
@@ -74,9 +76,17 @@ public class Director {
 		if(_instance == null) {
 			_instance = new Director();
 			_instance.init();
+			Engine.registerDisposable(new IDisposable() {
+				@Override
+				public void dispose() {
+					_instance = null;
+				}
+			});
 		}
 		return _instance;
 	}
+
+
 	public static final Director justInstance() {
 		return _instance;
 	}

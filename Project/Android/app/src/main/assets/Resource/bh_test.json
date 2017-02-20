@@ -1,0 +1,16 @@
+{
+	"selector":{
+		"sequence":{
+			"leaf":{"key":"checkA","args":"debug"},
+			"leaf":{"key":"a","args":"debug"},
+			"leaf":{"key":"ALL1","args":"debug"},
+			"leaf":{"key":"ALL2","args":"debug"},
+		},
+		"sequence":{
+			"leaf":{"key":"checkB","args":"debug"},
+			"leaf":{"key":"b","args":"debug"},
+			"leaf":{"key":"ALL1","args":"debug"},
+			"leaf":{"key":"ALL2","args":"debug"},
+		},
+	}
+}

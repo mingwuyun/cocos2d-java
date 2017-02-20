@@ -1,5 +1,6 @@
 package com.cocos2dj.module.base2d.framework;
 
+import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.module.base2d.framework.callback.MyTreeCallback;
 import com.cocos2dj.module.base2d.framework.callback.MyTreeRayCastCallback;
 import com.cocos2dj.module.base2d.framework.callback.VelocityLimitListener;
@@ -35,6 +36,33 @@ import com.cocos2dj.module.base2d.jbox2d.RayCastInput;
  * Copyright (c) 2015. All rights reserved.
  */
 public class Base2D {
+	
+	/**
+	 * 创建限定双方向速度的限制器
+	 * 
+	 * @param limitX (limitX >= 0)
+	 * @param limitY (limitY >= 0)
+	 * @return
+	 */
+	public static VelocityLimitListener create(final float limitX, final float limitY) {
+		return new VelocityLimitListener() {
+			@Override
+			public void onVelocity(Vector2 velocity) {
+				if(velocity.y > limitY) {
+					velocity.y = limitY;
+				} else if(velocity.y < -limitY) {
+					velocity.y = -limitY;
+				}
+				
+				if(velocity.x > limitX) {
+					velocity.x = limitX;
+				} else if(velocity.x < -limitX) {
+					velocity.x = -limitX;
+				}
+			}
+		};
+	}
+	
 	/**支持的最大多边形数*/
 	public static final int MAX_POINT = 8;	
 	/**单个物理对象最大支持的generator数量 */

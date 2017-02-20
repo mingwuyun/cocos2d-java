@@ -272,7 +272,8 @@ public final class Engine {
 			//释放引擎
 			thread = null;
 		}
-		
+
+		_engineMode = null;
 		_instance = null;
 	}
 }

@@ -19,7 +19,6 @@ public class BaseGame implements ApplicationListener {
 	
 	
 	public void create() {
-		
 		appDelegate.initConfiguration();
 		
 		Engine.newEngine(this);

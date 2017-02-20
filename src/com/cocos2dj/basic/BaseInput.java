@@ -12,17 +12,23 @@ import com.badlogic.gdx.InputProcessor;
  * 
  * @author Copyright (c) 2017 xu jun
  */
-public class BaseInput {
+public class BaseInput implements IDisposable {
 	
 	private static BaseInput _instance;
 	public static BaseInput instance() {
 		if(_instance == null) {
 			_instance = new BaseInput();
 			_instance.init();
+			Engine.registerDisposable(_instance);
 		}
 		return _instance;
 	}
 	private BaseInput() {}
+
+	@Override
+	public void dispose() {
+		_instance = null;
+	}
 	
 	
 	InputEventQueue 	_inputQueue;
@@ -71,4 +77,5 @@ public class BaseInput {
 	public final void removeInputProcessor(int index) {
 		_multiplexer.removeProcessor(index);
 	}
+
 }

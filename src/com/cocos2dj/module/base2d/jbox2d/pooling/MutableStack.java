@@ -52,8 +52,6 @@ public class MutableStack<E, T extends E> implements IDynamicStack<E> {
   }
   
   
-  /**重新设置状态（将原有缓存对其重新创建对象缓存）
-   * @param 初始缓存数量 */
   public final void reset(int argInitSize) {
 	  stack = null;
 	  index = 0;

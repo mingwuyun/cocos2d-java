@@ -3,7 +3,7 @@ package com.cocos2dj.utils;
 import com.badlogic.gdx.math.Matrix4;
 import com.cocos2dj.base.AffineTransform;
 
-public interface TransformUtils {
+public class TransformUtils {
 	
 	/**
 	 Conversion between mat4*4 and AffineTransform.
