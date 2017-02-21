@@ -87,10 +87,10 @@ public class EventDispatcher {
     
     // Removes event listener
     //return isFound
-    private boolean removeListenerInVector(ArrayList<EventListener> listeners, EventListener listener) {
+    private boolean removeListenerInVector(Array<EventListener> listeners, EventListener listener) {
     	if(listeners == null) {return false;}
     	
-    	for(int i = listeners.size() - 1; i >= 0; --i) {
+    	for(int i = listeners.size - 1; i >= 0; --i) {
     		EventListener l = listeners.get(i);
     		if(l == listener) {
     			l.setRegistered(false);
@@ -99,7 +99,7 @@ public class EventDispatcher {
     				l.setAssociatedNode(null);
     			}
     			if(_inDispatch <= 0) {
-    				listeners.remove(i);
+    				listeners.removeIndex(i);
     			} else {
     				_toRemovedListeners.add(l);
     			}
@@ -122,8 +122,8 @@ public class EventDispatcher {
     	Iterator<Entry<String, EventListenerVector>> it = _listenerMap.entrySet().iterator();
     	while(it.hasNext()) {
     		EventListenerVector listeners = it.next().getValue();
-    		ArrayList<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
-    		ArrayList<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+    		Array<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
+    		Array<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
     		
     		if(removeListenerInVector(sceneGraphPriorityListeners, listener)) {
     			isFound = true;
@@ -339,9 +339,9 @@ public class EventDispatcher {
     	Iterator<Entry<String, EventListenerVector>> it = _listenerMap.entrySet().iterator();
     	while(it.hasNext()) {
     		EventListenerVector vector = it.next().getValue();
-    		ArrayList<EventListener> fixedPriorityListeners = vector.getFixedPriorityListeners();
+    		Array<EventListener> fixedPriorityListeners = vector.getFixedPriorityListeners();
     		if(fixedPriorityListeners != null) {
-    			if(fixedPriorityListeners.contains(listener)) {
+    			if(fixedPriorityListeners.contains(listener, true)) {
     				assert listener.getAssociatedNode() == null: "Can't set fixed priority with scene graph based listener.";
                     if (listener.getFixedPriority() != fixedPriority) {
                         listener.setFixedPriority(fixedPriority);
@@ -481,28 +481,28 @@ public class EventDispatcher {
 	    public int size() {
 	    	int ret = 0;
 	    	if(_sceneGraphListeners != null) {
-	    		ret += _sceneGraphListeners.size();
+	    		ret += _sceneGraphListeners.size;
 	    	}
 	    	if(_fixedListeners != null) {
-	    		ret += _fixedListeners.size();
+	    		ret += _fixedListeners.size;
 	    	}
 	    	return ret;
 	    }
 	    
 	    public boolean empty() {
-	    	return (_sceneGraphListeners == null || _sceneGraphListeners.isEmpty())
-	    			&& (_fixedListeners == null || _fixedListeners.isEmpty());
+	    	return (_sceneGraphListeners == null || _sceneGraphListeners.size <= 0)
+	    			&& (_fixedListeners == null || _fixedListeners.size <= 0);
 	    }
 	    
         public void push_back(EventListener listener) {
         	if(listener.getFixedPriority() == 0) {
         		if(_sceneGraphListeners == null) {
-        			_sceneGraphListeners = new ArrayList<>(64);
+        			_sceneGraphListeners = new Array<>(64);
         		}
         		_sceneGraphListeners.add(listener);
         	} else {
         		if(_fixedListeners == null) {
-        			_fixedListeners = new ArrayList<>(64);
+        			_fixedListeners = new Array<>(64);
         		}
         		_fixedListeners.add(listener);
         	}
@@ -524,12 +524,12 @@ public class EventDispatcher {
         	clearFixedListeners();
         }
         
-        public final ArrayList<EventListener> getFixedPriorityListeners() {return _fixedListeners;}
-        public final ArrayList<EventListener> getSceneGraphPriorityListeners() {return _sceneGraphListeners;}
-        public final int getGt0Index() { return _gt0Index; };
-        public final void setGt0Index(int index) { _gt0Index = index; };
-        private ArrayList<EventListener> _fixedListeners;
-    	private ArrayList<EventListener> _sceneGraphListeners;
+        public final Array<EventListener> getFixedPriorityListeners() {return _fixedListeners;}
+        public final Array<EventListener> getSceneGraphPriorityListeners() {return _sceneGraphListeners;}
+        public final int getGt0Index() { return _gt0Index; }
+        public final void setGt0Index(int index) { _gt0Index = index; }
+        private Array<EventListener> _fixedListeners;
+    	private Array<EventListener> _sceneGraphListeners;
         private int _gt0Index;
     };
     
@@ -597,10 +597,10 @@ public class EventDispatcher {
         }
     }
     
-    private void removeAllListenersInVector(ArrayList<EventListener> listenerVector) {
+    private void removeAllListenersInVector(Array<EventListener> listenerVector) {
     	if (listenerVector == null) {return;}
         
-        for (int i = listenerVector.size() - 1; i >= 0; --i) {
+        for (int i = listenerVector.size - 1; i >= 0; --i) {
         	EventListener l = listenerVector.get(i);
         	INode node;
         	if((node = l.getAssociatedNode()) != null) {
@@ -609,7 +609,7 @@ public class EventDispatcher {
         	}
         	
         	if(_inDispatch == 0) {
-        		listenerVector.remove(i);
+        		listenerVector.removeIndex(i);
         	}
         }
     }
@@ -619,8 +619,8 @@ public class EventDispatcher {
     	EventListenerVector listeners = _listenerMap.get(listenerID);
     	
         if (listeners != null) {
-            ArrayList<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
-            ArrayList<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+            Array<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
+            Array<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
             
             removeAllListenersInVector(sceneGraphPriorityListeners);
             removeAllListenersInVector(fixedPriorityListeners);
@@ -677,7 +677,7 @@ public class EventDispatcher {
         EventListenerVector listeners = getListeners(listenerID);
         
         if (listeners == null) {return;}
-        ArrayList<EventListener> sceneGraphListeners = listeners.getSceneGraphPriorityListeners();
+        Array<EventListener> sceneGraphListeners = listeners.getSceneGraphPriorityListeners();
         
         if (sceneGraphListeners == null) {return;}
 
@@ -716,7 +716,7 @@ public class EventDispatcher {
         if (listeners == null) {return;}
         
         
-        ArrayList<EventListener> fixedListeners = listeners.getFixedPriorityListeners();
+        Array<EventListener> fixedListeners = listeners.getFixedPriorityListeners();
         if (fixedListeners == null) {return;}
         
         fixedListeners.sort(new Comparator<EventListener>() {
@@ -755,34 +755,34 @@ public class EventDispatcher {
     	EventListenerVector listeners = _listenerMap.get(listenerID);
         if (listeners == null) 	{return;}
         
-        ArrayList<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
-        ArrayList<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+        Array<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
+        Array<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
         
         if (sceneGraphPriorityListeners != null) {
-        	for(int iter = sceneGraphPriorityListeners.size() - 1; iter >= 0; --iter) {
+        	for(int iter = sceneGraphPriorityListeners.size - 1; iter >= 0; --iter) {
         		EventListener l = sceneGraphPriorityListeners.get(iter);
         		if(!l._isRegistered) {
-        			sceneGraphPriorityListeners.remove(iter);
+        			sceneGraphPriorityListeners.removeIndex(iter);
         			_toRemovedListeners.remove(l);
         		}
         	}
         }
         
         if (fixedPriorityListeners != null) {
-        	for(int i = fixedPriorityListeners.size() - 1; i >= 0; --i) {
+        	for(int i = fixedPriorityListeners.size - 1; i >= 0; --i) {
         		EventListener l = fixedPriorityListeners.get(i);
         		if(!l._isRegistered) {
-        			fixedPriorityListeners.remove(i);
+        			fixedPriorityListeners.removeIndex(i);
         			_toRemovedListeners.remove(l);
         		}
         	}
         }
         
-        if (sceneGraphPriorityListeners != null && sceneGraphPriorityListeners.isEmpty()) {
+        if (sceneGraphPriorityListeners != null && sceneGraphPriorityListeners.size <= 0) {
             listeners.clearSceneGraphListeners();
         }
 
-        if (fixedPriorityListeners != null && fixedPriorityListeners.isEmpty()) {
+        if (fixedPriorityListeners != null && fixedPriorityListeners.size <= 0) {
             listeners.clearFixedListeners();
         }
     }
@@ -796,22 +796,22 @@ public class EventDispatcher {
     		}
 
             boolean find = false;
-            ArrayList<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
-            ArrayList<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+            Array<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
+            Array<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
 
             if (sceneGraphPriorityListeners != null) {
-            	if(sceneGraphPriorityListeners.remove(l)) {find = true;}
+            	if(sceneGraphPriorityListeners.removeValue(l, true)) {find = true;}
             }
             
             if (fixedPriorityListeners != null) {
-            	if(fixedPriorityListeners.remove(l)) {find = true;}
+            	if(fixedPriorityListeners.removeValue(l, true)) {find = true;}
             }
 
             if (find) {
-                if (sceneGraphPriorityListeners != null && sceneGraphPriorityListeners.isEmpty()) {
+                if (sceneGraphPriorityListeners != null && sceneGraphPriorityListeners.size <= 0) {
                     listeners.clearSceneGraphListeners();
                 }
-                if (fixedPriorityListeners != null && fixedPriorityListeners.isEmpty()) {
+                if (fixedPriorityListeners != null && fixedPriorityListeners.size <= 0) {
                     listeners.clearFixedListeners();
                 }
             }
@@ -1073,15 +1073,15 @@ public class EventDispatcher {
     public void dispatchEventToListeners(EventListenerVector listeners, IFunctionOneArgRet<EventListener, Boolean> onEvent) {
     	
     	boolean shouldStopPropagation = false;
-        ArrayList<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
-        ArrayList<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+        Array<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
+        Array<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
         
         int i = 0;
         // priority < 0
         if (fixedPriorityListeners != null) {
-            assert listeners.getGt0Index() <= fixedPriorityListeners.size(): "Out of range exception!";
+            assert listeners.getGt0Index() <= fixedPriorityListeners.size: "Out of range exception!";
             
-            if (!fixedPriorityListeners.isEmpty()) {
+            if (fixedPriorityListeners.size > 0) {
                 for (; i < listeners.getGt0Index(); ++i)
                 {
                     EventListener l = fixedPriorityListeners.get(i);
@@ -1111,7 +1111,7 @@ public class EventDispatcher {
         if (fixedPriorityListeners != null) {
             if (!shouldStopPropagation) {
                 // priority > 0
-                int size = fixedPriorityListeners.size();
+                int size = fixedPriorityListeners.size;
                 for (; i < size; ++i) {
                     EventListener l = fixedPriorityListeners.get(i);
                     
@@ -1127,15 +1127,15 @@ public class EventDispatcher {
     
     public void dispatchTouchEventToListeners(EventListenerVector listeners, IFunctionOneArgRet<EventListener, Boolean> onEvent) {
     	boolean shouldStopPropagation = false;
-        ArrayList<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
-        ArrayList<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+        Array<EventListener> fixedPriorityListeners = listeners.getFixedPriorityListeners();
+        Array<EventListener> sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
         
         int i = 0;
         // priority < 0
         if (fixedPriorityListeners != null) {
-            assert listeners.getGt0Index() <= fixedPriorityListeners.size(): "Out of range exception!";
+            assert listeners.getGt0Index() <= fixedPriorityListeners.size: "Out of range exception!";
             
-            if (!fixedPriorityListeners.isEmpty()) {
+            if (fixedPriorityListeners.size > 0) {
                 for (; i < listeners.getGt0Index(); ++i)
                 {
                     EventListener l = fixedPriorityListeners.get(i);
@@ -1198,7 +1198,7 @@ public class EventDispatcher {
         if (fixedPriorityListeners != null) {
             if (!shouldStopPropagation) {
                 // priority > 0
-                int size = fixedPriorityListeners.size();
+                int size = fixedPriorityListeners.size;
                 for (; i < size; ++i)
                 {
                     EventListener l = fixedPriorityListeners.get(i);
