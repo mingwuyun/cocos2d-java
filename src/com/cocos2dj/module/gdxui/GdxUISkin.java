@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.cocos2dj.basic.BaseTask;
 import com.cocos2dj.basic.Engine;
 import com.cocos2dj.basic.IDisposable;
+import com.cocos2dj.platform.FileUtils;
 
 /**
  * UI皮肤管理<p>
@@ -35,7 +36,17 @@ public class GdxUISkin implements IDisposable {
 	
 	public Skin getDeafult() {
 		if(defaultSkin == null) {
-			defaultSkin = new Skin(Gdx.files.internal(GdxUIConfig.instance().uiDefaultSkinPath));
+			if(GdxUIConfig.instance().uiDefaultSkinPath == null) {
+				//android
+				if(FileUtils.getInstance().isFileExist("sfd/uiskin.json")) {
+					defaultSkin = new Skin(Gdx.files.internal("sfd/uiskin.json"));
+				} else {
+					defaultSkin = new Skin(Gdx.files.classpath("com/cocos2dj/module/gdxui/sfd/uiskin.json"));
+				}
+//				Gdx.files.classpath("com/cocos2dj/module/gdxui/sfd/uiskin.json");
+			} else {
+				defaultSkin = new Skin(Gdx.files.internal(GdxUIConfig.instance().uiDefaultSkinPath));
+			}
 		}
 		return defaultSkin;
 	}

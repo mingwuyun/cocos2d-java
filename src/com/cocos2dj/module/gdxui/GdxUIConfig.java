@@ -22,9 +22,8 @@ public class GdxUIConfig {
 	//常规配置
 	public float uiDefaultWidth = 800;
 	public float uiDefaultHeight = 450;
-	public String uiDefaultSkinPath = "sfd/uiskin.json";
+	public String uiDefaultSkinPath = null;//"sfd/uiskin.json";
 	public int uiDefaultBatchVertex = 500;		//uiBatch定点数量
-
 	//控制台配置
 	public int consoleMaxOutputLine = 8;			//最大缓存行数
 //	public float getScaleX() {
