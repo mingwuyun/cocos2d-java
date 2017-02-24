@@ -9,6 +9,11 @@ public class CCLog {
 		}
 	}
 	
+	public static final void debug(Class<?> clazz, String msg) {
+//		 simpleName.substring(simpleName.lastIndexOf(".")+1);
+		debug(clazz.getSimpleName(), msg);
+	}
+	
 	public static final void debug(String tag, String msg) {
 		System.out.println("["+tag+"] " + msg);
 	}

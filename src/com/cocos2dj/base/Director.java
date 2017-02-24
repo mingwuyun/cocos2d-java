@@ -70,6 +70,7 @@ public class Director {
 	public static final String EVENT_BEFORE_UPDATE = "director_before_update";
 	public static final String EVENT_AFTER_UPDATE = "director_after_update";
 	public static final String EVENT_RESET = "director_reset";
+	public static final String EVENT_CHANGE_SCENE = "direct_change_scene";
 	
 	private static Director _instance;
 	public static final Director getInstance() {
@@ -214,6 +215,9 @@ public class Director {
 	    _eventProjectionChanged = new  EventCustom(EVENT_PROJECTION_CHANGED);
 	    _eventProjectionChanged.setUserData(this);
 	    _eventResetDirector = new  EventCustom(EVENT_RESET);
+	    
+	    _eventChangeScene = new EventCustom(EVENT_CHANGE_SCENE);
+	    _eventChangeScene.setUserData(this);
 		
 		
 		initMatrixStack();
@@ -622,13 +626,21 @@ public class Director {
 //    	if(_runningScene != null) {
 //    		_runningScene = null;
 //    	}
+    	// 放入最后一个场景(nullable)
+    	_eventChangeScene.setUserData(_runningScene);
+    	
     	_runningScene = _nextScene;
     	_nextScene = null;
     	
     	if(!runningIsTranstion && _runningScene != null) {
+    		_eventDispatcher.dispatchEvent(_eventChangeScene);
+    		
     		_runningScene.onEnter();
     		_runningScene.onEnterTransitionDidFinish();
     	}
+    	
+    	// 清除引用
+    	_eventChangeScene.setUserData(null);
     }
     
     //////////////////////////////////////
@@ -874,6 +886,8 @@ public class Director {
     				_eventAfterUpdate,
     				_eventResetDirector,
     				_eventBeforeUpdate;
+    
+    EventCustom		_eventChangeScene;
         
     /* delta time since last tick to main loop */
 	float _deltaTime;
