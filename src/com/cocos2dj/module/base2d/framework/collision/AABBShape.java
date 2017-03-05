@@ -53,6 +53,7 @@ public final class AABBShape extends Shape {
 		points[2].set(x1, y1);
 		points[3].set(x0, y1);
 		this.computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**设置AABBShape的半长宽.其中position为该AABB的中点<br>
@@ -65,6 +66,7 @@ public final class AABBShape extends Shape {
 		points[2].set(halfWidth, halfHeight);
 		points[3].set(-halfWidth, halfHeight);
 		this.computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**由一个AABB生成一个AABBShape
@@ -76,6 +78,7 @@ public final class AABBShape extends Shape {
 		points[2].set(aabb.upperBound);
 		points[3].set(aabb.lowerBound.x, aabb.upperBound.y);
 		this.computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/*(non-Javadoc)
@@ -85,6 +88,14 @@ public final class AABBShape extends Shape {
 		this.aabb.lowerBound.set(points[0]);
 		this.aabb.upperBound.set(points[2]);
 	}
+	
+	public void computeShapeCenter() {
+		centerX = (points[0].x + points[2].x) / 2;
+		centerY = (points[0].y + points[2].y) / 2;
+	}
+	
+	
+	
 	
 	/**获取aabb图形的位置信息
 	 * @return Vector2[] points*/
@@ -105,6 +116,7 @@ public final class AABBShape extends Shape {
 		points[2].set(aabb.upperBound);
 		points[3].set(aabb.lowerBound.x, aabb.upperBound.y);
 		this.computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void trans(float x, float y) {
@@ -112,6 +124,7 @@ public final class AABBShape extends Shape {
 			v.add(x,y);
 		}
 		this.computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public boolean checkPoint(final float x, final float y) {
@@ -126,6 +139,7 @@ public final class AABBShape extends Shape {
 		points[2].set(-aabb.lowerBound.y, aabb.upperBound.x);
 		points[3].set(-aabb.upperBound.y, aabb.upperBound.x);
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void rotate180() {
@@ -134,6 +148,7 @@ public final class AABBShape extends Shape {
 		points[2].set(-aabb.lowerBound.x, -aabb.lowerBound.y);
 		points[3].set(-aabb.upperBound.x, -aabb.lowerBound.y);
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void rotate270() {
@@ -142,6 +157,7 @@ public final class AABBShape extends Shape {
 		points[2].set(aabb.upperBound.y, -aabb.lowerBound.x);
 		points[3].set(aabb.lowerBound.y, -aabb.lowerBound.x);
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void resetShapeAsRectangle(float x, float y, float width,
@@ -151,6 +167,7 @@ public final class AABBShape extends Shape {
 		points[2].set(x+width, y+height);
 		points[3].set(x, y+height);
 		this.computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void resetShapeAsPolygon(Vector2[] points) {

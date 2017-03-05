@@ -7,6 +7,7 @@ import com.cocos2dj.base.Touch;
 
 import tests.testcase.ActionManagerTests;
 import tests.testcase.Base2dTests;
+import tests.testcase.Base2dTests2;
 import tests.testcase.BehaviorTreeTests;
 import tests.testcase.CameraTests;
 import tests.testcase.DrawNodeTests;
@@ -116,6 +117,7 @@ public class TestController {
     static class RootTests extends TestList {
     	public RootTests() {
 //    		System.out.println("d = " + this + "  " + _director);
+    		addTest("Base2dTestsNormal", ()->{return new Base2dTests2();});
     		addTest("NodeTests", ()->{return new NodeTests();});
     		addTest("EventTests", ()->{return new EventTests();});
     		addTest("ActionManagerTests", ()->{return new ActionManagerTests();});

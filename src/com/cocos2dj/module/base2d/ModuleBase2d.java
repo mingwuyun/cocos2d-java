@@ -1,5 +1,6 @@
 package com.cocos2dj.module.base2d;
 
+import com.badlogic.gdx.math.Vector2;
 import com.cocos2dj.base.Director;
 import com.cocos2dj.basic.BaseUpdater;
 import com.cocos2dj.module.Module;
@@ -8,6 +9,7 @@ import com.cocos2dj.module.base2d.framework.PhysicsConfig;
 import com.cocos2dj.module.base2d.framework.PhysicsObjectType;
 import com.cocos2dj.module.base2d.framework.PhysicsScene;
 import com.cocos2dj.module.base2d.framework.collision.AABBShape;
+import com.cocos2dj.module.base2d.framework.collision.Polygon;
 import com.cocos2dj.module.base2d.framework.collision.Shape;
 import com.cocos2dj.protocol.IScene;
 import com.cocos2dj.protocol.IUpdater;
@@ -79,6 +81,52 @@ public class ModuleBase2d extends Module implements IUpdater {
 		return new PhysicsConfig();
 	}
 	
+	
+	/**
+	 * physicsModifer 默认是true —— 物理引擎的计算结果会同步到node（主要是位置）
+	 * 特殊情况下关闭 —— 只能通过node的位置设置影响物理对象 
+	 * @param physicsModifer
+	 * @return
+	 */
+	public static ComponentPhysics createDynamic(boolean physicsModifer) {
+		return new ComponentPhysics(PhysicsObjectType.Dynamic, physicsModifer);
+	}
+	
+	public static ComponentPhysics createDetect() {
+		return new ComponentPhysics(PhysicsObjectType.Detect);
+	}
+	
+	public static ComponentPhysics createDynamic() {
+		return new ComponentPhysics(PhysicsObjectType.Dynamic);
+	}
+	
+	public static ComponentPhysics createStatic() {
+		return new ComponentPhysics(PhysicsObjectType.Static);
+	}
+	
+	public static ComponentPhysics createMove() {
+		return new ComponentPhysics(PhysicsObjectType.Move);
+	}
+	
+	public static Shape createPolygon(float...points) {
+		Polygon p = new Polygon();
+		p.setPoints(points);
+		return p;
+	}
+	
+	public static Shape createPolygon(Vector2[] points) {
+		Polygon p = new Polygon();
+		p.setPoints(points);
+		return p;
+	}
+	
+	public static Shape createAABB(float x0, float y0, float x1, float y1) {
+		AABBShape aabb = new AABBShape();
+		aabb.setAABBShape(x0, y0, x1, y1);
+		return aabb;
+	}
+	
+	
 	/*
 	 * 推荐使用下面的方法创建对象，避免初始化顺序错误
 	 */
@@ -90,6 +138,12 @@ public class ModuleBase2d extends Module implements IUpdater {
 		phy.addShape(shape);
 		physicsScene.add(phy);
 		return phy;
+	}
+	
+	public ComponentPhysics createDynamicObjectWithRect(float x0, float y0, float x1, float y1) {
+		Polygon shape = new Polygon();
+		shape.setAsBox(x0, y0, x1, y1);
+		return createDynamicObject(shape);
 	}
 	
 	public ComponentPhysics createDynamicObjectWithAABB(float x0, float y0, float x1, float y1) {

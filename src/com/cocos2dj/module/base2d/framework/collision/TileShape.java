@@ -232,6 +232,11 @@ public class TileShape extends Shape {
 		this.aabb.upperBound.set(x + cellWidth * cols, y + cellHeight * rows);
 	}
 	
+	//不用计算
+	public void computeShapeCenter() {
+		
+	}
+	
 	/**获取aabb图形的位置信息
 	 * @return Vector2[] points*/
 	public final Vector2[] getPoints(){

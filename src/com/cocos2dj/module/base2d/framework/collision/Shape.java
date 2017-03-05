@@ -21,7 +21,9 @@ public abstract class Shape {
 	public static final int ID_POLYGON = 5;
 	public static final int ID_CIRCLE = 7;
 	
-
+	/**中心点坐标 */
+	public float centerX, centerY;
+	
 	/**包围形状的最小AABB*/
 	public final AABB aabb;
 	
@@ -112,10 +114,12 @@ public abstract class Shape {
 	}
 	
 	
+	
 	/**计算形状包围AABB 在初始化或更新形状操作后调用此方法生成包围AABB
 	 * 这个方法最终结果存在基类shape的aabb*/
 	public abstract void computeShapeAABB();
-	
+	/**计算中心点 */
+	public abstract void computeShapeCenter();
 	
 	
 	
@@ -131,6 +135,8 @@ public abstract class Shape {
 	
 	/**@return 当前的形状相比原始形状的旋转角度（rad）*/
 	public abstract float getRotate();
+	
+	
 	
 	/**平移shape的位置
 	 * <b>注意当场景锁未释放时（调用scene中的checkSceneLock查看）

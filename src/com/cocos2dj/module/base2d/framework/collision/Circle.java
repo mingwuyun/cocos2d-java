@@ -53,6 +53,11 @@ public class Circle extends Shape {
 		aabb.upperBound.set(circleCenter.x+radius, circleCenter.y+radius);
 	}
 	
+	//不用计算
+	public void computeShapeCenter() {
+		
+	}
+		
 	/**设置圆的半径  更新AABB
 	 * @param radius */
 	public final void setCircleRadius(final float radius){

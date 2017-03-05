@@ -333,8 +333,9 @@ public final class CollideAlgorithms {
 //		System.out.println("MTD "+MTD);
 
 		// makes sure the push vector is pushing A away from B 
-		pool1.set(positionA.x-positionB.x, positionA.y-positionB.y);
-		if (V2.dot(pool1, MTD)<0) {
+//		pool1.set(positionA.x-positionB.x, positionA.y-positionB.y);
+		pool1.set(positionA.x + A.centerX - positionB.x - B.centerX, positionA.y + A.centerY - positionB.y - B.centerY);
+		if (V2.dot(pool1, MTD) < 0) {
 			V2.negate(MTD);
 		}
 		return true;
@@ -406,12 +407,19 @@ public final class CollideAlgorithms {
 		
 		axis[numAxis++].set(axisX);
 		axis[numAxis++].set(axisY);
-
+		
+//		for(int i = 0; i < numAxis; ++i) {
+//			System.out.println("axis["+i+"] " + axis[i]);
+//		}
+		
 		//从所有的分离向量中查找最近的作为MTD   
 		MTD.set(FindMTD(axis, numAxis)); 
-				
+		
+//		System.out.println("MTD = " + MTD);
+		
 		// makes sure the push vector is pushing A away from B 
-		pool1.set(positionA.x-positionB.x, positionA.y-positionB.y);
+//		pool1.set(positionA.x - positionB.x, positionA.y - positionB.y);
+		pool1.set(positionA.x + A.centerX - positionB.x - B.centerX, positionA.y + A.centerY - positionB.y - B.centerY);
 //		positionA.sub(positionB);
 		if (V2.dot(pool1, MTD)<0) {
 			V2.negate(MTD);

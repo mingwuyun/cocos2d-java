@@ -56,13 +56,27 @@ public final class Polygon extends Shape {
 		aabb.upperBound.set(right,top);
 	}
 	
+	public void computeShapeCenter() {
+		final int len = points.length;
+		float tempX = 0, tempY = 0;
+		for(int i = 0; i < len; ++i) {
+			tempX += points[i].x;
+			tempY += points[i].y;
+		}
+		centerX = tempX / len;
+		centerY = tempY / len;
+	}
+	
+	
+	
 	/**设置多边形边界    更新AABB
 	 * 使用本地坐标 <br>
 	 * <b>这个方法直接将points设置为points而不是复制数据</b>
 	 * @param points Vector2[]*/
 	public final void setPoints(final Vector2...points){
-		this.points=points;
+		this.points = points;
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**设置多边形边界   更新AABB
@@ -76,6 +90,7 @@ public final class Polygon extends Shape {
 			this.points[i]=new Vector2(points[2*i],points[2*i+1]);
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**指定四边的范围创建一个矩形  更新AABB
@@ -89,6 +104,7 @@ public final class Polygon extends Shape {
 		setPoints(new Vector2(x0,y0),new Vector2(x1,y0),
 				new Vector2(x1,y1),new Vector2(x0,y1));
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**指定半宽与半长创建一个矩形  更新AABB
@@ -98,6 +114,7 @@ public final class Polygon extends Shape {
 		setPoints(new Vector2(-halfWidth,-halfHeight),new Vector2(halfWidth,-halfHeight),
 				new Vector2(halfWidth,halfHeight),new Vector2(-halfWidth,halfHeight));
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	/**绕(0,0)旋转angle 变更形状   更新AABB(逆时针)
@@ -112,6 +129,7 @@ public final class Polygon extends Shape {
 //			v.set(m.mul(v));
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**绕(0,0)旋转angle 变更形状   更新AABB(逆时针)
@@ -126,6 +144,7 @@ public final class Polygon extends Shape {
 //			v.set(m.mul(v));
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public float getRotate() {
@@ -140,6 +159,7 @@ public final class Polygon extends Shape {
 			v.add(x, y);
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 	
 	/**平移 变更形状	更新AABB
@@ -149,6 +169,7 @@ public final class Polygon extends Shape {
 			v.add(tran);
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	private static Vector2 temp=new Vector2();
@@ -167,6 +188,7 @@ public final class Polygon extends Shape {
 			//多边形的points顺序可以乱所以区别于aabb的相关方法
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void rotate180() {
@@ -174,6 +196,7 @@ public final class Polygon extends Shape {
 			v.set(-v.x, -v.y);  
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void rotate270() {
@@ -181,6 +204,7 @@ public final class Polygon extends Shape {
 			v.set(v.y, -v.x);  
 		}
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void resetShapeAsRectangle(float x, float y, float width,
@@ -188,11 +212,13 @@ public final class Polygon extends Shape {
 		setPoints(new Vector2(x,y),new Vector2(x+width,y),
 				new Vector2(x+width,y+height),new Vector2(x,y+height));
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void resetShapeAsPolygon(Vector2[] points) {
 		this.points=points;
 		computeShapeAABB();
+		computeShapeCenter();
 	}
 
 	public void resetShapeAsCircle(float x, float y, float radious) {

@@ -94,7 +94,7 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 	 * @see com.card2dphysics.module.IPhysicsObject#modifierPosition(com.card2dphysics.system.Vector2)*/
 	public final void modifierPosition(final Vector2 MTD, ContactCollisionData data) {
 		position.add(MTD);
-		
+//		System.out.println("final MTD = " + MTD);
 		final float sf = data.retStaticFriction;
 		if(sf > 0f) {
 			//检测加速度与法线的关系
