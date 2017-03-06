@@ -94,24 +94,24 @@ public final class PhysicsObjectDynamic implements IPhysicsObject {
 	 * @see com.card2dphysics.module.IPhysicsObject#modifierPosition(com.card2dphysics.system.Vector2)*/
 	public final void modifierPosition(final Vector2 MTD, ContactCollisionData data) {
 		position.add(MTD);
-//		System.out.println("final MTD = " + MTD);
+//		System.out.println("final MTD = " + MTD + "  " + accelerate);
 		final float sf = data.retStaticFriction;
 		if(sf > 0f) {
 			//检测加速度与法线的关系
 			if(V2.dot(MTD, accelerate) < 0) {
-				if (V2.cross(MTD, accelerate) > 0f) {
+//				if (V2.cross(MTD, accelerate) > 0f) {	//好像没有必要...
 					if(MathUtils.abs(MTD.y) > 0.001f) {
 						float mtdx = -MTD.x * sf;
 						float mtdy = MTD.x * MTD.x * sf / MTD.y;
 						position.add(mtdx, mtdy);
 					}
-				} else {
-					if(MathUtils.abs(MTD.x) > 0.001f) {
-						float mtdx = -MTD.y * sf;
-						float mtdy = MTD.y * MTD.y * sf / MTD.x;
-						position.add(mtdx, mtdy);
-					}
-				}	
+//				} else {
+//					if(MathUtils.abs(MTD.x) > 0.001f) {
+//						float mtdx = -MTD.y * sf;
+//						float mtdy = MTD.y * MTD.y * sf / MTD.x;
+//						position.add(mtdx, mtdy);
+//					}
+//				}	
 			}
 		}
 		

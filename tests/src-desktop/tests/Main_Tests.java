@@ -15,7 +15,7 @@ public class Main_Tests {
 //		conf.width = 	600;  	conf.height = 	338;
 		conf.width = 480; conf.height = 270;
 		conf.x = 50;
-		conf.width = 	800;  	conf.height = 	450;
+//		conf.width = 	800;  	conf.height = 	450;
 		// cancel fps limit
 //		conf.vSyncEnabled = false;conf.backgroundFPS = 0;conf.foregroundFPS = 0;
 		ApplicationStartup.start(new TestAppDelegate_Tests());

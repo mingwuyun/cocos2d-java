@@ -12,8 +12,8 @@ import tests.testcase.Base2dTests.Mario;
 public class Base2dTests2 extends TestSuite {
 	
 	public Base2dTests2() {
-		addTestCase("DetectObjectTest", ()->{return new DetectObjectTest();});
 		addTestCase("StaticObjectTest", ()->{return new StaticObjectTest();});
+		addTestCase("DetectObjectTest", ()->{return new DetectObjectTest();});
 //		addTestCase("Base2DTest2", ()->{return new Base2DTest2();});
 //		addTestCase("Base2DTest1", ()->{return new Base2DTest1();});
 	}
@@ -36,11 +36,8 @@ public class Base2dTests2 extends TestSuite {
 		public void onEnter() {
 			super.onEnter();
 			
-			float[] args = new float[]{
-					0, 0,
-					1500, 0,
-					1500, 200
-			};
+			float[] args = new float[]{0, 0, 1500, 0, 0, 200};
+//			float[] args = new float[]{0, 0, 1500, 0, 1500, 200};
 			
 			DrawNode ground = (DrawNode) DrawNode.create().addTo(this);
 			ground.drawPolygon(args, null);
@@ -48,8 +45,12 @@ public class Base2dTests2 extends TestSuite {
 			Shape shape = ModuleBase2d.createPolygon(args);
 			phy.addShape(shape);
 			
-			phy.setPosition(100, 100);
-			ground.setPosition(100, 100);
+			phy.setPosition(100, 00);
+			ground.setPosition(100, 00);
+			
+			phy.setFriction(1);
+			phy.setStaticFriction(1);
+			
 			base2d.getCurrentPhysicsScene().add(phy);
 			
 			
@@ -58,7 +59,7 @@ public class Base2dTests2 extends TestSuite {
 			mario = new Mario();
 			mario.init(this);
 			
-			mario.aim.setPosition(100, 200);
+			mario.aim.setPosition(500, 500);
 		}
 		
 	}
