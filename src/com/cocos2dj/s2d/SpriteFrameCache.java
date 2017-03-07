@@ -65,12 +65,16 @@ public class SpriteFrameCache {
     	}
     }
     
+    public final TextureAtlas findTextureAtlas(String filePath) {
+    	return _atlases.get(filePath);
+    }
+    
     /**
      * 读取gdx textureAtlas文件
      * @param filePath atlas 文件路径 也可以自定义
      * @param atlas
      */
-    public void addSpriteFrameWithTextureAltas(String filePath, TextureAtlas atlas) {
+    public void addSpriteFrameWithTextureAtlas(String filePath, TextureAtlas atlas) {
     	if(_atlases.containsKey(filePath)) {
     		CCLog.debug(this.getClass(), "file loaded : " + filePath);
     		return;

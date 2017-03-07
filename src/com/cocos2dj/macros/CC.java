@@ -43,13 +43,19 @@ public final class CC {
 	 * @param packName
 	 */
 	public static void LoadAtlas(String packName) {
+		if(SpriteFrameCache.instance().findTextureAtlas(packName) != null) {
+			return;
+		}
 		TextureAtlas ta = new TextureAtlas(CC.File(packName));
-		SpriteFrameCache.instance().addSpriteFrameWithTextureAltas(packName, ta);
+		SpriteFrameCache.instance().addSpriteFrameWithTextureAtlas(packName, ta);
 	}
 	
 	public static void LoadAtlas(String packName, String imgPath) {
+		if(SpriteFrameCache.instance().findTextureAtlas(packName) != null) {
+			return;
+		}
 		TextureAtlas ta = new TextureAtlas(CC.File(packName), CC.File(imgPath));
-		SpriteFrameCache.instance().addSpriteFrameWithTextureAltas(packName, ta);
+		SpriteFrameCache.instance().addSpriteFrameWithTextureAtlas(packName, ta);
 	}
 	
 	public static void UnloadAtlas(String packName) {
