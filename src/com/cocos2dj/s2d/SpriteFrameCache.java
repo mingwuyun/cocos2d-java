@@ -45,16 +45,11 @@ public class SpriteFrameCache {
 	 * @js NA
      */
     public static void destroyInstance() {
-    
+    	_instance._atlases.clear();
+    	_instance._spriteFrames.clear();
+    	_instance._loadedFileNames.clear();
     	_instance = null;
     }
-
-    /** Destructor.
-     * @js NA
-     * @lua NA
-     */
-//    virtual ~SpriteFrameCache();
-    
     
     public void removeSpriteFramesFromTextureAtlas(String filePath) {
     	TextureAtlas atlas = _atlases.get(filePath);
@@ -151,7 +146,7 @@ public class SpriteFrameCache {
      * @param frameName The name of the sprite frame.
      */
     public void addSpriteFrame(TextureRegion frame,  String frameName) {
-    	
+    	_spriteFrames.put(frameName, frame);
     }
 
     /** Check if multiple Sprite Frames from a plist file have been loaded.
