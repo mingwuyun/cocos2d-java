@@ -281,12 +281,12 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     /**
      * Gets the weak reference of the TextureAtlas when the sprite is rendered using via SpriteBatchNode.
      */
-    public final TextureAtlas getTextureAtlas() { return _textureAtlas; }
+//    public final TextureAtlas getTextureAtlas() { return _textureAtlas; }
 
     /**
      * Sets the weak reference of the TextureAtlas when the sprite is rendered using via SpriteBatchNode.
      */
-    public final void setTextureAtlas(TextureAtlas textureAtlas) { _textureAtlas = textureAtlas; }
+//    public final void setTextureAtlas(TextureAtlas textureAtlas) { _textureAtlas = textureAtlas; }
 
 
     /**
@@ -759,7 +759,7 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
 //    {
 //    	_sprite.d
 //    }
-    TextureAtlas        _textureAtlas;      /// SpriteBatchNode texture atlas (weak reference)
+//    TextureAtlas        _textureAtlas;      /// SpriteBatchNode texture atlas (weak reference)
     int             	_atlasIndex;        /// Absolute (real) Index on the SpriteSheet
 //    SpriteBatchNode     _batchNode;         /// Used batch node (weak reference)
 
