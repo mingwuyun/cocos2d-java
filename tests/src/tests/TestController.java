@@ -17,6 +17,7 @@ import tests.testcase.InfiniteActionTests;
 import tests.testcase.NodeTests;
 import tests.testcase.ShaderTests;
 import tests.testcase.SpriteTests;
+import tests.testcase.TextureAtlasTests;
 import tests.testcase.TypeFactoryTests;
 import tests.testcase.VisUITests;
 
@@ -117,6 +118,7 @@ public class TestController {
     static class RootTests extends TestList {
     	public RootTests() {
 //    		System.out.println("d = " + this + "  " + _director);
+    		addTest("TextureAtlasTests", ()->{return new TextureAtlasTests();});
     		addTest("Base2dTestsNormal", ()->{return new Base2dTests2();});
     		addTest("NodeTests", ()->{return new NodeTests();});
     		addTest("EventTests", ()->{return new EventTests();});

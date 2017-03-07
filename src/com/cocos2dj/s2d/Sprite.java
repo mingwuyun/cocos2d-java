@@ -120,9 +120,9 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
      * @param   spriteFrameName A null terminated string which indicates the sprite frame name.
      * @return  An autoreleased sprite object.
      */
-    public static Sprite createWithSpriteFrameName(final TextureAtlas atlas, final String spriteFrameName) {
+    public static Sprite createWithSpriteFrameName(final String spriteFrameName) {
     	Sprite sprite = new Sprite();
-    	sprite.initWithSpriteFrameName(atlas, spriteFrameName);
+    	sprite.initWithSpriteFrameName(spriteFrameName);
     	return sprite;
     }
     /////////////////////////////////////
@@ -645,12 +645,12 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
     	return true;
     }
 
-    /**
-     * @see #initWithSpriteFrameName(TextureAtlas, String) 
-     */
-    public boolean initWithSpriteFrameName(String spriteFrameName) {
-    	return initWithSpriteFrameName(null, spriteFrameName);
-    }
+//    /**
+//     * @see #initWithSpriteFrameName(TextureAtlas, String) 
+//     */
+//    public boolean initWithSpriteFrameName(String spriteFrameName) {
+//    	return initWithSpriteFrameName(null, spriteFrameName);
+//    }
     
     /**
      * Initializes a sprite with an sprite frame name.
@@ -661,18 +661,22 @@ public class Sprite extends Node implements RenderCommand.BatchCommandCallback {
      * @param   spriteFrameName  A key string that can fected a valid SpriteFrame from SpriteFrameCache.
      * @return  True if the sprite is initialized properly, false otherwise.
      */
-    public boolean initWithSpriteFrameName(TextureAtlas atlas, final String spriteFrameName) {
-    	if(atlas != null) {
-    		_textureAtlas = atlas;
-    	}
-    	
-    	if(_textureAtlas == null) {
-    		CCLog.error("Sprite", "_textureAtlas is null !");
-    		return false;
-    	}
-    	AtlasRegion ar = _textureAtlas.findRegion(spriteFrameName);
+    public boolean initWithSpriteFrameName(final String spriteFrameName) {
+//    	if(atlas != null) {
+//    		_textureAtlas = atlas;
+//    	}
+//    	_textureAtlas = 
+//    	if(_textureAtlas == null) {
+//    		CCLog.error("Sprite", "_textureAtlas is null !");
+//    		return false;
+//    	}
+//    	AtlasRegion ar = _textureAtlas.findRegion(spriteFrameName);
+//    	if(ar == null) {
+//    		CCLog.error("Sprite", "spriteName not find !" + spriteFrameName);
+//    		return false;
+//    	}
+    	TextureRegion ar = SpriteFrameCache.instance().getSpriteFrameByName(spriteFrameName);
     	if(ar == null) {
-    		CCLog.error("Sprite", "spriteName not find !" + spriteFrameName);
     		return false;
     	}
     	TextureRegion spriteFrame = new TextureRegion(ar);
