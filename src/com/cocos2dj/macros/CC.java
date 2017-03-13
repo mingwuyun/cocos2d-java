@@ -20,6 +20,9 @@ public final class CC {
 		return (Scene) Director.getInstance().getRunningScene();
 	}
 	
+	public static com.cocos2dj.base.Scheduler Scheduler() {
+		return Director.getInstance().getScheduler();
+	}
 	//image
 	public static Texture LoadImage(String fileName) {
 		Texture t = Director.getInstance().getTextureCache().addImage(fileName);

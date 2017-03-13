@@ -404,6 +404,8 @@ public class Camera extends Node implements ICamera {
     public void setViewport(Viewport vp) {
     	this._viewport.set(vp);
     }
+    
+    public Viewport getViewport() {return _viewport;}
 
     /**
      * Whether or not the viewprojection matrix was updated since the last frame.
