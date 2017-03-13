@@ -1,5 +1,6 @@
 package com.cocos2dj.s2d;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.MapObjects;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.cocos2dj.base.Director;
 import com.cocos2dj.base.Size;
+import com.cocos2dj.macros.CC;
 import com.cocos2dj.macros.CCLog;
 import com.cocos2dj.renderer.Renderer;
 import com.cocos2dj.renderer.RenderCommand.DrawCommand;
@@ -45,9 +47,16 @@ public class TMXTiledMap extends Node implements DrawCommandCallback {
     *
     * @return An autorelease object.
     */
-   public static TMXTiledMap create( String tmxFile) {
-	   
-	   return null;
+   public static TMXTiledMap create(String tmxFile) {
+	   TMXTiledMap ret = new TMXTiledMap();
+	   ret.initWithTMXFile(tmxFile);
+	   return ret;
+   }
+   
+   public static TMXTiledMap create(FileHandle tmxFile) {
+	   TMXTiledMap ret = new TMXTiledMap();
+	   ret.initWithTMXFile(tmxFile);
+	   return ret;
    }
    
 
@@ -199,17 +208,27 @@ public class TMXTiledMap extends Node implements DrawCommandCallback {
 	   if(_tileMap != null) {
 		   _tileMap.dispose();
 	   }
-	   _tileMap = new TmxMapLoader().load(tmxFile);
+	   TmxMapLoader newLoader = new TmxMapLoader() {
+		   public FileHandle resolve(String fileName) {
+			   return CC.File(fileName);
+		   }
+	   };
+	   _tileMap = newLoader.load(tmxFile);
 	   _initProperties();
 	   _tileMapRender = new OrthogonalTiledMapRenderer(_tileMap, 1f);
 	   return true;
    }
    
-   public boolean initWithXML() {
+   public boolean initWithTMXFile(FileHandle tmxFile) {
 	   if(_tileMap != null) {
 		   _tileMap.dispose();
 	   }
-	   
+	   TmxMapLoader newLoader = new TmxMapLoader() {
+		   public FileHandle resolve(String fileName) {
+			   return tmxFile;
+		   }
+	   };
+	   _tileMap = newLoader.load(null);
 	   return true;
    }
 
