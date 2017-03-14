@@ -13,6 +13,7 @@ import com.cocos2dj.macros.CC;
 import com.cocos2dj.s2d.ActionInterval.MoveBy;
 import com.cocos2dj.s2d.ActionInterval.RotateBy;
 import com.cocos2dj.s2d.ActionInterval.ScaleTo;
+import com.cocos2dj.s2d.Sprite;
 import com.cocos2dj.s2d.TMXTiledMap;
 
 import tests.TestCase;
@@ -33,12 +34,19 @@ public class TiledMapTests extends TestSuite {
 	static class TiledMapTest1 extends TestDemo {
 		public void onEnter() {
 			super.onEnter();
+			
+			Sprite spriteColor1 = (Sprite) Sprite.create("powered.png").addTo(this);
+			spriteColor1.setPosition(100, 300);
+			
 			TMXTiledMap map = new TMXTiledMap();
 			map.initWithTMXFile("Resource/tiles.tmx");
 			addChild(map);
 			
 			map.runAction(ScaleTo.create(2, 2));
 			map.runAction(MoveBy.create(2, 200, 0));
+			
+			Sprite spriteColor2 = (Sprite) Sprite.create("powered.png").addTo(this);
+			spriteColor2.setPosition(900, 300);
 		}
 	}
 	

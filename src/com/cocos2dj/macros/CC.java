@@ -23,6 +23,11 @@ public final class CC {
 	public static com.cocos2dj.base.Scheduler Scheduler() {
 		return Director.getInstance().getScheduler();
 	}
+	
+	public static Director Director() {
+		return Director.getInstance();
+	}
+	
 	//image
 	public static Texture LoadImage(String fileName) {
 		Texture t = Director.getInstance().getTextureCache().addImage(fileName);
