@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.cocos2dj.base.Director;
+import com.cocos2dj.base.Director.MATRIX_STACK_TYPE;
 import com.cocos2dj.base.Size;
 import com.cocos2dj.macros.CC;
 import com.cocos2dj.macros.CCLog;
@@ -244,13 +245,10 @@ public class TMXTiledMap extends Node implements DrawCommandCallback {
 	   _tileMap = null;
    }
    
-   static final Matrix4 _poolM4 = new Matrix4();
-   
    @Override
    public void onCommand() {
 		Camera camera = Camera.getVisitingCamera();
-		_poolM4.set(camera._projection).mul(getNodeToParentTransform());
-		_tileMapRender.setView(_poolM4, 
+		_tileMapRender.setView(Director.getInstance().getMatrix(MATRIX_STACK_TYPE.MATRIX_STACK_PROJECTION), 
 				camera.getPositionX(), camera.getPositionY(), 
 				_width, _height);
 		_tileMapRender.render();
