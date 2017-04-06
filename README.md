@@ -1,6 +1,10 @@
 ﻿# cocos2d-java
 cocos2d java api base libgdx
 
+# 特别说明
+作者最近用unity去了，暂时不更新了
+------------------------------
+
 # 环境部署
 目录结构调整：<br>
 src/ —— 引擎代码 <br>
